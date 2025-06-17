@@ -3,25 +3,35 @@ project:
   output-dir: docs
   
 website:
-  title: "MY WEB SITE"
+  title: "R生存分析"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - projects.qmd
+      - L1.qmd
+      - L2.qmd
+      - L3.qmd
+      - L4.qmd
+      - L5.qmd
+      - L6.qmd      
+      - L7.qmd
     tools:
-      - icon: twitter
-        href: https://twitter.com/
-      - icon: github
-        href: https://github.com/YOURUSERNAME/YOURREPO
+      - icon: envelope
+        href: lizongzhang9@qq.com
   page-footer:
-    right: "Built with [Quarto](https://quarto.org/)"
-    left: "&copy; Copyright 2023, YOUR NAME"
-
+    right: "Statistics: turning data into insights."
+    left: "&copy; Copyright 2025, 医咖会 & Li Zongzhang"
 format:
   html:
-    theme: cerulean
+    theme: [yeti, theme_light.scss]
     toc: true
-
+    number_sections: true
+header-includes:
+  - |
+    <script>
+      document.querySelectorAll('a').forEach(function(link) {
+        link.setAttribute('target', '_blank');
+      });
+    </script>
 editor: source
 

@@ -1,0 +1,1109 @@
+---
+title:  "模块九<br>DeepSeek辅助傻瓜式医学统计"
+date: today
+author: 
+  name: "李宗璋"
+  url: https://space.bilibili.com/590872906/
+format: 
+  html:
+    self-contained: true
+    incremental: FALSE
+    theme: sky
+    slide-number: true
+    chalkboard: 
+      buttons: true
+    preview-links: auto
+    css: styles.css
+    footer: |
+      <https://lizongzhang.github.io/deepseekcamp><br>© 2025 顶刊研习社 
+    include-before-body: 
+      - header.html
+      - fonts.html
+    title-slide-attributes: 
+      data-background-image: "img/bili_up.jpg"  
+      data-background-size: "80px"        
+      data-background-position: "center bottom 120px"  
+    plugins: [highlight, zoom, notes]
+---
+
+点击访问网络版讲义: [https://lizongzhang.github.io/deepseekcamp/L9.html](https://lizongzhang.github.io/deepseekcamp/L9.html){target="_blank"}
+
+---
+
+## 模块九 DeepSeek辅助傻瓜式医学统计 {auto-animate="true"}
+
+-   9.1 DeepSeek辅助统计理念快速入门
+
+-   9.2 DeepSeek辅助医学统计学习和运用
+
+-   9.3 DeepSeek辅助医学统计写作
+
+-   9.4 统计再也不怕
+
+------------------------------------------------------------------------
+
+## 9.1 DeepSeek辅助统计理念快速入门
+
+-   9.1.1 与DeepSeek协作：重塑统计学习与科研方式
+
+-   9.1.2 DeepSeek如何助力统计学习？
+
+-   9.1.3 从学习者到提问者：如何高效对话？
+
+--------
+
+## 9.1.1 与DeepSeek协作：重塑统计学习与科研方式
+
+-   不知道该用什么统计方法？
+
+-   看不懂输出结果
+
+-   为写论文而发愁
+
+💡 理念重塑: 从“工具”到“伙伴”:
+
+-   “我不会统计方法” ➡️ “我会提问”
+
+-   “我不会用SPSS/R” ➡ “在AI辅助下我能”
+
+-   “我写不好论文中的统计部分” ➡ “我能借助 AI表达、优化”
+
+--------
+
+## 9.1.1 Prompt驱动的“可解释统计协作”
+
+DeepSeek: “提示词”(Prompt)驱动的大语言模型(LLM)。
+
+核心优势：与临床研究者进行“可解释的统计对话”。
+
+| 🚀 能力维度   | DeepSeek 如何支持统计协作            |
+|---------------|--------------------------------------|
+| 🧩 认知支持   | 说明统计术语、检验条件、适用场景     |
+| 📊 结果解读   | 解读OR/HR、Logistic或Cox模型         |
+| 📈 图表表达   | 解读KM曲线、森林图等                 |
+| ✍️ 文本重构   | 输出期刊风格的统计分析段落           |
+| 💬 多轮互动   | Prompt→输出→提问→优化写作            |
+| 📦 Prompt积累 | 构建个人“统计分析提示词库”，复用迁移 |
+
+------
+
+## 9.1.2 DeepSeek如何助力统计学习？
+
+-   重构统计学习方式
+    -   互动式
+
+    -   针对性
+
+    -   不要撒网式学习
+
+## 9.1.2 DeepSeek如何助力统计学习？
+
+-   统计学习的重心
+    -   基础知识(本科课程已涵盖)
+        -   变量类型: 定性(无序/有序), 定量(离散/连续)
+        -   参数估计: 置信水平，置信区间
+        -   假设检验: 双/单侧检验，显著性水平, p值, 临界值, 检验统计量
+    -   方法选择
+    -   结果解读
+
+-------
+
+### 9.1.2 统计基础知识补遗
+
+### 🎯 **提问句式**
+
+> 🧭 提示语: 请用最通俗的方式解释“统计术语”
+
+> 🧭 提示语: 请用数值模拟解释“统计术语”，并提供 R
+> 代码与详细解释，以便更直观地理解。
+
+------
+
+### 🔍 示例1 什么是置信水平？
+
+> 🧭 提示语: 用最通俗的方式解释什么是置信水平？
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.1eg1.png)
+:::
+
+-----
+
+### 🔍 示例1 什么是置信水平？
+
+> 🧭 提示语:
+> 请用数值模拟上述解释过程，让我理解起来更加容易。给出数值模拟的R代码，并加以解释。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.1eg2.png)
+:::
+
+-------
+
+### 🔍 示例1 什么是置信水平？
+
+> 🧭 提示语:
+> 请用数值模拟上述解释过程，让我理解起来更加容易。给出数值模拟的R代码，并加以解释。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.1eg3.png)
+:::
+
+------
+
+### 🔍 示例2 se和sd的区别
+
+> 🧭 提示语: standar error 和 standard deviation
+> 有什么区别？请用最通俗的方式解释。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.1eg4.png)
+:::
+
+------
+
+### 🔍 示例2 se和sd的区别
+
+> 🧭 提示语: standar error 和 standard deviation
+> 有什么区别？请用最通俗的方式解释。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.1eg5.png)
+:::
+
+------
+
+### 📘 权威期刊建议
+
+::: {.callout-note title="推荐做法"}
+《Nature》、《Cell》、《JAMA》、《NEJM》 等权威医学与生物期刊明确建议：
+
+> 柱状图或点图的误差线应使用 **标准误差（SE）** 或
+> **置信区间（CI）**，而非 **标准差（SD）**，以避免误导读者。
+
+:::
+
+::: {.callout-note title="参考文献"}
+
+> Cumming G, Fidler F, Vaux DL. (2007). [Error bars in experimental
+> biology](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2064100/). The
+> Journal of Cell Biology, 177(1):7–11.
+
+> 该文指出：**SD
+> 描述数据变异性，而非估计均值的可信度**，因此在展示组间比较时使用 SE 或
+> CI 更有解释力。
+
+:::
+
+------
+
+## 9.1.2 重构统计学习方式：从被动学习到主动建构
+
+💡 不再是“学完了才能用”，而是“在用中学习，在问中学”
+
+📕️ 传统模式：教科书主导，学生被动接受
+
+-   教材编什么，读者学什么\
+-   顺着教材目录走，忽视了**统计思维**的培养、“统计写作”能力的训练
+
+🚀 DeepSeek模式：需求驱动，Prompt引导学习
+
+-   先有问题，后找方法
+
+-   不再强调公式/计算/软件操作，而是**围绕科研任务主动构建统计能力**
+
+>  📌 **统计学习的未来，不是依靠更全面系统的教材，而是善于利用AI工具的引导。**
+
+--------
+
+
+### 9.1.2 DeepSeek 能做什么？
+
+| 任务         | DeepSeek 支持                           |
+|--------------|-----------------------------------------|
+| 方法选择     | 根据变量类型、研究设计，推荐方法        |
+| 适用前提     | 如何检验前提条件是否成立                |
+| 软件命令生成 | 提供 SPSS / R / Python 操作命令模板     |
+| 结果解读     | 报告模型估计结果、系数解释、CI、p-value |
+| 语言生成     | 输出医学期刊风格的统计分析段落          |
+
+--------
+
+## 9.1.3 从统计学习者到提问专家：如何与 DeepSeek 高效对话？
+
+-   DeepSeek可以回答"如何做"
+
+-   选择方法, 解释结果, 润色语言
+
+-   DeepSeek无法判断统计分析结论的“临床或现实意义”
+
+-   ① 它不了解临床语境
+
+    -   无法判断1.2 mmHg 的血压差异是否有意义
+    -   无法判断术后感染降低 3% 是否值得改变用药
+    -   无法判断效果大小对患者是否“可感知”
+
+-   ② 它无法识别研究的局限
+
+    -   样本的代表性
+    -   数据质量
+    -   研究全貌
+
+--------
+
+### 🔍 示例3 deepseek与研究者的角色分工
+
+> **新药组患者平均在服药后4.3小时出现咳嗽明显缓解，对照组为5.3小时，差异为1.1小时，P
+> = 0.002。**
+
+-   **DeepSeek的判断**：P值小于0.05，说明两组在缓解时间上存在统计学显著差异。
+
+-   **研究者需要进一步判断**：
+
+    -   平均提前1小时缓解咳嗽，对患者体验是否足够重要？
+    -   新药是否价格更高、服用方案更复杂或存在其他副作用？
+    -   如果只是轻症患者，是否有必要优先推荐此类新药？
+    -   在临床实践中，该差异是否足以改变现有用药指南或医生处方习惯？
+
+> 📌
+> 要评估“统计显著”的“现实价值”，需结合患者反馈、药物成本、安全性及对临床决策的实际影响。
+
+-------
+
+### 9.1.3 ① 低质量提问的特点
+
+-   **太笼统**：“我这组数据怎么分析？”——没有说明变量、设计、目的；
+-   **背景缺失**：没有交代样本量、变量类型、研究目标等关键信息；
+-   **术语模糊**：用“数字”, “分组”代替“连续变量”“独立样本”等标准术语；
+-   **目的不清**：是要选方法？还是要解释P值？甚至只是想画图？
+
+-------
+
+### 9.1.3 ② 如何构建高质量提问？
+
+-   **研究背景**：研究设计、样本量、数据来源
+
+-   **变量**：类型（定性/定量）、分布特征（正态/非正态）、数据结构（截面/重复测量/分层/生存数据等）
+
+-   **提问目标**：你希望DeepSeek帮你做什么？推荐方法？解释输出？润色语言？
+
+-------
+
+### 🔍 示例4 高质量提问
+
+💡 **明确表达研究背景、变量类型和分析目的**
+
+-   **原问法**：我做了线性回归，能不能帮我看看有没有问题？\
+    **优化提问**：我用线性回归分析术后住院天数的影响因素，自变量包括年龄、手术方式和是否术前使用抗生素，模型输出如下，请帮我判断变量解释是否合理，并协助我撰写结果描述。
+
+-   **原问法**：我想知道两组患者有无差异，用什么方法好？\
+    **优化提问**：我想比较 A
+    药和B药对血糖控制的效果，两组样本独立，结局变量是非正态分布的
+    HbA1c，请问适合使用哪种非参数检验方法？
+
+-   **原问法**：这个 P 值怎么解读？\
+    **优化提问**：在 logistic 回归中，变量“糖尿病病史”的 OR = 1.9，95%
+    CI 为 1.1–3.2，P =
+    0.025，请帮我解释这个变量在模型中的统计与临床意义。
+
+-------
+
+### 🎯 **提问句式**
+
+-   **研究背景**（如研究设计、样本量、数据来源）
+
+-   **变量类型、数据结构、分布特征**（如定量、定性、是否正态）
+
+-   **分析目的**（比较差异、建模预测、描述分布等）
+
+-   **希望 AI 协助的具体环节**（方法选择、结果解读、语言撰写等）
+
+--------
+
+## 9.1 小结：从工具到能力，构建AI辅助统计思维
+
+-   统计学习不只是掌握方法，更是形成解决问题的思维方式。
+
+-   DeepSeek不只是工具，更可以成为统计学习与科研写作的智能伙伴。
+
+-   借助 AI，可以加速理解、提升效率，但不能替代判断与思考。
+
+-   真正有效的统计学习，应注重：
+
+    -   明确目标（用AI解决具体问题）；
+    -   精准提问（提升与AI对话质量）；
+    -   灵活应用（将建议转化为科研能力）。
+
+> 📌 从“学习统计”到“用统计解决问题”
+
+-------
+
+## 9.2 DeepSeek辅助医学统计的学习和运用
+
+-   9.2.1 医学统计方法全景图
+
+-   9.2.2 DeepSeek如何辅助方法选择？
+
+-   9.2.3 DeepSeek如何辅助结果解读？
+
+------
+
+## 9.2.1 医学统计方法全景图
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/map.png)
+:::
+
+## 9.2.2 DeepSeek如何辅助选择统计方法？
+
+
+✅ 研究目的: 描述/推断/比较/预测/因果推断
+
+✅ 数据结构: 横截面/纵向/分层/RCT/生存数据等
+
+✅ 变量类型: 定性变量(无序/有序), 定量变量(离散/连续)
+
+✅ 变量地位：结局变量/自变量/协变量
+
+✅ 变量分布：正态/非正态/泊松分布等
+
+✅ 样本容量
+
+-------
+
+### 临床研究数据结构
+
+| 数据结构 | 时间特征 | 是否追踪 | 应用场景示例 |
+|---------------|-----------------------|---------------|-------------------|
+| 横断面研究 | 单时间点 | 无追踪 | 现况调查、患病率估计 |
+| 病例对照研究 | 单时间点（回顾性暴露） | 无追踪 | 病因探索、罕见病研究 |
+| 随机对照试验 | 多时间点（前瞻性：基线+随访） | 干预后追踪 | 药物疗效、治疗比较 |
+| 队列研究 | 多时间点（前瞻或回顾） | 长期追踪 | 危险因素评估、预后分析 |
+| 登记研究 | 多时间点（通常前瞻） | 长期追踪 | 真实世界数据、药物监测 |
+
+------
+
+### 统计方法与样本容量
+
+| 统计方法               | 样本容量建议                |
+|------------------------|-----------------------------|
+| **t检验（独立样本）**  | 每组 ≥ 30（≥15 可接受）     |
+| **配对t检验**          | ≥ 15 对（≥30 理想）         |
+| **方差分析（ANOVA）**  | 每组 ≥ 20–30                |
+| **卡方检验**           | 每格期望值 ≥ 5              |
+| **Fisher精确检验**     | 总样本 \< 40                |
+| **Mann-Whitney U检验** | 每组 ≥ 10–15                |
+| **Logistic回归**       | 每类结局 ≥ 10×变量数（EPV） |
+| **Cox回归模型**        | ≥ 10 个事件/变量            |
+| **线性回归**           | 总样本 ≥ 15×变量数          |
+| **倾向评分匹配**       | 匹配后每组 ≥ 100+           |
+
+> **注**：以上为经验性参考，正式研究请结合效应量、α、Power
+> 等进行样本量计算。
+
+-------
+
+### 9.2.2 ① 如何向DeepSeek描述你的研究问题？
+
+🎯 将“临床问题”转换为“统计问题”
+
+临床问题：自然语言描述
+
+-   "比较两种降压药对高血压患者收缩压的影响"
+
+-   "新药是否能降低术后感染的风险"
+
+🎯 提问句式
+
+**研究目的**：描述 / 推断/ 比较 / 预测 / 因果推断
+**研究对象**：样本单位（如患者、标本等）
+**自变量**：变量类型：（如两组、三组、分层等） **因变量**：变量类型：
+是否连续 / 分类 / 计数 **特殊说明**：如样本量、分布形态、是否配对等
+
+-------
+
+### 🔍 示例4 差异比较
+
+> 比较两种降压药对收缩压的影响，自变量为“药物类型”（两组），因变量为“收缩压”（连续变量），各组分别有40人，需要使用什么统计分析方法？
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg1.png)
+:::
+
+-------
+
+### 🔍 示例5 影响因素分析
+
+🩺 临床问题
+
+> 探讨年龄、性别、住院天数、治疗方案是否与患者出院时的功能恢复水平有关。功能恢复分为三级：**良好
+> / 一般 / 差**。
+
+🎯 提问句式
+
+- **研究目的**：预测, 推断\
+
+- **研究对象**：康复科出院患者\
+
+- **因变量**：功能恢复水平（有序分类变量，共3级）\
+
+- **自变量**：年龄(连续), 性别(二分类),
+    住院天数(连续),治疗方案(无序分类，共3种)\
+
+- **特殊说明**：
+    -   样本：150 人\
+    -   因变量具有自然顺序(良好 \> 一般 \> 差)，但间距不等\
+    -   希望控制混杂并分析预测因子
+
+-------
+
+### 🔍 示例5 影响因素分析
+
+> “我有150名康复患者的数据，记录了年龄、性别、住院天数和治疗方案（3种，无序分类）。我想分析这些因素对出院时功能恢复水平（良好/一般/差）的影响。因变量是有序分类变量。需要用什么统计分析方法？”
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2.png)
+:::
+
+------
+
+### 🔍 示例5
+
+要求用SPSS实现有序logistic回归分析
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_spss.png)
+:::
+
+------------------------------------------------------------------------
+
+## 9.2.3 deepseek辅助深入学习统计方法
+
+-   追问统计分析过程细节
+
+-   追问检验方法的细节
+
+-   追问图形工具的细节
+
+-   追问如何评估模型拟合效果
+
+------------------------------------------------------------------------
+
+### 9.2.3 ① 如何向DeepSeek 追问统计分析过程的细节？
+
+🎯 提问句式
+
+针对**方法/模型，还可以做哪些检验或者绘制可视化图形，来深入探讨**方法/模型的估计结果，提供有价值的研究发现？请参考学术文献的主流做法，回答上述问题。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_method_detail.png)
+:::
+
+------------------------------------------------------------------------
+
+### 9.2.3 ① 向DeepSeek 追问统计分析过程的细节
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_method_spss.png)
+:::
+
+------------------------------------------------------------------------
+
+### 9.2.3 ② 向deepseek追问检验方法的细节
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_method_detail2.png)
+:::
+
+-----------------
+
+### 9.2.3 ③ 向deepseek追问图形工具的细节
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_method_detail3.png)
+:::
+
+----------
+
+### 9.2.3 ④向deepseek追问如何评估模型拟合效果
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_method_detail4.png)
+:::
+
+------------------------------------------------------------------------
+
+### 9.2.3 ⑤ DeepSeek如何辅助结果解读？
+
+-   统计学意义：系数含义
+-   临床学意义：临床相关性、实际应用价值
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_result1.png)
+:::
+
+------------------------------------------------------------------------
+
+### 9.2.3 ⑤ DeepSeek如何辅助结果解读？
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_result2.png)
+:::
+
+----------
+
+### 9.2.3 ⑤ DeepSeek如何辅助结果解读？
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_result3.png)
+:::
+
+-------
+
+### 9.2.3 ⑥ DeepSeek提供优化统计分析的建议
+
+🎯 提问句式
+
+我的样本数据、选用的变量、估计方法是否存在局限性？请提出改进建议。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.2_eg2_result4.png)
+:::
+
+------------------------------------------------------------------------
+
+## 9.2 小结：DeepSeek辅助医学统计的学习和运用
+
+-   将“临床问题”转换为“统计问题”
+
+    -   提问句式：研究目的 + 研究对象 + 自变量 + 因变量 + 特殊说明
+
+-   追问统计分析过程的细节
+
+    -   方法/模型，还可以做哪些检验或者绘制可视化图形？请参考学术文献的主流做法，回答上述问题。
+
+-   追问检验方法的细节
+
+-   追问图形工具的细节
+
+-   追问如何评估模型拟合效果
+
+-   关于输出结果的解读
+
+    -   统计学意义：P值、效应量、置信区间
+    -   临床学意义：临床相关性、实际应用价值
+
+-   优化统计分析的建议
+
+    -   样本数据、选用的变量、估计方法是否存在局限性？请提出改进建议
+
+------------------------------------------------------------------------
+
+## 9.3 DeepSeek辅助医学统计写作
+
+-   9.3.1 医学统计写作的挑战
+
+-   9.3.2 如何向DeepSeek寻求写作帮助？
+
+-   9.3.3 多轮对话优化文字段落
+
+------------------------------------------------------------------------
+
+## 9.3.1 医学统计写作的挑战
+
+-   统计分析部分的重要性
+-   高水平期刊对统计分析的准确性和表达逻辑要求极高
+-   常见困扰
+    -   不熟悉统计方法的选择与表述
+    -   难以准确表述结果的意义
+    -   英语表达能力限制写作效率
+
+------------------------------------------------------------------------
+
+## 9.3.2 如何向DeepSeek寻求写作帮助？
+
+🎯 提问句式
+
+-   输入说明 以下是\*\*\*结果 / 回归输出 / 表格 / 图形
+
+-   目的说明 “请撰写一段医学论文中‘统计分析结果’部分的英文描述
+
+-   风格指定 “风格参考JAMA / The Lancet/中华医学杂志
+
+-   语言指定 “语言简洁、专业、英文/中文撰写；避免解释性语言
+
+------------------------------------------------------------------------
+
+### 🔍 示例6 table 1的解释——英文
+
+> Please write a concise and professional paragraph, in the style of a
+> medical journal (e.g., The Lancet or JAMA), describing and comparing
+> the baseline characteristics of two patient groups based on the data
+> presented in Table 1. Use objective, scientific language appropriate
+> for the Results section of a clinical research article.
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3pic1.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🔍 示例6 table 1的解释——中文
+
+> 基于Table 1，撰写一段描述患者基线特征的段落,
+> 重点说明两组患者基线特征的相似性与显著差异,
+> 采用《中华医学杂志》的写作风格, 语言简洁, 专业。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3pic2.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🔍 示例7 统计图形解释——英文
+
+> Please write a concise and professional paragraph, in the style of a
+> medical journal (e.g., The Lancet or JAMA), describing the comparison
+> of age between patients who survived and those who died, based on the
+> data shown in the figure. Use objective, scientific language
+> appropriate for the Results section of a clinical research article.
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3pic3.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🔍 示例7 统计图形解释——中文
+
+> 基于上图，撰写一段描述图中所示生存与死亡患者两组之间年龄比较的段落,
+> 采用《中华医学杂志》的写作风格, 语言简洁, 专业。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3pic4.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🔍 示例8 有序logistic回归估计结果的解释——英文
+
+> Please write a concise and professional paragraph suitable for the
+> "Discussion" section of a clinical research article, describing and
+> interpreting the findings from a binary logistic regression analysis.
+> Emphasize the potential clinical implications and practical relevance
+> of the significant predictors identified in the model. Use formal
+> scientific language similar to that found in journals such as The
+> Lancet or JAMA. Avoid statistical jargon unless necessary, and focus
+> on how the findings may inform clinical decision-making or patient
+> care.
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3pic5.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🔍 示例8 有序logistic回归估计结果的解释——英文
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3pic6.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🔍 示例8 有序logistic回归估计结果的解释——英文
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3pic7.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🔍 示例8 有序logistic回归估计结果的解释——中文
+
+> 请撰写一段用于医学期刊论文“讨论”部分的文字，基于二元 logistic
+> 回归模型的结果，阐述主要显著预测变量的临床意义与实际应用价值。文风应简洁、专业，表达符合《中华医学杂志》的学术规范。
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3pic8.png)
+:::
+
+------------------------------------------------------------------------
+
+### 💡 技巧：截长图
+
+用截图工具，截取长图，将所有的统计输出一次性粘贴到DeepSeek中，避免多次提问。
+
+截图工具：
+
+-   **Windows**：Snipping Tool(Win 11)
+
+-   **Mac OS**: Xnip <https://zh.xnipapp.com/>
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3tip1.png)
+:::
+
+------------------------------------------------------------------------
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3tip2.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式： 一次性输出数据/方法/结果/讨论
+
+请根据SPSS/R的输出，撰写一篇临床研究论文的四个部分：数据、方法、结果、讨论。
+
+要求如下：
+
+① 请使用医学期刊常见的表达方式，语言简洁、专业；
+
+② 写作风格参考《中华医学杂志》，用中文撰写；
+
+③ 对“结果”部分要求客观描述，不加入主观解释，绘制表格呈现模型的估计结果；
+
+④
+对“讨论”部分要求结合统计结果，重点说明显著变量的临床意义与现实应用价值；
+
+⑤ 适用规范的专业术语
+
+------------------------------------------------------------------------
+
+## 9.3.3 多轮对话优化文字段落
+
+-   第一轮生成后继续补充显著性解释、控制混杂变量说明。
+
+-   提升质量与防止AI写作痕迹
+
+-   核对数据与描述是否匹配。
+
+------------------------------------------------------------------------
+
+## 9.3.3 多轮对话优化
+
+-   明确传达研究设计类型、变量信息、分析目的、统计方法或输出；
+
+-   指定写作风格（如参考 BMJ / JAMA / 中华医学杂志）；
+
+-   要求其输出语言风格客观、精炼、符合医学统计写作规范。
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式 ① “数据”部分——中文
+
+我正在撰写一篇临床医学学术论文，请帮我撰写“数据”部分的相关段落，内容包括：
+
+-   研究设计类型（如回顾性队列、前瞻性观察、随机对照试验等）；
+-   研究对象的来源与纳入/排除标准（如某医院的连续入院患者、特定病种等）；
+-   数据收集方式（如电子病历、问卷、电话随访等）；
+-   变量名称、定义及其分类方式；
+-   所有变量测量的时间点和方式；
+-   样本量及缺失数据说明（如是否进行插补、排除等处理）；
+
+写作要求： ① 语言参考《中华医学杂志》的风格，规范、简练、客观； ②
+仅陈述事实，不进行解释或讨论； ③ 所用术语请医学统计规范
+
+我使用了以下变量(列出变量名称及含义)：
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式 ① “数据”部分——英文
+
+Please help me write a paragraph suitable for the **Data / Participants
+/ Methods** section of a clinical research article, describing the study
+data source, variables, and data collection methods.
+
+Include the following elements: - Study design: e.g., retrospective
+cohort / prospective observational - Study population: inclusion and
+exclusion criteria, hospital or registry - Data collection method:
+electronic medical records, interviews, etc. - Variable definitions:
+e.g., age (continuous), sex (binary: male/female), GCS score
+(continuous) - Timing of data collection: baseline at admission /
+discharge - Handling of missing data: deletion / imputation / no
+missingness
+
+Writing style: - Use concise, objective scientific language; - Follow
+the tone and structure of journals like BMJ or JAMA; - Avoid
+interpretation—just state the facts; - End with a reference to Table 1
+if available (e.g., “Baseline characteristics are shown in Table 1”).
+
+------------------------------------------------------------------------
+
+### 🔍 示例9 优化“数据”的写作
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3optimize1.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式 ② “方法”部分——中文
+
+以下是我研究的一部分统计分析输出结果（如表格/图/文字），请根据医学期刊论文的写作规范（参考《中华医学杂志》），帮助我撰写“统计分析”部分的方法描述文字，要求语言规范、专业、精炼，适用于论文的“方法”章节。
+
+-   研究类型：回顾性观察研究
+-   因变量：住院期间状态（生存=1，死亡=2）
+-   自变量：性别、年龄、SBP、GCS评分、糖尿病史、卒中类型
+-   分析方法：二元Logistic回归（逐步法）
+-   模型评价方法：Omnibus检验、Hosmer-Lemeshow检验、分类预测准确率
+
+请撰写论文中关于“方法”的段落。
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式 ② “方法”部分——英文
+
+> Please help me write the "Statistical Analysis" section of a clinical
+> research article in the style of **BMJ or JAMA**, using the data and
+> analysis described below. Use professional, concise, and
+> scientifically accurate language appropriate for peer-reviewed medical
+> journals.
+
+Please include:
+
+-   Study design and population
+-   Variables involved (e.g., age, sex, disease type)
+-   Statistical methods used (e.g., t-test, Cox regression,
+    Kaplan-Meier)
+-   Software used (e.g., SPSS, R, Stata)
+-   Significance level (e.g., two-sided P \< 0.05)
+
+Ensure that the paragraph is suitable for inclusion in the **Methods
+section** of a medical journal manuscript.
+
+------------------------------------------------------------------------
+
+### 🔍 示例9 优化“方法”的写作
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3optimize2.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式 ③ “结果”部分——中文
+
+我正在撰写一篇医学研究论文的“结果”部分，以下是我的结果输出，请根据统计结果写出“结果”段落。
+
+写作要求如下：
+
+① 请使用医学期刊论文中“结果”部分常见的表达方式
+
+② 语言客观、精炼，不夹叙述、解释与讨论
+
+③ 表达风格参考《中华医学杂志》
+
+④ 正确描述显著性（如 P 值、置信区间、效应量）
+
+⑤ 分层/亚组分析时，请明确指出组间比较与趋势
+
+⑥ 所用术语请尽量规范，遵循医学统计表达惯例。
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式 ③ “结果”部分——英文
+
+Please write a professional, objective, and concise paragraph suitable
+for the **Results** section of a clinical research article, based on the
+logistic regression results provided below.
+
+Writing style: follow the conventions used in **BMJ** or **JAMA**.
+
+Language: formal, scientific, and free from subjective interpretation or
+discussion.
+
+Content: include odds ratios (OR), confidence intervals (CI), and
+P-values.\
+Structure: begin with the overall result, then report on significant
+predictors, and conclude with non-significant findings if relevant.
+
+Do not explain or interpret the results—just report them accurately.
+
+------------------------------------------------------------------------
+
+### 🔍 示例9 优化“结果”的写作
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3optimize3.png)
+:::
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式 ④ “讨论”部分--中文
+
+请帮助我撰写一段用于医学期刊论文“讨论”部分的文字。以下是我的研究背景与统计分析结果：
+
+-   研究设计：前瞻性队列研究 / 回顾性研究 / 随机对照试验（请根据实际写）
+-   主要结局：
+-   统计方法：
+-   显著变量：
+-   非显著变量：
+
+请根据上述信息，撰写“讨论”部分的段落，重点说明：
+
+① 显著变量的**临床意义与现实应用价值** ②
+如何解释统计结果中显著与不显著变量的差异 ③
+如何将研究结果与既往研究进行对比 ④
+语言风格参考《中华医学杂志》，表达规范、客观 ⑤
+避免重复“结果”部分的内容，请聚焦**解释与意义**，不是数据罗列
+
+请以论文讨论部分的标准结构撰写该段内容。
+
+------------------------------------------------------------------------
+
+### 🎯 提问句式 ④ “讨论”部分--英文
+
+Please help me write a professional, well-structured paragraph suitable
+for the **Discussion** section of a clinical research article, based on
+the following logistic regression results:
+
+-   Study design:
+-   Primary outcome:
+-   Significant predictors:
+-   Non-significant variables:
+
+Writing requirements: 1. Explain the **clinical relevance and
+implications** of statistically significant predictors; 2. Discuss
+potential reasons for non-significant findings; 3. Compare with findings
+from previous studies (if applicable); 4. Use objective and concise
+scientific language, modeled after BMJ or JAMA; 5. Focus on
+**interpretation and contextualization**, not repetition of numeric
+results.
+
+------------------------------------------------------------------------
+
+### 🔍 示例9 优化“讨论”的写作
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3optimize4.png)
+:::
+
+------------------------------------------------------------------------
+
+### 💡 技巧：基于范文，驱动 AI 的写作进阶
+
+-   选取一篇范文，发送给DeepSeek，要求DeepSeek归纳其值得借鉴之处
+
+-   要求DeepSeek参照“亮点”对你的段落进行润色与改写
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3learn1.png)
+:::
+
+------------------------------------------------------------------------
+
+### 💡 技巧：DeepSeek进入“学习--改进”模式
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.3learn2.png)
+:::
+
+------------------------------------------------------------------------
+
+### 💡 DeepSeek的局限性
+
+-   服务器繁忙
+
+    -   替代方案：腾讯元宝
+        [https://yuanbao.tencent.com/chat/](https://yuanbao.tencent.com/chat/){target="_blank"}
+
+-   未提取到图片中的文字
+
+    -   替代方案：问小白
+        [https://www.wenxiaobai.com/](https://www.wenxiaobai.com/){target="_blank"}
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.4pic1.png)
+:::
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](stroke_type.png)
+:::
+
+------------------------------------------------------------------------
+
+### 💡 问小白：已接入DeepSeek V3
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.4pic2.png)
+:::
+
+------------------------------------------------------------------------
+
+### 💡 问小白: 生成网页/研报
+
+::: {style="height: 600px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"}
+![](img/9.4pic3.jpg)
+:::
+
+------------------------------------------------------------------------
+
+## 9.3 小结 DeepSeek辅助医学统计写作
+
+-   建立自己的提示词库
+
+    -   方法提示词：适用条件/数据结构/样本容量/估计结果解释/需要做的检验/可视化工具
+
+    -   写作提示词：数据/方法/结果/讨论
+
+-   建立自己的范文库
+
+    -   高水平期刊的同类研究的范文的数据/方法/结果/讨论的写法
+
+-   不要忙于统计分析，而疏于写作
+
+    -   **边分析边写作**：每完成一部分统计分析，就立即转化为文字，避免遗忘。
+
+    -   **初稿不求完美**：先写出雏形，然后借助AI逐步润色。
+
+💡 统计写作不是“最后一步”，而是每一步统计分析的**记录、反馈与构建**。
+
+------------------------------------------------------------------------
+
+## 9.4 统计再也不怕
+
+-   构建“AI+统计”的信心
+
+-   用Prompt实践训练，让统计更“傻瓜”、更“可控”
+
+-   “统计不再可怕，AI与你同行”
+
+------------------------------------------------------------------------
+
+### 9.4 练习作业
+
+-   上传你论文中的一张表格(如Table 1 或
+    回归模型估计表格)，请DeepSeek写作对应的统计分析段落。 \|
+
+-   将你过去最头疼的统计部分（如生存分析、PSM段落）写成Prompt试试看 \|
+
+--------
+
+## 模块九 总结
+
+-   ✅ DeepSeek如何助力统计方法的学习？
+
+-   ✅ DeepSeek如何助力统计方法的运用？
+
+-   ✅ DeepSeek如何助力写出医学论文中的统计方法/结果/讨论段落的写作？
+
+------------------------------------------------------------------------
+
+## 致谢
+
+> 医生不必精通统计，但值得拥有一位懂统计、会表达的AI助手。
+
+\
+
+> DeepSeek不是统计学家，却总能说出你心中那句“有理有据”。
+
+\
+
+> 把统计分析交给AI，把思考留给科学。
+
+\
+\
+
+感谢大家的参与！欢迎提问交流！

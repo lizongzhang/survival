@@ -1,19 +1,58 @@
 ---
-title: "About Me"
+title: ""
+id: ppc
 about:
-  id: me
-  template: broadside
-  image: img/profile.png
+  template: marquee
+  #image: img/cover_3d.jpg
+  links:
+    - text: R语言生存分析:方法,实操与临床解读
+      icon: globe2
+      href: https://lizongzhang.github.io/stat24/
+    - text: B站主页
+      icon: globe2
+      href: https://space.bilibili.com/590872906
+    - text: Email   
+      icon: envelope
+      href: mailto:lizongzhang9@qq.com
 ---
 
-:::{#me}
+:::{#ppc style="color:#044875"}
+欢迎访问[ R语言生存分析:方法,实操与临床解读 ](https://lizongzhang.github.io/survival/){target="_blank"}课程网站！
+:::
 
-## Goals
+:::{#ppc style="color:#044875"}
+# R和R Studio的下载
 
-## Education
+<img src="img/link.png"  style="width: 24px; height: 24px;margin-right: 10px">R  <https://www.r-project.org/>{target="_blank"}
 
-## Experience
+<img src="img/link.png"  style="width: 24px; height: 24px;margin-right: 10px">R Studio <https://posit.co/download/rstudio-desktop/>{target="_blank"}
 
 :::
 
-Thanks for checking out my web site!
+
+:::{#ppc style="color:#044875"}
+
+# 数据文件下载
+
+
+<a href="https://github.com/lizongzhang/deepseekcamp/raw/main/stroke.xlsx" download="stroke.xlsx">点击下载数据文件: stroke.xlsx</a>
+
+:::
+---
+
+<div style="text-align: center; margin-top: 1em;">
+  <p style="font-size: 22px; color: #044875;">
+    欢迎关注微信公众号“医咖会”！
+  </p>
+  <img src="img/yikahui_qcr.png" alt="微信二维码" width="200">
+</div>
+
+---
+
+<div style="text-align: center; margin-top: 1.5em;">
+  <a href="https://space.bilibili.com/590872906" target="_blank">
+    <img src="img/bili_up.JPG" alt="B站头像" width="60">
+  </a>
+</div>
+
+
