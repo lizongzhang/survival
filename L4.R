@@ -10,8 +10,10 @@ library(tidyverse)
 
 data(cancer, package="survival")
 
+lung
 
-# 定型变量的编码 -----------------------------------------------------------------
+
+# 定性变量的编码 -----------------------------------------------------------------
 
 lung <- lung %>%
   mutate(
@@ -48,18 +50,26 @@ coxph(Surv(time, status) ~ female, data = lung) %>%
 coxph(Surv(time, status) ~ female, data = lung) %>% 
   tbl_regression(exp = TRUE)
 
+coxph(Surv(time, status) ~ female, data = lung) %>% 
+  tbl_regression(exp = FALSE)
+
 
 coxph(Surv(time, status) ~ female + age + wt.loss, data = lung) %>% 
   summary()
+
+coxph(Surv(time, status) ~ female + age + wt.loss, data = lung) %>% 
+  tbl_regression(exp = TRUE)
 
 coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + 
         pat.karno, data = lung) %>% 
   summary()
 
-# cox模型的估计结果的表格化输出----------------------------------------------------------------
+# 表格化输出----------------------------------------------------------------
 
 # 拟合模型
 model1 <- coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
+
+
 model2 <- coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + 
                   pat.karno, data = lung)
 
@@ -87,9 +97,7 @@ tbl_combined <- tbl_merge(
 )
 
 
-# 导出表格到WORD文档 -------------------------------------------------------------
-
-
+# 导出表格到WORD -------------------------------------------------------------
 
 library(flextable)
 library(officer)

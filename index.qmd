@@ -7,10 +7,7 @@ about:
   links:
     - text: R语言生存分析:方法,实操与临床解读
       icon: globe2
-      href: https://lizongzhang.github.io/stat24/
-    - text: B站主页
-      icon: globe2
-      href: https://space.bilibili.com/590872906
+      href: https://lizongzhang.github.io/survival/
     - text: Email   
       icon: envelope
       href: mailto:lizongzhang9@qq.com
@@ -21,7 +18,8 @@ about:
 :::
 
 :::{#ppc style="color:#044875"}
-# R和R Studio的下载
+
+## 请下载和安装最新版R和R Studio
 
 <img src="img/link.png"  style="width: 24px; height: 24px;margin-right: 10px">R  <https://www.r-project.org/>{target="_blank"}
 
@@ -32,7 +30,7 @@ about:
 
 :::{#ppc style="color:#044875"}
 
-# 数据文件下载
+## 数据文件下载
 
 
 <a href="https://github.com/lizongzhang/deepseekcamp/raw/main/stroke.xlsx" download="stroke.xlsx">点击下载数据文件: stroke.xlsx</a>

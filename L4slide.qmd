@@ -404,7 +404,7 @@ coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
 
 在控制其他变量后：
 
-女性比男性的死亡风险降低了约 46%. $\left( \exp(-0.625) - 1 \right) \times 100\% = (0.535 - 1) \times 100\% \approx -46\%$。
+女性比男性的死亡风险降低了约 41%. $\left( \exp(-0.521) - 1 \right) \times 100\% = (0.594 - 1) \times 100\% \approx -41\%$。
 
 年龄每增加1岁, 死亡风险增加2%. $\left( \exp(0.020) - 1 \right) \times 100\% = (1.020 - 1) \times 100\% \approx 2\%$。
 

@@ -7,16 +7,31 @@ title:  "L4 Cox模型"
 
 # 讲义
 
--   <img src="img/teacher.png" style="width: 24px; height: 24px;margin-right: 10px">[L4 Cox比例风险模型](https://lizongzhang.github.io/survival/L4slide.html){target="_blank"}
+<img src="img/teacher.png" style="width: 24px; height: 24px;margin-right: 10px">[L4 Cox比例风险模型](https://lizongzhang.github.io/survival/L4slide.html){target="_blank"}
 
 
 # R代码
 
--   <img src="img/download.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://github.com/lizongzhang/survival/raw/main/L4.R" download="stroke.xlsx">点击下载代码文件: L4.R</a>
+<a href="https://github.com/lizongzhang/survival/raw/main/L4.R" 
+   target="_blank" 
+   style="text-decoration: none; display: inline-flex; align-items: center;">
+  <img src="img/download.png" 
+       alt="Download icon" 
+       style="width: 24px; height: 24px; margin-right: 8px;">
+  点击下载代码文件: L4.R
+</a>
 
 # 数据文件
 
--   <img src="img/download.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://github.com/lizongzhang/deepseekcamp/raw/main/stroke.xlsx" download="stroke.xlsx">点击下载数据文件: L4.xlsx</a>
+<a href="https://github.com/lizongzhang/survival/raw/main/L4.R" 
+   target="_blank" 
+   style="text-decoration: none; display: inline-flex; align-items: center;">
+  <img src="img/download.png" 
+       alt="Download icon" 
+       style="width: 24px; height: 24px; margin-right: 8px;">
+  点击下载数据文件: L4.R
+</a>
+
 
 
 :::

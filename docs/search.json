@@ -305,7 +305,7 @@
     "href": "L4.html",
     "title": "L4 Cox模型",
     "section": "",
-    "text": "讲义\n\nL4 Cox比例风险模型\n\n\n\nR代码\n\n点击下载代码文件: L4.R\n\n\n\n数据文件\n\n点击下载数据文件: L4.xlsx"
+    "text": "讲义\nL4 Cox比例风险模型\n\n\nR代码\n  点击下载代码文件: L4.R \n\n\n数据文件\n  点击下载数据文件: L4.R"
   },
   {
     "objectID": "L9webpage.html",
@@ -506,9 +506,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "R和R Studio的下载",
+    "title": "R生存分析",
     "section": "",
-    "text": "欢迎访问R语言生存分析:方法,实操与临床解读课程网站！\n\n\n\nR https://www.r-project.org/\nR Studio https://posit.co/download/rstudio-desktop/\n\n\n\n\n数据文件下载\n点击下载数据文件: stroke.xlsx\n\n\n\n\n\n欢迎关注微信公众号“医咖会”！"
+    "text": "欢迎访问R语言生存分析:方法,实操与临床解读课程网站！"
   },
   {
     "objectID": "casetips.html#r读取excel文件时excel中的数值变成了字符串",
@@ -767,7 +767,7 @@
     "href": "L4slide.html#cox模型的估计-系数解读-1",
     "title": "L4 Cox比例风险模型",
     "section": "4.3 Cox模型的估计: 系数解读",
-    "text": "4.3 Cox模型的估计: 系数解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)\n\n\n\n在控制其他变量后：\n女性比男性的死亡风险降低了约 46%. \\(\\left( \\exp(-0.625) - 1 \\right) \\times 100\\% = (0.535 - 1) \\times 100\\% \\approx -46\\%\\)。\n年龄每增加1岁, 死亡风险增加2%. \\(\\left( \\exp(0.020) - 1 \\right) \\times 100\\% = (1.020 - 1) \\times 100\\% \\approx 2\\%\\)。"
+    "text": "4.3 Cox模型的估计: 系数解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)\n\n\n\n在控制其他变量后：\n女性比男性的死亡风险降低了约 41%. \\(\\left( \\exp(-0.521) - 1 \\right) \\times 100\\% = (0.594 - 1) \\times 100\\% \\approx -41\\%\\)。\n年龄每增加1岁, 死亡风险增加2%. \\(\\left( \\exp(0.020) - 1 \\right) \\times 100\\% = (1.020 - 1) \\times 100\\% \\approx 2\\%\\)。"
   },
   {
     "objectID": "L4slide.html#cox模型的估计-系数解读-2",
@@ -782,5 +782,26 @@
     "title": "L4 Cox比例风险模型",
     "section": "4.3 Cox模型的估计: 导出到 Word文档",
     "text": "4.3 Cox模型的估计: 导出到 Word文档\n\ntbl_combined &lt;- tbl_merge(\n  tbls = list(tbl1, tbl2),\n  tab_spanner = c(\"**Model 1**\", \"**Model 2**\")\n)\n\n\nlibrary(flextable)\nlibrary(officer)\n\n\nread_docx() %&gt;%\n  body_add_par(\"Table 2. Results of Cox Proportional Hazards Regression Models\") %&gt;%\n  body_add_flextable(as_flex_table(tbl_combined)) %&gt;%\n  print(target = \"cox_results.docx\")"
+  },
+  {
+    "objectID": "index.html#r和r-studio的下载",
+    "href": "index.html#r和r-studio的下载",
+    "title": "R生存分析",
+    "section": "R和R Studio的下载",
+    "text": "R和R Studio的下载\nR https://www.r-project.org/\nR Studio https://posit.co/download/rstudio-desktop/"
+  },
+  {
+    "objectID": "index.html#数据文件下载",
+    "href": "index.html#数据文件下载",
+    "title": "R生存分析",
+    "section": "数据文件下载",
+    "text": "数据文件下载\n点击下载数据文件: stroke.xlsx"
+  },
+  {
+    "objectID": "index.html#请下载和安装最新版r和r-studio",
+    "href": "index.html#请下载和安装最新版r和r-studio",
+    "title": "R生存分析",
+    "section": "请下载和安装最新版R和R Studio",
+    "text": "请下载和安装最新版R和R Studio\nR https://www.r-project.org/\nR Studio https://posit.co/download/rstudio-desktop/"
   }
 ]
