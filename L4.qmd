@@ -2,6 +2,7 @@
 title:  "L4 Cox模型"
 ---
 
+<div style="font-size: 25px; line-height: 1.6;">
 
 :::{#ppc style="color:#044875"}
 
@@ -36,3 +37,4 @@ title:  "L4 Cox模型"
 
 :::
 
+<div>
