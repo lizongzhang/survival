@@ -1,5 +1,131 @@
 [
   {
+    "objectID": "L4slide.html#大纲",
+    "href": "L4slide.html#大纲",
+    "title": "L4 Cox比例风险模型",
+    "section": "大纲",
+    "text": "大纲\n\n4.1 Cox模型简介\n4.2 Cox模型的估计和检验\n4.3 Cox模型的预测\n4.4 Cox模型的可视化工具\n4.5 Cox模型的扩展"
+  },
+  {
+    "objectID": "L4slide.html#cox模型简介",
+    "href": "L4slide.html#cox模型简介",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.1 Cox模型简介",
+    "text": "4.1 Cox模型简介"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计和检验",
+    "href": "L4slide.html#cox模型的估计和检验",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 Cox模型的估计和检验",
+    "text": "4.2 Cox模型的估计和检验\n\n数据结构\n估计\n表格化输出\n检验"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的数据结构",
+    "href": "L4slide.html#cox模型的数据结构",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 Cox模型的数据结构",
+    "text": "4.2 Cox模型的数据结构\n\n生存时间（time）\n生存状态（status）\n\n1 = 事件发生（event）\n0 = 删失（censored）\n\n解释变量（covariates）\n\n连续型（如年龄、血压）或分类型（如性别、治疗组）\n二分类变量: 用二分类变量等于1的事件命名\n\nfemale: female = 1, 女性， female = 0 , 男性\nsmoke: smoke = 1, 吸烟， smoke = 0 , 不吸烟\ntreatment: treatment = 1, 实验组， treatment = 0 , 对照组\ndiabetes: diabetes = 1, 患有糖尿病， diabetes = 0 , 不患有糖尿病"
+  },
+  {
+    "objectID": "L4slide.html#举例晚期肺癌患者的生成分析",
+    "href": "L4slide.html#举例晚期肺癌患者的生成分析",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 举例：晚期肺癌患者的生成分析",
+    "text": "4.2 举例：晚期肺癌患者的生成分析\n\ninst：医疗机构编号。可用于研究中心效应（通常不用于建模）。\ntime：生存时间（天）。用于 Cox 模型中的 Surv(time, status)。\nstatus：生存状态。1 = 删失（censored），2 = 死亡（event）；与常见的 0/1 编码不同。\nage：年龄（岁），为连续变量。\nsex：性别。1 = 男，2 = 女\nph.ecog：ECOG（医生评估的体能评分），评分从 0（无症状）到 4（卧床）\nph.karno：Karnofsky（医生评估），0–100，数值越高表示功能越好\npat.karno：Karnofsky（病人自评），患者对自身身体状况的评分\nmeal.cal：每餐摄入热量（calories），与营养状态相关\nwt.loss：最近 6 个月内体重下降（磅），为连续变量，健康状况的重要指标\n\n\nLoprinzi, Charles Lawrence, et al. “Prospective evaluation of prognostic variables from patient-completed questionnaires. North Central Cancer Treatment Group.” Journal of Clinical Oncology 12.3 (1994): 601–607."
+  },
+  {
+    "objectID": "L4slide.html#数据整理",
+    "href": "L4slide.html#数据整理",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 数据整理",
+    "text": "4.2 数据整理\n\ndata(cancer, package=\"survival\")\n# lung: status = 1 or 2, 修改status的赋值：status: 0 = censored, 1 = dead\n# lung: sex = 1 or 2, 创建female\n\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计",
+    "href": "L4slide.html#cox模型的估计",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计",
+    "text": "4.3 Cox模型的估计\n\nsurvival::coxph() 函数\n创建survival对象\n\nSurv(time, status)\n\ncoxph()"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-1",
+    "href": "L4slide.html#cox模型的估计-1",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计",
+    "text": "4.3 Cox模型的估计\n\n\nCode\ndata(cancer, package = \"survival\")\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1)\n  )\n\n#| echo: true\ncoxph(Surv(time, status) ~ female, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female, data = lung)\n\n          coef exp(coef) se(coef)      z       p\nfemale -0.5310    0.5880   0.1672 -3.176 0.00149\n\nLikelihood ratio test=10.63  on 1 df, p=0.001111\nn= 228, number of events= 165"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-2",
+    "href": "L4slide.html#cox模型的估计-2",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计",
+    "text": "4.3 Cox模型的估计\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)"
+  },
+  {
+    "objectID": "L4slide.html#cox模型系数的解读",
+    "href": "L4slide.html#cox模型系数的解读",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型系数的解读",
+    "text": "4.3 Cox模型系数的解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)\n\n\n女性比男性的死亡风险（hazard）降低了 0.63 倍（即 \\(\\exp(-0.462) \\approx 0.63\\)），"
+  },
+  {
+    "objectID": "L4slide.html#cox回归与线性回归的对比",
+    "href": "L4slide.html#cox回归与线性回归的对比",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox回归与线性回归的对比",
+    "text": "4.3 Cox回归与线性回归的对比\n\n线性回归：\n\\[\ny = \\beta_0 + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]\nCox 模型：\n\\[\n\\log h(t \\mid x) = \\log h_0(t) + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]"
+  },
+  {
+    "objectID": "L4slide.html#区别",
+    "href": "L4slide.html#区别",
+    "title": "L4 Cox比例风险模型",
+    "section": "区别：",
+    "text": "区别：\n\n线性回归：\\(x_j\\) 对Y的影响\nCox 回归：\\(x_j\\) 对\\(\\log(\\text{hazard})\\) 的影响"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的系数符号",
+    "href": "L4slide.html#cox模型的系数符号",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的系数符号",
+    "text": "4.3 Cox模型的系数符号\n\n正系数 → 增加风险（hazard ↑），生存时间变短\n负系数 → 降低风险（hazard ↓），延长生存时间"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的系数的含义",
+    "href": "L4slide.html#cox模型的系数的含义",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的系数的含义",
+    "text": "4.3 Cox模型的系数的含义\n\n\\(\\beta_j\\)（即 coef）：\n\n\\(x_j\\) 每增加一个单位，\\(\\log(\\text{hazard})\\) 增加 \\(\\beta_j\\)\n抽象\n\n\\(exp(\\beta_j)\\)（即 \\(exp(coef)\\)）：\n\n\\(x_j\\) 每增加一个单位，hazard（风险）会乘上一个因子 \\(\\exp(\\beta_j)\\)\nhazard（风险）会增加 \\(\\exp(\\beta_j) - 1\\) 倍\n直观，容易理解\n\n论文中：\n\n在控制其他变量后，\\(x_j\\) 每增加1个单位 ，死亡风险(上升/下降）\\((\\exp(\\beta_j) - 1)\\)*100%"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的表格化输出",
+    "href": "L4slide.html#cox模型的表格化输出",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的表格化输出",
+    "text": "4.3 Cox模型的表格化输出\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\n\nModel 1\n\n\nModel 2\n\n\n\nHR\n95% CI\np-value\nHR\n95% CI\np-value\n\n\n\n\nfemale\n0.594\n0.422, 0.836\n0.003\n0.535\n0.377, 0.760\n&lt;0.001\n\n\nage\n1.020\n1.001, 1.040\n0.038\n1.013\n0.994, 1.033\n0.2\n\n\nwt.loss\n1.001\n0.989, 1.013\n&gt;0.9\n0.987\n0.973, 1.000\n0.059\n\n\nph.ecog\n\n\n\n\n\n\n1.964\n1.331, 2.900\n&lt;0.001\n\n\nph.karno\n\n\n\n\n\n\n1.020\n1.000, 1.041\n0.048\n\n\npat.karno\n\n\n\n\n\n\n0.985\n0.971, 1.000\n0.043\n\n\n\nAbbreviations: CI = Confidence Interval, HR = Hazard Ratio"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的检验",
+    "href": "L4slide.html#cox模型的检验",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.4 Cox模型的检验",
+    "text": "4.4 Cox模型的检验"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的可视化",
+    "href": "L4slide.html#cox模型的可视化",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.5 Cox模型的可视化",
+    "text": "4.5 Cox模型的可视化"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的扩展",
+    "href": "L4slide.html#cox模型的扩展",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.6 Cox模型的扩展",
+    "text": "4.6 Cox模型的扩展"
+  },
+  {
     "objectID": "L9.html#模块九-deepseek辅助傻瓜式医学统计",
     "href": "L9.html#模块九-deepseek辅助傻瓜式医学统计",
     "title": "模块九DeepSeek辅助傻瓜式医学统计",
@@ -175,11 +301,18 @@
     "text": "Project 3"
   },
   {
+    "objectID": "L4.html",
+    "href": "L4.html",
+    "title": "L4 Cox模型",
+    "section": "",
+    "text": "讲义\n\nL4 Cox比例风险模型简介\n\n\n\nR代码\n\n点击下载代码文件: L4.R\n\n\n\n数据文件\n\n点击下载数据文件: L4.xlsx\n\n\n这是 STKaiti 字体（强制）\n\n\n这是 serif 字体"
+  },
+  {
     "objectID": "L9webpage.html",
     "href": "L9webpage.html",
     "title": "模块九DeepSeek辅助傻瓜式医学统计",
     "section": "",
-    "text": "点击访问网络版讲义: https://lizongzhang.github.io/deepseekcamp/L9.html"
+    "text": "🏠 Home\n点击访问网络版讲义: https://lizongzhang.github.io/deepseekcamp/L9.html"
   },
   {
     "objectID": "L9webpage.html#模块九-deepseek辅助傻瓜式医学统计",
@@ -343,11 +476,32 @@
     "text": "致谢\n\n医生不必精通统计，但值得拥有一位懂统计、会表达的AI助手。\n\n\n\n\nDeepSeek不是统计学家，却总能说出你心中那句“有理有据”。\n\n\n\n\n把统计分析交给AI，把思考留给科学。\n\n\n\n\n感谢大家的参与！欢迎提问交流！"
   },
   {
-    "objectID": "index_backup.html",
-    "href": "index_backup.html",
-    "title": "R生存分析",
+    "objectID": "case.html",
+    "href": "case.html",
+    "title": "案例与实验报告",
     "section": "",
-    "text": "🔗  模块九 DeepSeek辅助傻瓜式医学统计\n\n\n🔗  模块十 DeepSeek辅助R语言编程与数据分析\n\n\n点击下载数据文件: stroke.xlsx\n\n\n\n欢迎关注微信公众号“顶刊研习社”、“医课佳”！"
+    "text": "每组4-5人，由组长填写在线问卷，提交分组信息：https://www.wjx.top/vm/e3AyWsR.aspx#"
+  },
+  {
+    "objectID": "case.html#小组作业要求",
+    "href": "case.html#小组作业要求",
+    "title": "案例与实验报告",
+    "section": "小组作业要求",
+    "text": "小组作业要求\n案例作业要求"
+  },
+  {
+    "objectID": "case.html#小组作业示例",
+    "href": "case.html#小组作业示例",
+    "title": "案例与实验报告",
+    "section": "小组作业示例",
+    "text": "小组作业示例\n\n第3-4章 广州六大奶茶品牌\n第7-8章 小组作业收获感\n第8-9章 汽车油耗\n第9-10章 奶茶品牌、区位和价格\n第11章 二手房房价、区位和房龄"
+  },
+  {
+    "objectID": "case.html#往届小组作业",
+    "href": "case.html#往届小组作业",
+    "title": "案例与实验报告",
+    "section": "往届小组作业",
+    "text": "往届小组作业\n\n饮料特征分析——第3-4章图表工具和描述统计R\n广东省地市领导班子特征分析——第3章图表工具SPSS\n奶茶消费调查——第3章图表工具SPSS\n证监会录用人员特征——第3章图表工具Excel\n饮料特征分析——第7-8章区间估计和假设检验R\n证券分析师——第9-10章卡方检验和方差分析R\n饮料特征分析——第9-10章卡方检验和方差分析R {target=“_blank”}\n广州市住宅房租比较——第10章方差分析SPSS\n大学生择偶观调查——第10章方差分析SPSS\n饮料特征分析——第11章相关和回归分析R"
   },
   {
     "objectID": "index.html",
@@ -357,10 +511,94 @@
     "text": "欢迎访问R语言生存分析:方法,实操与临床解读课程网站！\n\n\n\nR https://www.r-project.org/\nR Studio https://posit.co/download/rstudio-desktop/\n\n\n\n\n数据文件下载\n点击下载数据文件: stroke.xlsx\n\n\n\n\n\n欢迎关注微信公众号“医咖会”！"
   },
   {
-    "objectID": "index.html#r和r-studio的下载",
-    "href": "index.html#r和r-studio的下载",
-    "title": "R生存分析",
-    "section": "R和R Studio的下载",
-    "text": "R和R Studio的下载\nR https://www.r-project.org/\nR Studio https://posit.co/download/rstudio-desktop/\n点击下载数据文件: stroke.xlsx\n\n\n\n欢迎关注微信公众号“医咖会”！"
+    "objectID": "casetips.html#r读取excel文件时excel中的数值变成了字符串",
+    "href": "casetips.html#r读取excel文件时excel中的数值变成了字符串",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "R读取Excel文件时，Excel中的数值变成了字符串",
+    "text": "R读取Excel文件时，Excel中的数值变成了字符串\n\n某列中混有非数字字符, 如空格、文字、符号等\nExcel 中该列被显式设置为了“文本”格式\n如果前几行的数据不具代表性（如缺失、为字符串等），类型推断就可能失误"
+  },
+  {
+    "objectID": "casetips.html#数据框中的定量变量以字符串的形式保存",
+    "href": "casetips.html#数据框中的定量变量以字符串的形式保存",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "数据框中的定量变量以字符串的形式保存",
+    "text": "数据框中的定量变量以字符串的形式保存\n\n\nCode\ndf &lt;- data.frame(\n  name = c(\"Tom\", \"Jerry\", \"Mickey\", \"Donald\", \"Goofy\"),\n  height = c(\"170\", \"172\", \"183\", \"185\", \"177\"),\n  weight = c(\"73\", \"78\", \"85\", \"92\", \"70\")\n)\n\nmean(df$height)\n\n\nWarning in mean.default(df$height): argument is not numeric or logical:\nreturning NA\n\n\n[1] NA\n\n\nCode\n# 把height, weight转换为数值型\n\ndf &lt;- df %&gt;%\n  mutate(across(c(height, weight), as.numeric))\n\nmean(df$height)\n\n\n[1] 177.4"
+  },
+  {
+    "objectID": "casetips.html#帕累托图",
+    "href": "casetips.html#帕累托图",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "帕累托图",
+    "text": "帕累托图\n\n条形按降序排列\n标注频数"
+  },
+  {
+    "objectID": "casetips.html#帕累托图-1",
+    "href": "casetips.html#帕累托图-1",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "帕累托图",
+    "text": "帕累托图\n\n\nCode\nmpg %&gt;% \n  ggplot(aes(fct_infreq(class))) + \n  geom_bar(col = \"cyan\", fill = \"cyan\")+\n  labs(title = \"Pareto Diagram\", x = \"Manufacturer\") +\n    geom_text(stat = \"count\",\n            aes(label = after_stat(count)), \n            vjust = -0.5)+     \n  guides(x = guide_axis(angle = 45))+\n  labs(title = \"Pareto Diagram\", x = \"Manufacturer\") +\n  scale_y_continuous(limits = c(0, 70))"
+  },
+  {
+    "objectID": "casetips.html#饼图-扇区按百分比降序排列",
+    "href": "casetips.html#饼图-扇区按百分比降序排列",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "饼图 – 扇区按百分比降序排列",
+    "text": "饼图 – 扇区按百分比降序排列\n\n\nCode\n# 准备数据：按频数降序排列\ndf &lt;- mpg %&gt;%\n  count(class) %&gt;%\n  arrange(desc(n)) %&gt;%\n  mutate(pct = round(100 * n / sum(n), 0),\n         label = paste0(class, \"\\n\", pct, \"%\"),\n         class = factor(class, levels = class) # 按频数降序设置因子顺序\n  )\n\ncolors &lt;- colorRampPalette(c(\"lightblue\", \"blue\", \"darkblue\"))(nrow(df))\n\n# 绘制饼图（极坐标 + 降序排列）\nggplot(df, aes(x = \"\", y = n, fill = class)) +\n  geom_bar(stat = \"identity\", width = 1) +\n  scale_fill_manual(values = colors) +\n  coord_polar(theta = \"y\", direction = -1) +  # 逆时针方向排列\n  geom_text(aes(label = label), \n            col = \"white\",\n            position = position_stack(vjust = 0.5), size = 5) +\n  theme_void() +\n  theme(legend.position = \"none\")"
+  },
+  {
+    "objectID": "casetips.html#合并小类减少扇区",
+    "href": "casetips.html#合并小类减少扇区",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "合并小类，减少扇区",
+    "text": "合并小类，减少扇区\n\n\nCode\ndf &lt;- mpg %&gt;%\n  mutate(class = fct_lump_n(class, 5)) %&gt;% \n  count(class) %&gt;%\n  arrange(desc(n)) %&gt;%\n  mutate(pct = round(100 * n / sum(n), 0),\n         label = paste0(class, \"\\n\", pct, \"%\"),\n         class = factor(class, levels = class) # 按频数降序设置因子顺序\n  )\n\ncolors &lt;- colorRampPalette(c(\"lightblue\", \"blue\", \"darkblue\"))(nrow(df))\n\n# 绘制饼图（极坐标 + 降序排列）\nggplot(df, aes(x = \"\", y = n, fill = class)) +\n  geom_bar(stat = \"identity\", width = 1) +\n  scale_fill_manual(values = colors) +\n  coord_polar(theta = \"y\", direction = -1) +  # 逆时针方向排列\n  geom_text(aes(label = label), \n            col = \"white\",\n            position = position_stack(vjust = 0.5), size = 5) +\n  theme_void() +\n  theme(legend.position = \"none\")"
+  },
+  {
+    "objectID": "casetips.html#合并小类分组箱线图",
+    "href": "casetips.html#合并小类分组箱线图",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "合并小类，分组箱线图",
+    "text": "合并小类，分组箱线图\n\n\nCode\nmpg %&gt;%\n  mutate(class = fct_lump_n(class, 5)) %&gt;% \n  ggplot(aes(reorder(class,displ),displ,\n             col = class))+\n  geom_boxplot()+\n  guides(x = guide_axis(n.dodge = 3)) +\n  theme(legend.position = \"none\")"
+  },
+  {
+    "objectID": "casetips.html#独立性检验-适用条件",
+    "href": "casetips.html#独立性检验-适用条件",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "独立性检验 —— 适用条件",
+    "text": "独立性检验 —— 适用条件\n\n\nCode\nchisq.test(mpg$class, mpg$drv)\n\n\nWarning in chisq.test(mpg$class, mpg$drv): Chi-squared approximation may be\nincorrect\n\n\n\n    Pearson's Chi-squared test\n\ndata:  mpg$class and mpg$drv\nX-squared = 221.6, df = 12, p-value &lt; 2.2e-16"
+  },
+  {
+    "objectID": "casetips.html#独立性检验-合并小类降低列联表纬度",
+    "href": "casetips.html#独立性检验-合并小类降低列联表纬度",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "独立性检验 —— 合并小类，降低列联表纬度",
+    "text": "独立性检验 —— 合并小类，降低列联表纬度\n\n\nCode\ndf &lt;- mpg %&gt;% \n  mutate(class = fct_lump_n(class, 3),\n         drv = fct_lump_n(drv, 1))\n\ntable(df$class, df$drv)\n\n\n         \n           f Other\n  compact 35    12\n  midsize 38     3\n  suv      0    62\n  Other   33    51"
+  },
+  {
+    "objectID": "casetips.html#独立性检验-查看期望频数",
+    "href": "casetips.html#独立性检验-查看期望频数",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "独立性检验 —— 查看期望频数",
+    "text": "独立性检验 —— 查看期望频数\n\n\nCode\nchisq.test(df$class, df$drv)\n\n\n\n    Pearson's Chi-squared test\n\ndata:  df$class and df$drv\nX-squared = 105.86, df = 3, p-value &lt; 2.2e-16\n\n\nCode\nchisq.test(df$class, df$drv)$expected\n\n\n         df$drv\ndf$class         f    Other\n  compact 21.29060 25.70940\n  midsize 18.57265 22.42735\n  suv     28.08547 33.91453\n  Other   38.05128 45.94872"
+  },
+  {
+    "objectID": "casetips.html#计算行列百分比-提炼研究结论",
+    "href": "casetips.html#计算行列百分比-提炼研究结论",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "计算行/列百分比 —— 提炼研究结论",
+    "text": "计算行/列百分比 —— 提炼研究结论\n\n\n         \n            f Other\n  compact  74    26\n  midsize  93     7\n  suv       0   100\n  Other    39    61\n\n\n         \n           f Other\n  compact 33     9\n  midsize 36     2\n  suv      0    48\n  Other   31    40"
+  },
+  {
+    "objectID": "casetips.html#单因素方差分析-分类数太多导致有些组别的样本量太小",
+    "href": "casetips.html#单因素方差分析-分类数太多导致有些组别的样本量太小",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "单因素方差分析 – 分类数太多，导致有些组别的样本量太小",
+    "text": "单因素方差分析 – 分类数太多，导致有些组别的样本量太小\n\n\nCode\n# 单因素方差分析\nggbetweenstats(\n  data = mpg,\n  x = class,\n  y = displ,\n  type = \"parametric\",        \n  palette = \"Accent\", \n  violin.args = list(width = 0),\n  title = \"Suv, Midsize, Compact, Subcompact, Other五个组别的排量比较\",\n  xlab = \"Class\",\n  ylab = \"发动机排量\",\n  bf.message = FALSE,\n  digits = 3L\n)"
+  },
+  {
+    "objectID": "casetips.html#单因素方差分析-合并小类-排序",
+    "href": "casetips.html#单因素方差分析-合并小类-排序",
+    "title": "《R语言与统计应用》实验报告常见问题",
+    "section": "单因素方差分析 – 合并小类, 排序",
+    "text": "单因素方差分析 – 合并小类, 排序\n\n\nCode\n# 按中位数对 class 重新排序\ndf &lt;- mpg %&gt;%\n  mutate(\n    class = fct_lump(class, n = 4),\n    class = fct_reorder(class, displ, \n                        .fun = median, .desc = TRUE)\n  )\n\n# 单因素方差分析\nggbetweenstats(\n  data = df,\n  x = class,\n  y = displ,\n  type = \"parametric\",        \n  palette = \"Accent\", \n  violin.args = list(width = 0),\n  title = \"Suv, Midsize, Compact, Subcompact, Other五个组别的排量比较\",\n  xlab = \"Class\",\n  ylab = \"发动机排量\",\n  bf.message = FALSE,\n  digits = 3L\n)"
   }
 ]

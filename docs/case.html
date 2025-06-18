@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>案例与实验报告 – R生存分析</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-c73e22a146e553504ccbb400724ccee0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+  document.querySelectorAll('a').forEach(function(link) {
+    link.setAttribute('target', '_blank');
+  });
+</script>
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">R生存分析</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <span class="nav-link">
+<span class="menu-text">L1.qmd</span>
+    </span>
+  </li>  
+  <li class="nav-item">
+    <span class="nav-link">
+<span class="menu-text">L2.qmd</span>
+    </span>
+  </li>  
+  <li class="nav-item">
+    <span class="nav-link">
+<span class="menu-text">L3.qmd</span>
+    </span>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./L4.html"> 
+<span class="menu-text">L4 Cox模型</span></a>
+  </li>  
+  <li class="nav-item">
+    <span class="nav-link">
+<span class="menu-text">L5.qmd</span>
+    </span>
+  </li>  
+  <li class="nav-item">
+    <span class="nav-link">
+<span class="menu-text">L6.qmd</span>
+    </span>
+  </li>  
+  <li class="nav-item">
+    <span class="nav-link">
+<span class="menu-text">L7.qmd</span>
+    </span>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+    <a href="./lizongzhang9@qq.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-envelope"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#实验报告" id="toc-实验报告" class="nav-link active" data-scroll-target="#实验报告">实验报告</a></li>
+  <li><a href="#往届实验报告" id="toc-往届实验报告" class="nav-link" data-scroll-target="#往届实验报告">往届实验报告</a></li>
+  <li><a href="#第1次讨论课" id="toc-第1次讨论课" class="nav-link" data-scroll-target="#第1次讨论课">第1次讨论课</a></li>
+  <li><a href="#第3-4章讨论课-第8周" id="toc-第3-4章讨论课-第8周" class="nav-link" data-scroll-target="#第3-4章讨论课-第8周">第3-4章讨论课 (第8周)</a></li>
+  <li><a href="#第7-8章讨论课-第10周" id="toc-第7-8章讨论课-第10周" class="nav-link" data-scroll-target="#第7-8章讨论课-第10周">第7-8章讨论课 (第10周)</a></li>
+  <li><a href="#第9-10章讨论课-第12周" id="toc-第9-10章讨论课-第12周" class="nav-link" data-scroll-target="#第9-10章讨论课-第12周">第9-10章讨论课 (第12周)</a></li>
+  <li><a href="#第11章讨论课-第14周" id="toc-第11章讨论课-第14周" class="nav-link" data-scroll-target="#第11章讨论课-第14周">第11章讨论课 (第14周)</a></li>
+  <li><a href="#实验报告汇报-第17周" id="toc-实验报告汇报-第17周" class="nav-link" data-scroll-target="#实验报告汇报-第17周">实验报告汇报 (第17周)</a></li>
+  <li><a href="#小组作业" id="toc-小组作业" class="nav-link" data-scroll-target="#小组作业">小组作业</a>
+  <ul class="collapse">
+  <li><a href="#小组作业要求" id="toc-小组作业要求" class="nav-link" data-scroll-target="#小组作业要求">小组作业要求</a></li>
+  <li><a href="#小组作业示例" id="toc-小组作业示例" class="nav-link" data-scroll-target="#小组作业示例">小组作业示例</a></li>
+  <li><a href="#往届小组作业" id="toc-往届小组作业" class="nav-link" data-scroll-target="#往届小组作业">往届小组作业</a></li>
+  </ul></li>
+  <li><a href="#第3-4章小组作业点评" id="toc-第3-4章小组作业点评" class="nav-link" data-scroll-target="#第3-4章小组作业点评">第3-4章小组作业点评</a></li>
+  <li><a href="#第7-8章小组作业点评" id="toc-第7-8章小组作业点评" class="nav-link" data-scroll-target="#第7-8章小组作业点评">第7-8章小组作业点评</a></li>
+  <li><a href="#第9-10章小组作业点评" id="toc-第9-10章小组作业点评" class="nav-link" data-scroll-target="#第9-10章小组作业点评">第9-10章小组作业点评</a></li>
+  <li><a href="#qa" id="toc-qa" class="nav-link" data-scroll-target="#qa">Q&amp;A</a></li>
+  <li><a href="#发言时间表见qq群文件" id="toc-发言时间表见qq群文件" class="nav-link" data-scroll-target="#发言时间表见qq群文件">发言时间表(见QQ群文件)</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">案例与实验报告</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>每组4-5人，由组长填写在线问卷，提交分组信息：<a href="https://www.wjx.top/vm/e3AyWsR.aspx#" class="uri">https://www.wjx.top/vm/e3AyWsR.aspx#</a> </strong></p>
+<section id="实验报告" class="level1">
+<h1>实验报告</h1>
+<ul>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat25/report.html" target="_blank">实验报告写作要求</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat25/casefinal.html" target="_blank">实验报告期末汇报要求</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat25/casetips.html" target="_blank">实验报告常见问题</a></p></li>
+</ul>
+</section>
+<section id="往届实验报告" class="level1">
+<h1>往届实验报告</h1>
+<ul>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu_report.html" target="_blank">R语言与统计应用实验报告——饮料特征分析</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/statwithspss/stureportspss1.html" target="_blank">SPSS与统计实验报告——B站热门视频分析</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/statwithspss/stureportspss2.html" target="_blank">SPSS与统计实验报告——中国电影票房TOP100分析SPSS</a></p></li>
+</ul>
+</section>
+<section id="第1次讨论课" class="level1">
+<h1>第1次讨论课</h1>
+<ul>
+<li><p>讨论问题：</p>
+<ul>
+<li><p>选题方向</p></li>
+<li><p>数据收集方式（数据库、网站、问卷调查）</p></li>
+<li><p>观测单元是什么？样本容量是否容易超过200？</p></li>
+<li><p>定量变量、定性变量分别是什么？</p></li>
+<li><p>若采用问卷调查的方式收集数据，如何设计题目收集到定量数据？被访者是否容易回答，数据质量是否可靠？</p></li>
+<li><p>遇到的困难</p></li>
+</ul></li>
+<li><p>数据要求：微观截面数据，有效样本容量大于200，定量变量至少3个，定性变量至少3个，建议变量个数超过8个。</p></li>
+<li><p>在Excel中整理好收集的数据，变量名称简洁含义明确，剔除有缺失值或异常值的个案，将其导入到SPSS。</p></li>
+<li><p>运用第3-4章绘制图表，报告描述性统计量，制作好演示文件PPT。</p></li>
+<li><p>请带笔记本电脑。</p></li>
+</ul>
+</section>
+<section id="第3-4章讨论课-第8周" class="level1">
+<h1>第3-4章讨论课 (第8周)</h1>
+<ul>
+<li><p>在Excel中整理好收集的数据。</p></li>
+<li><p>创建项目, 在项目中存放Excel数据文件，代码文件。</p></li>
+<li><p>将Excel导入R Studio。</p></li>
+<li><p>运用第3-4章方法分析数据</p>
+<ul>
+<li><pre><code>绘制条形图、饼图、直方图、箱线图、散点图等</code></pre></li>
+<li><pre><code>计算定量变量的描述性统计量(均值、标准差、中位数、最小值、最大值)</code></pre></li>
+</ul></li>
+<li><p>将R的输出结果，及文字说明整理到WORD文档。</p></li>
+</ul>
+</section>
+<section id="第7-8章讨论课-第10周" class="level1">
+<h1>第7-8章讨论课 (第10周)</h1>
+<ul>
+<li><p>运用第7-8章方法分析数据</p>
+<ul>
+<li><pre><code>总体均值的区间估计</code></pre></li>
+<li><pre><code>单个总体均值的假设检验</code></pre></li>
+<li><pre><code>两个总体均值的假设检验</code></pre></li>
+</ul></li>
+<li><p>将R的输出结果，及文字说明整理到WORD文档。</p></li>
+</ul>
+</section>
+<section id="第9-10章讨论课-第12周" class="level1">
+<h1>第9-10章讨论课 (第12周)</h1>
+<ul>
+<li><p>运用第9-10章方法分析数据</p>
+<ul>
+<li><pre><code>拟合优度检验</code></pre></li>
+<li><pre><code>独立性检验</code></pre></li>
+<li><pre><code>方差分析</code></pre></li>
+</ul></li>
+<li><p>将R的输出结果，及文字说明整理到WORD文档。</p></li>
+</ul>
+</section>
+<section id="第11章讨论课-第14周" class="level1">
+<h1>第11章讨论课 (第14周)</h1>
+<ul>
+<li><p>运用第11章方法分析数据</p>
+<ul>
+<li><pre><code>相关分析</code></pre></li>
+<li><pre><code>回归分析</code></pre></li>
+</ul></li>
+<li><p>将R的输出结果，及文字说明整理到WORD文档。</p></li>
+</ul>
+</section>
+<section id="实验报告汇报-第17周" class="level1">
+<h1>实验报告汇报 (第17周)</h1>
+</section>
+<section id="小组作业" class="level1">
+<h1>小组作业</h1>
+<section id="小组作业要求" class="level2">
+<h2 class="anchored" data-anchor-id="小组作业要求">小组作业要求</h2>
+<p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat25/casereq.html" target="_blank">案例作业要求</a></p>
+</section>
+<section id="小组作业示例" class="level2">
+<h2 class="anchored" data-anchor-id="小组作业示例">小组作业示例</h2>
+<ul>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat24/case1pre.html" target="_blank">第3-4章 广州六大奶茶品牌</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/case2.html" target="_blank">第7-8章 小组作业收获感</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat25/case2pre.html" target="_blank">第8-9章 汽车油耗</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/case3.html" target="_blank">第9-10章 奶茶品牌、区位和价格</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/case4.html" target="_blank">第11章 二手房房价、区位和房龄</a></p></li>
+</ul>
+</section>
+<section id="往届小组作业" class="level2">
+<h2 class="anchored" data-anchor-id="往届小组作业">往届小组作业</h2>
+<ul>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu6.html" target="_blank">饮料特征分析——第3-4章图表工具和描述统计R</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu1.html" target="_blank">广东省地市领导班子特征分析——第3章图表工具SPSS</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu2.html" target="_blank">奶茶消费调查——第3章图表工具SPSS</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu4.html" target="_blank">证监会录用人员特征——第3章图表工具Excel</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu8.html" target="_blank">饮料特征分析——第7-8章区间估计和假设检验R</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu7.html" target="_blank">证券分析师——第9-10章卡方检验和方差分析R</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu9.html">饮料特征分析——第9-10章卡方检验和方差分析R</a> {target=“_blank”}</p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu5.html" target="_blank">广州市住宅房租比较——第10章方差分析SPSS</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu3.html" target="_blank">大学生择偶观调查——第10章方差分析SPSS</a></p></li>
+<li><p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/stat/stu10.html" target="_blank">饮料特征分析——第11章相关和回归分析R</a></p></li>
+</ul>
+</section>
+</section>
+<section id="第3-4章小组作业点评" class="level1">
+<h1>第3-4章小组作业点评</h1>
+<p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/statwithspss/case1comment.html">第3-4章小组作业点评</a></p>
+</section>
+<section id="第7-8章小组作业点评" class="level1">
+<h1>第7-8章小组作业点评</h1>
+<p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/statwithspss/case2comment.html">第7-8章小组作业点评</a></p>
+</section>
+<section id="第9-10章小组作业点评" class="level1">
+<h1>第9-10章小组作业点评</h1>
+<p><img src="img/link.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://lizongzhang.github.io/statwithspss/case3comment.html">第9-10章小组作业点评</a></p>
+</section>
+<section id="qa" class="level1">
+<h1>Q&amp;A</h1>
+<p>Q1：实验报告与小组作业需用同样的选题和数据吗？</p>
+<p>A：建议用同样的选题和数据。若想用不同的选题或数据，也可。</p>
+<p>Q2：实验报告中的统计分析必须要用R软件来实现吗？</p>
+<p>A：是的。创建数据文件、整理数据可以使用Excel，统计方法的实现需要用R。</p>
+<p>Q3：如何选题？</p>
+<p>A：从兴趣出发，考虑数据的可获得性。</p>
+<ul>
+<li><p>乐高玩具——微信小程序：积木箱</p></li>
+<li><p>APP：JUMP，航旅纵横、携程，大众点评，贝壳等</p></li>
+<li><p>网站：boss直聘，易车</p></li>
+<li><p>必应/google搜索 关键词 + 数据/dataset</p></li>
+</ul>
+<p>Q4：问卷调查如何收集定量变量？</p>
+<p>A：填空题。需要考虑被访者能否容易回答，数据质量是否可靠。</p>
+<ul>
+<li><p>每月消费，生活费，每周学习时长，运动时长等，数据波动较大，精确度较差</p></li>
+<li><p>手机：购置价格、型号、内存、何时购买、内存使用、下一部手机购买的预期等</p></li>
+<li><p>APP使用情况</p></li>
+</ul>
+</section>
+<section id="发言时间表见qq群文件" class="level1">
+<h1>发言时间表(见QQ群文件)</h1>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Copyright 2025, 医咖会 &amp; Li Zongzhang</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>Statistics: turning data into insights.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

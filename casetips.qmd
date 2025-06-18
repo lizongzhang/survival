@@ -1,0 +1,341 @@
+---
+title:  "《R语言与统计应用》<br>实验报告常见问题"
+date: today
+author: 
+  name: "李宗璋"
+  url: https://space.bilibili.com/590872906/
+format: 
+  revealjs:
+    incremental: FALSE
+    theme: sky
+    slide-number: true
+    code-fold: true
+    chalkboard: 
+      buttons: true
+    preview-links: auto
+    css: styles.css
+    footer: |
+      <https://lizongzhang.github.io/stat25><br>© 2025 Li Zongzhang 
+    include-before-body: 
+      - header.html
+      - fonts.html
+    title-slide-attributes: 
+      data-background-image: "img/bili_up.jpg"  
+      data-background-size: "50px"        
+      data-background-position: "center bottom 120px"  
+    plugins: [highlight, zoom, notes]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+#| echo: FALSE
+par(family  = 'STKaiti')
+library(showtext)
+showtext_auto()
+library(tidyverse)
+```
+
+
+------
+
+## R读取Excel文件时，Excel中的数值变成了字符串
+
+- 某列中混有非数字字符, 如空格、文字、符号等
+
+- Excel 中该列被显式设置为了“文本”格式
+
+- 如果前几行的数据不具代表性（如缺失、为字符串等），类型推断就可能失误
+
+----
+
+## 数据框中的定量变量以字符串的形式保存
+
+```{r}
+#| echo: TRUE
+#| warning: TRUE
+
+
+df <- data.frame(
+  name = c("Tom", "Jerry", "Mickey", "Donald", "Goofy"),
+  height = c("170", "172", "183", "185", "177"),
+  weight = c("73", "78", "85", "92", "70")
+)
+
+mean(df$height)
+
+# 把height, weight转换为数值型
+
+df <- df %>%
+  mutate(across(c(height, weight), as.numeric))
+
+mean(df$height)
+
+```
+
+------
+
+## 帕累托图
+
+- 条形按降序排列
+
+- 标注频数
+
+----
+
+## 帕累托图
+
+```{r}
+#| echo: TRUE
+
+mpg %>% 
+  ggplot(aes(fct_infreq(class))) + 
+  geom_bar(col = "cyan", fill = "cyan")+
+  labs(title = "Pareto Diagram", x = "Manufacturer") +
+    geom_text(stat = "count",
+            aes(label = after_stat(count)), 
+            vjust = -0.5)+     
+  guides(x = guide_axis(angle = 45))+
+  labs(title = "Pareto Diagram", x = "Manufacturer") +
+  scale_y_continuous(limits = c(0, 70))
+```
+
+
+---
+
+## 饼图 -- 扇区按百分比降序排列
+
+```{r}
+#| echo: TRUE
+
+# 准备数据：按频数降序排列
+df <- mpg %>%
+  count(class) %>%
+  arrange(desc(n)) %>%
+  mutate(pct = round(100 * n / sum(n), 0),
+         label = paste0(class, "\n", pct, "%"),
+         class = factor(class, levels = class) # 按频数降序设置因子顺序
+  )
+
+colors <- colorRampPalette(c("lightblue", "blue", "darkblue"))(nrow(df))
+
+# 绘制饼图（极坐标 + 降序排列）
+ggplot(df, aes(x = "", y = n, fill = class)) +
+  geom_bar(stat = "identity", width = 1) +
+  scale_fill_manual(values = colors) +
+  coord_polar(theta = "y", direction = -1) +  # 逆时针方向排列
+  geom_text(aes(label = label), 
+            col = "white",
+            position = position_stack(vjust = 0.5), size = 5) +
+  theme_void() +
+  theme(legend.position = "none")
+```
+
+
+------
+
+## 合并小类，减少扇区
+
+```{r}
+#| echo: TRUE
+
+
+df <- mpg %>%
+  mutate(class = fct_lump_n(class, 5)) %>% 
+  count(class) %>%
+  arrange(desc(n)) %>%
+  mutate(pct = round(100 * n / sum(n), 0),
+         label = paste0(class, "\n", pct, "%"),
+         class = factor(class, levels = class) # 按频数降序设置因子顺序
+  )
+
+colors <- colorRampPalette(c("lightblue", "blue", "darkblue"))(nrow(df))
+
+# 绘制饼图（极坐标 + 降序排列）
+ggplot(df, aes(x = "", y = n, fill = class)) +
+  geom_bar(stat = "identity", width = 1) +
+  scale_fill_manual(values = colors) +
+  coord_polar(theta = "y", direction = -1) +  # 逆时针方向排列
+  geom_text(aes(label = label), 
+            col = "white",
+            position = position_stack(vjust = 0.5), size = 5) +
+  theme_void() +
+  theme(legend.position = "none")
+```
+
+
+--------------
+
+## 合并小类，分组箱线图
+
+```{r}
+#| echo: TRUE
+
+mpg %>%
+  mutate(class = fct_lump_n(class, 5)) %>% 
+  ggplot(aes(reorder(class,displ),displ,
+             col = class))+
+  geom_boxplot()+
+  guides(x = guide_axis(n.dodge = 3)) +
+  theme(legend.position = "none")
+```
+
+
+
+--------------
+
+## 独立性检验 —— 适用条件
+
+```{r}
+#| echo: TRUE
+#| warning: TRUE
+
+chisq.test(mpg$class, mpg$drv)
+
+```
+
+--------------
+
+## 独立性检验 —— 合并小类，降低列联表纬度
+
+```{r}
+#| echo: TRUE
+#| warning: TRUE
+
+df <- mpg %>% 
+  mutate(class = fct_lump_n(class, 3),
+         drv = fct_lump_n(drv, 1))
+
+table(df$class, df$drv)
+
+```
+
+---
+
+## 独立性检验 —— 查看期望频数
+
+```{r}
+#| echo: TRUE
+#| 
+chisq.test(df$class, df$drv)
+
+chisq.test(df$class, df$drv)$expected
+
+```
+
+----
+
+## 计算行/列百分比 —— 提炼研究结论
+
+```{r}
+
+#| echo: TRUE
+
+# 计算行的百分比
+table(df$class, df$drv) %>% 
+  prop.table(margin = 1)%>% 
+  round(2)*100 
+
+# 计算行的百分比
+table(df$class, df$drv) %>% 
+  prop.table(margin = 2)%>% 
+  round(2)*100 
+```
+
+--------
+
+# 两个独立总体的均值的比较
+
+```{r}
+#| echo: TRUE
+
+library(ggstatsplot)
+
+# 筛选两组数据
+df <- mpg %>%
+  filter(drv %in% c("f", "4")) %>%
+  mutate(drv = factor(drv, levels = c("f", "4"),
+                      labels = c("前驱", "四驱")))
+
+# 两个总体均值的t检验
+ggbetweenstats(
+  data = df,
+  x = drv,
+  y = displ,
+  type = "parametric",        
+  palette = "Accent",        
+  messages = FALSE,
+  violin.args = list(width = 0),
+  title = "前驱和四驱的排量比较",
+  xlab = "驱动方式",
+  ylab = "发动机排量",
+  bf.message = FALSE,
+  digits = 3L
+)
+
+```
+
+----
+
+## 单因素方差分析 -- 分类数太多，导致有些组别的样本量太小
+
+```{r}
+#| echo: TRUE
+#| fig-width: 10
+#| fig-height: 4.5
+
+
+# 单因素方差分析
+ggbetweenstats(
+  data = mpg,
+  x = class,
+  y = displ,
+  type = "parametric",        
+  palette = "Accent", 
+  violin.args = list(width = 0),
+  title = "Suv, Midsize, Compact, Subcompact, Other五个组别的排量比较",
+  xlab = "Class",
+  ylab = "发动机排量",
+  bf.message = FALSE,
+  digits = 3L
+)
+```
+
+
+
+--------
+
+## 单因素方差分析 -- 合并小类, 排序
+
+```{r}
+#| echo: TRUE
+
+
+# 按中位数对 class 重新排序
+df <- mpg %>%
+  mutate(
+    class = fct_lump(class, n = 4),
+    class = fct_reorder(class, displ, 
+                        .fun = median, .desc = TRUE)
+  )
+
+# 单因素方差分析
+ggbetweenstats(
+  data = df,
+  x = class,
+  y = displ,
+  type = "parametric",        
+  palette = "Accent", 
+  violin.args = list(width = 0),
+  title = "Suv, Midsize, Compact, Subcompact, Other五个组别的排量比较",
+  xlab = "Class",
+  ylab = "发动机排量",
+  bf.message = FALSE,
+  digits = 3L
+)
+```
+
+
+
+

@@ -25,9 +25,8 @@
   color: #044875 !important;
 }
 
-
 .reveal::before {
-  content: "医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group 医咖会 medieco group  ";
+  content: "医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP";
   position: fixed;
   top: -50%;
   left: -50%;
@@ -36,7 +35,7 @@
   font-size: 2em;
   line-height: 1.5;
   color: #000;
-  opacity: 0.1;
+  opacity: 0.05;
   transform: rotate(-45deg);
   z-index: 0;
   pointer-events: none;
@@ -47,5 +46,12 @@
   text-align: center;
 }
 
-
+/* 控制代码块字体大小和行距 */
+.reveal pre code,
+.reveal pre.sourceCode code,
+.reveal div.sourceCode pre code {
+  font-size: 1.5em !important;
+  line-height: 1.6 !important;
+  font-family: "Courier New", "Fira Code", monospace !important;
+}
 
