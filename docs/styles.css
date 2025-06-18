@@ -26,12 +26,12 @@
 }
 
 .reveal::before {
-  content: "医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP";
+  content: "医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP  医咖会";
   position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  top: 5vh;              /* 留出上边距 */
+  left: 5vw;             /* 留出左边距 */
+  width: 90vw;           /* 不铺满，留出右边距 */
+  height: 90vh;          /* 不铺满，留出下边距 */
   font-size: 2em;
   line-height: 1.5;
   color: #000;
@@ -40,11 +40,11 @@
   z-index: 0;
   pointer-events: none;
   white-space: pre-wrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   text-align: center;
 }
+
+
+
 
 /* 控制代码块字体大小和行距 */
 .reveal pre code,
