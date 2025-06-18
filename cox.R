@@ -242,6 +242,52 @@ tbl_merge(
 )
 
 
-library(report)
+# export to word ----------------------------------------------------------
 
-report(model2)
+tbl_combined <- tbl_merge(
+  tbls = list(tbl1, tbl2),
+  tab_spanner = c("**Model 1**", "**Model 2**")
+)
+
+
+library(flextable)
+library(officer)
+
+
+read_docx() %>%
+  body_add_par("Table 2. Results of Cox Proportional Hazards Regression Models") %>%
+  body_add_flextable(as_flex_table(tbl_combined)) %>%
+  print(target = "cox_results.docx")
+
+
+
+# check data --------------------------------------------------------------
+
+library(survival)
+library(tidyverse)
+
+data(lung, package = "survival")
+
+lung <- lung %>%
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1)
+  )
+
+vars <- c("female", "age", "wt.loss", "meal.cal", "ph.ecog", "ph.karno", "pat.karno")
+
+# 样本总数、事件数、删失数
+table(lung$status)
+
+# 缺失值统计
+sapply(lung[, vars], \(x) sum(is.na(x)))
+
+# Event per Variable 计算
+event_n <- sum(lung$status == 1)
+epv <- event_n / length(vars)
+epv
+
+
+
+
+

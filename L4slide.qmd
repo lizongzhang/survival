@@ -34,42 +34,77 @@ editor:
 par(family  = 'STKaiti')
 library(showtext)
 showtext_auto()
+
+# install.packages("survival")
+# install.packages("ggsurvfit")
+# install.packages("gtsummary")
+# install.packages("tidyverse")
+
+library(survival)
+library(ggsurvfit)
+library(gtsummary)
 library(tidyverse)
 ```
 
 
-
-------------------------------------------------------------------------
+---------
 
 ## 大纲
 
 -   4.1 Cox模型简介
 
--   4.2 Cox模型的估计和检验
+-   4.2 Cox模型的数据结构
 
--   4.3 Cox模型的预测
+-   4.3 Cox模型的估计
 
--   4.4 Cox模型的可视化工具
+-   4.4 Cox模型的检验
 
--   4.5 Cox模型的扩展
+-   4.5 Cox模型的可视化
 
-------------------------------------------------------------------------
+-   4.6 Cox模型的扩展
+
+--------
 
 ## 4.1 Cox模型简介
 
-------------------------------------------------------------------------
 
-## 4.2 Cox模型的估计和检验
+Cox 比例风险模型（Cox Proportional Hazards Model）
 
--   数据结构
+- 英国统计学家 David Cox 于 1972 年提出的一种**半参数生存分析模型**
 
--   估计
 
--   表格化输出
+$$
+h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
+$$
 
--   检验
+其中：
 
-------------------------------------------------------------------------
+$h(t | X)$ 在时间t的**瞬时风险（hazard）**
+
+$h_0(t)$ **基线风险函数（baseline hazard）**
+
+---
+
+## 比例风险假设
+
+Cox 模型假设不同个体间的风险比在时间上是**恒定的**：
+
+$$
+\frac{h(t|X_1)}{h(t|X_2)} = \text{常数}, \quad \forall t
+$$
+
+这意味着协变量对风险的影响是**比例的**，即风险比不随时间变化。
+---
+
+## 与其他生存模型比较
+
+| 模型       | 参数类型 | 是否建模 \( h_0(t) \) | 是否允许协变量 |
+|------------|----------|------------------------|----------------|
+| Kaplan-Meier | 非参数   | ❌                     | ❌             |
+| Cox 模型   | 半参数   | ❌                     | ✅             |
+| AFT 模型   | 参数     | ✅（如 Weibull）        | ✅             |
+
+---------
 
 ## 4.2 Cox模型的数据结构
 
@@ -96,67 +131,120 @@ library(tidyverse)
         -   diabetes: diabetes = 1, 患有糖尿病， diabetes = 0 ,
             不患有糖尿病
 
-------------------------------------------------------------------------
 
-```{r}
-#| echo: FALSE
+--------------------------------------------------------------
 
-# install.packages("survival")
-# install.packages("ggsurvfit")
-# install.packages("gtsummary")
-# install.packages("tidyverse")
+## 4.2 Cox模型的数据结构：样本容量
 
-library(survival)
-library(ggsurvfit)
-library(gtsummary)
-library(tidyverse)
-```
+每个协变量（解释变量）至少需要约 10 个事件（即 status = 1 的个体）
 
-------------------------------------------------------------------------
 
-## 4.2 举例：晚期肺癌患者的生成分析
+| 项目              | 推荐数量                      |
+| --------------- | ------------------------- |
+| 每个变量（predictor） | ≥ 10 个事件（status = 1）      |
+| 模型变量数为 `k`      | 至少 `10 × k` 个 status = 1  |
+| 示例：5 个变量        | 需要至少 50 个死亡（status = 1）事件 |
+| 样本删失比例不宜过高      | status=1 的比例最好 ≥ 30%      |
 
--   **`inst`**：医疗机构编号。可用于研究中心效应（通常不用于建模）。
+\
 
--   **`time`**：生存时间（天）。用于 Cox 模型中的 `Surv(time, status)`。
+\
+
+
+::: {.reference-text-small}
+Vittinghoff, E., & McCulloch, C. E. (2007). Relaxing the rule of ten events per variable in logistic and Cox regression. American Journal of Epidemiology.
+:::
+
+---------
+
+## 4.2 Cox模型建模前对数据的检查
+
+| 检查点          | 推荐标准                      |
+| ------------ | ------------------------- |
+| 是否有足够事件？     | 每个变量 ≥ 10 个事件（status = 1） |
+| status=1 的比例 | ≥ 30% 最佳                  |
+| 是否有严重缺失？     | 不推荐变量缺失率 > 15%            |
+| 是否满足比例风险？    | 拟合后需检验（如 Schoenfeld 残差）   |
+
+----------
+
+## 4.2 应用：晚期肺癌患者的生存分析
+
+-   **`inst`**：医疗机构编号
+
+-   **`time`**：生存时间（天）
 
 -   **`status`**：生存状态。1 = 删失（censored），2 =
-    死亡（event）；与常见的 0/1 编码不同。
+    死亡（event
 
--   **`age`**：年龄（岁），为连续变量。
+-   **`age`**：年龄（岁）
 
--   **`sex`**：性别。1 = 男，2 = 女
+-   **`sex`**：性别, 1 = 男，2 = 女
 
 -   **`ph.ecog`**：ECOG（医生评估的体能评分），评分从 0（无症状）到
     4（卧床）
 
--   **`ph.karno`**：Karnofsky（医生评估），0–100，数值越高表示功能越好
+-   **`ph.karno`**：医生评估Karnofsky评分, 0–100, 数值越高表示功能越好
 
--   **`pat.karno`**：Karnofsky（病人自评），患者对自身身体状况的评分
+-   **`pat.karno`**：患者评估Karnofsky评分
 
--   **`meal.cal`**：每餐摄入热量（calories），与营养状态相关
+-   **`meal.cal`**：每餐摄入热量 (calories)
 
--   **`wt.loss`**：最近 6
-    个月内体重下降（磅），为连续变量，健康状况的重要指标
+-   **`wt.loss`**：最近 6个月内体重下降的数值(磅)
 
-::: reference-text
+::: {.reference-text-small}
 Loprinzi, Charles Lawrence, et al. "Prospective evaluation of prognostic
 variables from patient-completed questionnaires. North Central Cancer
 Treatment Group." *Journal of Clinical Oncology* 12.3 (1994): 601–607.
 :::
 
-------------------------------------------------------------------------
+--------------------
 
-## 4.2 数据整理
+## 4.2 Cox模型建模前对数据的检查
+
 
 ```{r}
-#| echo: TRUE
+#| echo: true
+#| code-fold: true
+
+library(survival)
+library(tidyverse)
+
+data(lung, package = "survival")
+
+lung <- lung %>%
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1)
+  )
+
+vars <- c("female", "age", "wt.loss", "meal.cal", "ph.ecog", "ph.karno", "pat.karno")
+
+# 样本总数、事件数、删失数
+table(lung$status)
+
+# 缺失值统计
+sapply(lung[, vars], \(x) sum(is.na(x)))
+
+# Event per Variable 
+event_n <- sum(lung$status == 1)
+epv <- event_n / length(vars)
+epv
+
+```
+
+----------------------------------------------------
+
+## 4.2 Cox模型建模前对数据的检查
+
+```{r}
+#| echo: true
 #| code-fold: false
 
-data(cancer, package="survival")
-# lung: status = 1 or 2, 修改status的赋值：status: 0 = censored, 1 = dead
-# lung: sex = 1 or 2, 创建female
+library(survival)
 
+# lung: status = 1 or 2, 对status重新编码：status: 0 = censored, 1 = dead
+# lung: sex = 1 or 2, 创建female
 data(cancer, package = "survival")
 
 lung <- 
@@ -164,30 +252,45 @@ lung <-
   mutate(
     status = recode(status, `1` = 0, `2` = 1),
     female = recode(sex, `1` = 0, `2` = 1))
+
 ```
 
-------------------------------------------------------------------------
+---------------
 
 ## 4.3 Cox模型的估计
 
--   survival::coxph() 函数
+- 语法结构
 
--   创建survival对象
+- R代码
 
-    -   Surv(time, status)
+- 系数解释
 
--   coxph()
+- 表格化输出
+
+- 导出到 Word文档
+
+## 4.3 Cox模型的估计: 语法结构
+
+R语言中，Cox比例风险模型的核心函数是 `survival::coxph()`，它用于拟合 Cox 模型。
+
+-   `coxph(Surv(time, status) ~ covariates, data = dataset)`
+
+-   `Surv(time, status)` 创建生存对象，包含生存时间和生存状态。
+
+-   `covariates` 是一个或多个解释变量，可以是连续型或分类型。
+
 
 ---------
 
-## 4.3 Cox模型的估计
+## 4.3 Cox模型的估计: R代码
 
 
 ```{r}
 #| echo: true
 #| code-fold: true
 
-data(cancer, package = "survival")
+library(survival)
+data(cancer)
 lung <- 
   lung %>% 
   mutate(
@@ -195,14 +298,14 @@ lung <-
     female = recode(sex, `1` = 0, `2` = 1)
   )
 
-#| echo: true
+
 coxph(Surv(time, status) ~ female, data = lung)
 
 ```
 
 ---------
 
-## 4.3 Cox模型的估计
+## 4.3 Cox模型的估计: R代码2
 
 ```{r}
 #| echo: true
@@ -217,9 +320,13 @@ lung <-
     female = recode(sex, `1` = 0, `2` = 1))
 
 coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
+
 ```
 
 -----
+
+## 4.3 Cox模型系数的解读
+
 
 Cox 模型的数学形式如下：
 
@@ -228,37 +335,12 @@ $$
 $$
 
 - `coef`：模型估计的回归系数 $\beta$，表示对数风险的线性影响；
-- `exp(coef)`：即 $\exp(\beta)$，为风险比（Hazard Ratio, HR），表示死亡风险的相对变化倍数。
+- `exp(coef)`：即 $\exp(\beta)$，为风险比（Hazard Ratio, HR），表示死亡风险的变化倍数。
 
 
 ----
 
-## 4.3 Cox模型系数的解读
-
-```{r}
-#| echo: true
-#| code-fold: true
-
-data(cancer, package = "survival")
-
-lung <- 
-  lung %>% 
-  mutate(
-    status = recode(status, `1` = 0, `2` = 1),
-    female = recode(sex, `1` = 0, `2` = 1))
-
-coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
-```
-
-女性比男性的死亡风险（hazard）降低了 0.63 倍（即 $\exp(-0.462) \approx 0.63$），
-
-
-
-----
-
-
-## 4.3 Cox回归与线性回归的对比
-
+## 4.3 Cox模型的估计系: 数解读
 
 - **线性回归**：  
   $$
@@ -270,9 +352,8 @@ coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
   \log h(t \mid x) = \log h_0(t) + \beta_1 x_1 + \cdots + \beta_p x_p
   $$
 
----
 
-## 区别：
+**区别**
 
 - 线性回归：$x_j$ 对Y的影响
 
@@ -281,39 +362,96 @@ coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
 
 ---------
 
-## 4.3 Cox模型的系数符号
+## 4.3 Cox模型的估计: 系数解读
 
--   正系数 → 增加风险（hazard ↑），生存时间变短
+-   正系数 → 风险增加，生存时间变短
 
--   负系数 → 降低风险（hazard ↓），延长生存时间
-
-----
-
-## 4.3 Cox模型的系数的含义
+-   负系数 → 风险降低，生存时间变长
 
 
-- $\beta_j$（即 `coef`）：
+- $\beta_j$ ($coef$)：
   - $x_j$ **每增加一个单位**，$\log(\text{hazard})$ 增加 $\beta_j$
   - 抽象
 
-- $exp(\beta_j)$（即 $exp(coef)$）：
+- $exp(\beta_j)$ ($exp(coef)$)：
   - $x_j$ **每增加一个单位**，hazard（风险）会乘上一个因子 $\exp(\beta_j)$
   - hazard（风险）会增加 $\exp(\beta_j) - 1$ 倍
   - 直观，容易理解
   
-- 论文中：
-
-  - 在控制其他变量后，$x_j$ 每增加1个单位 ，死亡风险(上升/下降）$(\exp(\beta_j) - 1)$*100% 
-  
+在控制其他变量后，$x_j$ 每增加1个单位 ，死亡风险(上升/下降）$(\exp(\beta_j) - 1) \times 100\%$
+ 
 -----
+
+## 4.3 Cox模型的估计: 系数解读
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+data(cancer, package = "survival")
+
+lung <- 
+  lung %>% 
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1))
+
+coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
+
+```
+
+<div class="smaller-text">
+
+在控制其他变量后：
+
+女性比男性的死亡风险降低了约 46%. $\left( \exp(-0.625) - 1 \right) \times 100\% = (0.535 - 1) \times 100\% \approx -46\%$。
+
+年龄每增加1岁, 死亡风险增加2%. $\left( \exp(0.020) - 1 \right) \times 100\% = (1.020 - 1) \times 100\% \approx 2\%$。
+
+</div>
+
+
+----
+
+## 4.3 Cox模型的估计: 系数解读
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+data(cancer, package = "survival")
+
+lung <- 
+  lung %>% 
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1))
+
+coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + 
+                  pat.karno, data = lung)
+
+```
+
+<div class="smaller-text">
+
+在控制其他变量后:
+
+女性比男性的死亡风险降低了约 46%. $\left( \exp(-0.625) - 1 \right) \times 100\% = (0.535 - 1) \times 100\% \approx -46\%$
+
+ph.ecog每增加1分(机能恶化), 死亡风险增加96%. $\left( \exp(0.675) - 1 \right) \times 100\% = (1.964 - 1) \times 100\% \approx 96\%$
+
+</div>
+
+----
 
 ## 4.3 Cox模型的表格化输出
 
 
 ```{r}
-
 #| echo: true
 #| code-fold: true
+
+library(gtsummary)
 
 data(cancer, package = "survival")
 
@@ -327,7 +465,6 @@ model1 <- coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
 model2 <- coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + 
                   pat.karno, data = lung)
 
-# 回归表（保留 HR 三位小数）
 tbl1 <- tbl_regression(
   model1,
   exponentiate = TRUE,
@@ -340,13 +477,37 @@ tbl2 <- tbl_regression(
   estimate_fun = function(x) style_number(x, digits = 3)
 )
 
-# 合并两张表
 tbl_merge(
   tbls = list(tbl1, tbl2),
   tab_spanner = c("**Model 1**", "**Model 2**")
 )
+
 ```
 
+-----
+
+## 4.3 Cox模型的估计: 导出到 Word文档
+
+
+```{r}
+#| echo: true
+#| code-fold: false
+tbl_combined <- tbl_merge(
+  tbls = list(tbl1, tbl2),
+  tab_spanner = c("**Model 1**", "**Model 2**")
+)
+
+
+library(flextable)
+library(officer)
+
+
+read_docx() %>%
+  body_add_par("Table 2. Results of Cox Proportional Hazards Regression Models") %>%
+  body_add_flextable(as_flex_table(tbl_combined)) %>%
+  print(target = "cox_results.docx")
+
+```
 
 
 ------------------------------------------------------------------------

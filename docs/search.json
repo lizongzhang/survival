@@ -4,14 +4,14 @@
     "href": "L4slide.html#大纲",
     "title": "L4 Cox比例风险模型",
     "section": "大纲",
-    "text": "大纲\n\n4.1 Cox模型简介\n4.2 Cox模型的估计和检验\n4.3 Cox模型的预测\n4.4 Cox模型的可视化工具\n4.5 Cox模型的扩展"
+    "text": "大纲\n\n4.1 Cox模型简介\n4.2 Cox模型的数据结构\n4.3 Cox模型的估计\n4.4 Cox模型的检验\n4.5 Cox模型的可视化\n4.6 Cox模型的扩展"
   },
   {
     "objectID": "L4slide.html#cox模型简介",
     "href": "L4slide.html#cox模型简介",
     "title": "L4 Cox比例风险模型",
     "section": "4.1 Cox模型简介",
-    "text": "4.1 Cox模型简介"
+    "text": "4.1 Cox模型简介\nCox 比例风险模型（Cox Proportional Hazards Model）\n\n英国统计学家 David Cox 于 1972 年提出的一种半参数生存分析模型\n\n\\[\nh(t | X) = h_0(t) \\cdot \\exp(\\beta_1 X_1 + \\beta_2 X_2 + \\dots + \\beta_p X_p)\n\\]\n其中：\n\\(h(t | X)\\) 在时间t的瞬时风险（hazard）\n\\(h_0(t)\\) 基线风险函数（baseline hazard）"
   },
   {
     "objectID": "L4slide.html#cox模型的估计和检验",
@@ -31,22 +31,22 @@
     "objectID": "L4slide.html#举例晚期肺癌患者的生成分析",
     "href": "L4slide.html#举例晚期肺癌患者的生成分析",
     "title": "L4 Cox比例风险模型",
-    "section": "4.2 举例：晚期肺癌患者的生成分析",
-    "text": "4.2 举例：晚期肺癌患者的生成分析\n\ninst：医疗机构编号。可用于研究中心效应（通常不用于建模）。\ntime：生存时间（天）。用于 Cox 模型中的 Surv(time, status)。\nstatus：生存状态。1 = 删失（censored），2 = 死亡（event）；与常见的 0/1 编码不同。\nage：年龄（岁），为连续变量。\nsex：性别。1 = 男，2 = 女\nph.ecog：ECOG（医生评估的体能评分），评分从 0（无症状）到 4（卧床）\nph.karno：Karnofsky（医生评估），0–100，数值越高表示功能越好\npat.karno：Karnofsky（病人自评），患者对自身身体状况的评分\nmeal.cal：每餐摄入热量（calories），与营养状态相关\nwt.loss：最近 6 个月内体重下降（磅），为连续变量，健康状况的重要指标\n\n\nLoprinzi, Charles Lawrence, et al. “Prospective evaluation of prognostic variables from patient-completed questionnaires. North Central Cancer Treatment Group.” Journal of Clinical Oncology 12.3 (1994): 601–607."
+    "section": "4.2.1 举例：晚期肺癌患者的生成分析",
+    "text": "4.2.1 举例：晚期肺癌患者的生成分析\n\ninst：医疗机构编号。可用于研究中心效应（通常不用于建模）。\ntime：生存时间（天）。用于 Cox 模型中的 Surv(time, status)。\nstatus：生存状态。1 = 删失（censored），2 = 死亡（event）；与常见的 0/1 编码不同。\nage：年龄（岁），为连续变量。\nsex：性别。1 = 男，2 = 女\nph.ecog：ECOG（医生评估的体能评分），评分从 0（无症状）到 4（卧床）\nph.karno：Karnofsky（医生评估），0–100，数值越高表示功能越好\npat.karno：Karnofsky（病人自评），患者对自身身体状况的评分\nmeal.cal：每餐摄入热量（calories），与营养状态相关\nwt.loss：最近 6 个月内体重下降（磅），为连续变量，健康状况的重要指标\n\n\nLoprinzi, Charles Lawrence, et al. “Prospective evaluation of prognostic variables from patient-completed questionnaires. North Central Cancer Treatment Group.” Journal of Clinical Oncology 12.3 (1994): 601–607."
   },
   {
     "objectID": "L4slide.html#数据整理",
     "href": "L4slide.html#数据整理",
     "title": "L4 Cox比例风险模型",
     "section": "4.2 数据整理",
-    "text": "4.2 数据整理\n\ndata(cancer, package=\"survival\")\n# lung: status = 1 or 2, 修改status的赋值：status: 0 = censored, 1 = dead\n# lung: sex = 1 or 2, 创建female\n\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))"
+    "text": "4.2 数据整理\n\nlibrary(survival)\ndata(cancer)\n# lung: status = 1 or 2, 对status重新编码：status: 0 = censored, 1 = dead\n# lung: sex = 1 or 2, 创建female\n\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))"
   },
   {
     "objectID": "L4slide.html#cox模型的估计",
     "href": "L4slide.html#cox模型的估计",
     "title": "L4 Cox比例风险模型",
     "section": "4.3 Cox模型的估计",
-    "text": "4.3 Cox模型的估计\n\nsurvival::coxph() 函数\n创建survival对象\n\nSurv(time, status)\n\ncoxph()"
+    "text": "4.3 Cox模型的估计\n\n语法结构\nR代码\n系数解释\n表格化输出\n导出到 Word文档"
   },
   {
     "objectID": "L4slide.html#cox模型的估计-1",
@@ -67,14 +67,14 @@
     "href": "L4slide.html#cox模型系数的解读",
     "title": "L4 Cox比例风险模型",
     "section": "4.3 Cox模型系数的解读",
-    "text": "4.3 Cox模型系数的解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)\n\n\n女性比男性的死亡风险（hazard）降低了 0.63 倍（即 \\(\\exp(-0.462) \\approx 0.63\\)），"
+    "text": "4.3 Cox模型系数的解读\nCox 模型的数学形式如下：\n\\[\n\\log h(t|x) = \\log h_0(t) + \\beta_1 x_1 + \\beta_2 x_2 + \\cdots + \\beta_p x_p\n\\]\n\ncoef：模型估计的回归系数 \\(\\beta\\)，表示对数风险的线性影响；\nexp(coef)：即 \\(\\exp(\\beta)\\)，为风险比（Hazard Ratio, HR），表示死亡风险的变化倍数。"
   },
   {
     "objectID": "L4slide.html#cox回归与线性回归的对比",
     "href": "L4slide.html#cox回归与线性回归的对比",
     "title": "L4 Cox比例风险模型",
     "section": "4.3 Cox回归与线性回归的对比",
-    "text": "4.3 Cox回归与线性回归的对比\n\n线性回归：\n\\[\ny = \\beta_0 + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]\nCox 模型：\n\\[\n\\log h(t \\mid x) = \\log h_0(t) + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]"
+    "text": "4.3 Cox回归与线性回归的对比\n\n线性回归：\n\\[\ny = \\beta_0 + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]\nCox 模型：\n\\[\n\\log h(t \\mid x) = \\log h_0(t) + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]\n\n区别\n\n线性回归：\\(x_j\\) 对Y的影响\nCox 回归：\\(x_j\\) 对\\(\\log(\\text{hazard})\\) 的影响"
   },
   {
     "objectID": "L4slide.html#区别",
@@ -102,7 +102,7 @@
     "href": "L4slide.html#cox模型的表格化输出",
     "title": "L4 Cox比例风险模型",
     "section": "4.3 Cox模型的表格化输出",
-    "text": "4.3 Cox模型的表格化输出\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\n\nModel 1\n\n\nModel 2\n\n\n\nHR\n95% CI\np-value\nHR\n95% CI\np-value\n\n\n\n\nfemale\n0.594\n0.422, 0.836\n0.003\n0.535\n0.377, 0.760\n&lt;0.001\n\n\nage\n1.020\n1.001, 1.040\n0.038\n1.013\n0.994, 1.033\n0.2\n\n\nwt.loss\n1.001\n0.989, 1.013\n&gt;0.9\n0.987\n0.973, 1.000\n0.059\n\n\nph.ecog\n\n\n\n\n\n\n1.964\n1.331, 2.900\n&lt;0.001\n\n\nph.karno\n\n\n\n\n\n\n1.020\n1.000, 1.041\n0.048\n\n\npat.karno\n\n\n\n\n\n\n0.985\n0.971, 1.000\n0.043\n\n\n\nAbbreviations: CI = Confidence Interval, HR = Hazard Ratio"
+    "text": "4.3 Cox模型的表格化输出\n\n\nCode\nlibrary(gtsummary)\n\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n# 拟合模型\nmodel1 &lt;- coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\nmodel2 &lt;- coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + \n                  pat.karno, data = lung)\n\ntbl1 &lt;- tbl_regression(\n  model1,\n  exponentiate = TRUE,\n  estimate_fun = function(x) style_number(x, digits = 3)\n)\n\ntbl2 &lt;- tbl_regression(\n  model2,\n  exponentiate = TRUE,\n  estimate_fun = function(x) style_number(x, digits = 3)\n)\n\ntbl_merge(\n  tbls = list(tbl1, tbl2),\n  tab_spanner = c(\"**Model 1**\", \"**Model 2**\")\n)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\n\nModel 1\n\n\nModel 2\n\n\n\nHR\n95% CI\np-value\nHR\n95% CI\np-value\n\n\n\n\nfemale\n0.594\n0.422, 0.836\n0.003\n0.535\n0.377, 0.760\n&lt;0.001\n\n\nage\n1.020\n1.001, 1.040\n0.038\n1.013\n0.994, 1.033\n0.2\n\n\nwt.loss\n1.001\n0.989, 1.013\n&gt;0.9\n0.987\n0.973, 1.000\n0.059\n\n\nph.ecog\n\n\n\n\n\n\n1.964\n1.331, 2.900\n&lt;0.001\n\n\nph.karno\n\n\n\n\n\n\n1.020\n1.000, 1.041\n0.048\n\n\npat.karno\n\n\n\n\n\n\n0.985\n0.971, 1.000\n0.043\n\n\n\nAbbreviations: CI = Confidence Interval, HR = Hazard Ratio"
   },
   {
     "objectID": "L4slide.html#cox模型的检验",
@@ -305,7 +305,7 @@
     "href": "L4.html",
     "title": "L4 Cox模型",
     "section": "",
-    "text": "讲义\n\nL4 Cox比例风险模型简介\n\n\n\nR代码\n\n点击下载代码文件: L4.R\n\n\n\n数据文件\n\n点击下载数据文件: L4.xlsx\n\n\n这是 STKaiti 字体（强制）\n\n\n这是 serif 字体"
+    "text": "讲义\n\nL4 Cox比例风险模型简介\n\n\n\nR代码\n\n点击下载代码文件: L4.R\n\n\n\n数据文件\n\n点击下载数据文件: L4.xlsx"
   },
   {
     "objectID": "L9webpage.html",
@@ -600,5 +600,187 @@
     "title": "《R语言与统计应用》实验报告常见问题",
     "section": "单因素方差分析 – 合并小类, 排序",
     "text": "单因素方差分析 – 合并小类, 排序\n\n\nCode\n# 按中位数对 class 重新排序\ndf &lt;- mpg %&gt;%\n  mutate(\n    class = fct_lump(class, n = 4),\n    class = fct_reorder(class, displ, \n                        .fun = median, .desc = TRUE)\n  )\n\n# 单因素方差分析\nggbetweenstats(\n  data = df,\n  x = class,\n  y = displ,\n  type = \"parametric\",        \n  palette = \"Accent\", \n  violin.args = list(width = 0),\n  title = \"Suv, Midsize, Compact, Subcompact, Other五个组别的排量比较\",\n  xlab = \"Class\",\n  ylab = \"发动机排量\",\n  bf.message = FALSE,\n  digits = 3L\n)"
+  },
+  {
+    "objectID": "L4slide.html#cox模型系数的解释",
+    "href": "L4slide.html#cox模型系数的解释",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型系数的解释",
+    "text": "4.3 Cox模型系数的解释\n\n正系数 → 增加风险（hazard ↑），生存时间变短\n负系数 → 降低风险（hazard ↓），延长生存时间\n\\(\\beta_j\\)（即 coef）：\n\n\\(x_j\\) 每增加一个单位，\\(\\log(\\text{hazard})\\) 增加 \\(\\beta_j\\)\n抽象\n\n\\(exp(\\beta_j)\\)（即 \\(exp(coef)\\)）：\n\n\\(x_j\\) 每增加一个单位，hazard（风险）会乘上一个因子 \\(\\exp(\\beta_j)\\)\nhazard（风险）会增加 \\(\\exp(\\beta_j) - 1\\) 倍\n直观，容易理解\n\n论文中：\n\n在控制其他变量后，\\(x_j\\) 每增加1个单位 ，死亡风险(上升/下降）\\((\\exp(\\beta_j) - 1)\\)*100%"
+  },
+  {
+    "objectID": "L4slide.html#cox模型系数的解读-1",
+    "href": "L4slide.html#cox模型系数的解读-1",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型系数的解读",
+    "text": "4.3 Cox模型系数的解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)\n\n\n\n在控制其他变量后：\n女性比男性的死亡风险降低了约 46%. \\(\\left( \\exp(-0.625) - 1 \\right) \\times 100\\% = (0.535 - 1) \\times 100\\% \\approx -46\\%\\)。\n年龄每增加1岁, 死亡风险增加2%. \\(\\left( \\exp(0.020) - 1 \\right) \\times 100\\% = (1.020 - 1) \\times 100\\% \\approx 2\\%\\)。"
+  },
+  {
+    "objectID": "L4slide.html#cox模型系数的解读-2",
+    "href": "L4slide.html#cox模型系数的解读-2",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型系数的解读",
+    "text": "4.3 Cox模型系数的解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + \n                  pat.karno, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss + \n    ph.ecog + ph.karno + pat.karno, data = lung)\n\n               coef exp(coef)  se(coef)      z        p\nfemale    -0.625167  0.535172  0.178703 -3.498 0.000468\nage        0.013058  1.013144  0.009866  1.324 0.185639\nwt.loss   -0.013243  0.986844  0.007009 -1.889 0.058836\nph.ecog    0.675227  1.964479  0.198735  3.398 0.000680\nph.karno   0.020116  1.020320  0.010178  1.976 0.048111\npat.karno -0.014743  0.985365  0.007300 -2.019 0.043440\n\nLikelihood ratio test=37.2  on 6 df, p=1.611e-06\nn= 210, number of events= 148 \n   (18 observations deleted due to missingness)\n\n\n\n在控制其他变量后:\n女性比男性的死亡风险降低了约 46%. \\(\\left( \\exp(-0.625) - 1 \\right) \\times 100\\% = (0.535 - 1) \\times 100\\% \\approx -46\\%\\)。\nph.ecog每增加1分(机能恶化), 死亡风险增加96%. \\(\\left( \\exp(0.675) - 1 \\right) \\times 100\\% = (1.964 - 1) \\times 100\\% \\approx 96\\%\\)。"
+  },
+  {
+    "objectID": "L4slide.html#应用晚期肺癌患者的生存分析",
+    "href": "L4slide.html#应用晚期肺癌患者的生存分析",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 应用：晚期肺癌患者的生存分析",
+    "text": "4.2 应用：晚期肺癌患者的生存分析\n\ninst：医疗机构编号\ntime：生存时间（天）\nstatus：生存状态。1 = 删失（censored），2 = 死亡（event\nage：年龄（岁）\nsex：性别, 1 = 男，2 = 女\nph.ecog：ECOG（医生评估的体能评分），评分从 0（无症状）到 4（卧床）\nph.karno：医生评估Karnofsky评分, 0–100, 数值越高表示功能越好\npat.karno：患者评估Karnofsky评分\nmeal.cal：每餐摄入热量 (calories)\nwt.loss：最近 6个月内体重下降的数值(磅)\n\n\nLoprinzi, Charles Lawrence, et al. “Prospective evaluation of prognostic variables from patient-completed questionnaires. North Central Cancer Treatment Group.” Journal of Clinical Oncology 12.3 (1994): 601–607."
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计语法结构",
+    "href": "L4slide.html#cox模型的估计语法结构",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计——语法结构",
+    "text": "4.3 Cox模型的估计——语法结构\nR语言中，Cox比例风险模型的核心函数是 survival::coxph()，它用于拟合 Cox 模型。\n\ncoxph(Surv(time, status) ~ covariates, data = dataset)\nSurv(time, status) 创建生存对象，包含生存时间和生存状态。\ncovariates 是一个或多个解释变量，可以是连续型或分类型。"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-r代码1",
+    "href": "L4slide.html#cox模型的估计-r代码1",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计—— R代码1",
+    "text": "4.3 Cox模型的估计—— R代码1\n\n\nCode\nlibrary(survival)\ndata(cancer)\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1)\n  )\n\n\ncoxph(Surv(time, status) ~ female, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female, data = lung)\n\n          coef exp(coef) se(coef)      z       p\nfemale -0.5310    0.5880   0.1672 -3.176 0.00149\n\nLikelihood ratio test=10.63  on 1 df, p=0.001111\nn= 228, number of events= 165"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-r代码2",
+    "href": "L4slide.html#cox模型的估计-r代码2",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计: R代码2",
+    "text": "4.3 Cox模型的估计: R代码2\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计系数解读",
+    "href": "L4slide.html#cox模型的估计系数解读",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计——系数解读",
+    "text": "4.3 Cox模型的估计——系数解读\n\n线性回归：\n\\[\ny = \\beta_0 + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]\nCox 模型：\n\\[\n\\log h(t \\mid x) = \\log h_0(t) + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]\n\n区别\n\n线性回归：\\(x_j\\) 对Y的影响\nCox 回归：\\(x_j\\) 对\\(\\log(\\text{hazard})\\) 的影响"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计系数解读-1",
+    "href": "L4slide.html#cox模型的估计系数解读-1",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计——系数解读",
+    "text": "4.3 Cox模型的估计——系数解读\n\n正系数 → 风险增加，生存时间变短\n负系数 → 风险降低，生存时间变长\n\\(\\beta_j\\) (\\(coef\\))：\n\n\\(x_j\\) 每增加一个单位，\\(\\log(\\text{hazard})\\) 增加 \\(\\beta_j\\)\n抽象\n\n\\(exp(\\beta_j)\\) (\\(exp(coef)\\))：\n\n\\(x_j\\) 每增加一个单位，hazard（风险）会乘上一个因子 \\(\\exp(\\beta_j)\\)\nhazard（风险）会增加 \\(\\exp(\\beta_j) - 1\\) 倍\n直观，容易理解\n\n论文：\n\n在控制其他变量后，\\(x_j\\) 每增加1个单位 ，死亡风险(上升/下降）$((_j) - 1) % $"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计系数解读-2",
+    "href": "L4slide.html#cox模型的估计系数解读-2",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计——系数解读",
+    "text": "4.3 Cox模型的估计——系数解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)\n\n\n\n在控制其他变量后：\n女性比男性的死亡风险降低了约 46%. \\(\\left( \\exp(-0.625) - 1 \\right) \\times 100\\% = (0.535 - 1) \\times 100\\% \\approx -46\\%\\)。\n年龄每增加1岁, 死亡风险增加2%. \\(\\left( \\exp(0.020) - 1 \\right) \\times 100\\% = (1.020 - 1) \\times 100\\% \\approx 2\\%\\)。"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计系数解读-3",
+    "href": "L4slide.html#cox模型的估计系数解读-3",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计——系数解读",
+    "text": "4.3 Cox模型的估计——系数解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + \n                  pat.karno, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss + \n    ph.ecog + ph.karno + pat.karno, data = lung)\n\n               coef exp(coef)  se(coef)      z        p\nfemale    -0.625167  0.535172  0.178703 -3.498 0.000468\nage        0.013058  1.013144  0.009866  1.324 0.185639\nwt.loss   -0.013243  0.986844  0.007009 -1.889 0.058836\nph.ecog    0.675227  1.964479  0.198735  3.398 0.000680\nph.karno   0.020116  1.020320  0.010178  1.976 0.048111\npat.karno -0.014743  0.985365  0.007300 -2.019 0.043440\n\nLikelihood ratio test=37.2  on 6 df, p=1.611e-06\nn= 210, number of events= 148 \n   (18 observations deleted due to missingness)\n\n\n\n在控制其他变量后:\n女性比男性的死亡风险降低了约 46%. \\(\\left( \\exp(-0.625) - 1 \\right) \\times 100\\% = (0.535 - 1) \\times 100\\% \\approx -46\\%\\)。\nph.ecog每增加1分(机能恶化), 死亡风险增加96%. \\(\\left( \\exp(0.675) - 1 \\right) \\times 100\\% = (1.964 - 1) \\times 100\\% \\approx 96\\%\\)。"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计导出到-word文档",
+    "href": "L4slide.html#cox模型的估计导出到-word文档",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计——导出到 Word文档",
+    "text": "4.3 Cox模型的估计——导出到 Word文档\n\ntbl_combined &lt;- tbl_merge(\n  tbls = list(tbl1, tbl2),\n  tab_spanner = c(\"**Model 1**\", \"**Model 2**\")\n)\n\n\nlibrary(flextable)\nlibrary(officer)\n\n\nread_docx() %&gt;%\n  body_add_par(\"Table 2. Results of Cox Proportional Hazards Regression Models\") %&gt;%\n  body_add_flextable(as_flex_table(tbl_combined)) %&gt;%\n  print(target = \"cox_results.docx\")"
+  },
+  {
+    "objectID": "L4slide.html#cox模型对数据的要求",
+    "href": "L4slide.html#cox模型对数据的要求",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 Cox模型对数据的要求",
+    "text": "4.2 Cox模型对数据的要求\n每个协变量（解释变量）至少需要约 10 个事件（即 status = 1 的个体）\n\n\n\n项目\n推荐数量\n\n\n\n\n每个变量（predictor）\n≥ 10 个事件（status = 1）\n\n\n模型变量数为 k\n至少 10 × k 个 status = 1\n\n\n示例：5 个变量\n需要至少 50 个死亡（status = 1）事件\n\n\n样本删失比例不宜过高\nstatus=1 的比例最好 ≥ 30%\n\n\n\n\n\n\n\n\nVittinghoff, E., & McCulloch, C. E. (2007). Relaxing the rule of ten events per variable in logistic and Cox regression. American Journal of Epidemiology."
+  },
+  {
+    "objectID": "L4slide.html#cox模型建模前对数据的检查",
+    "href": "L4slide.html#cox模型建模前对数据的检查",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 Cox模型建模前对数据的检查",
+    "text": "4.2 Cox模型建模前对数据的检查\n\n\n\n检查点\n推荐标准\n\n\n\n\n是否有足够事件？\n每个变量 ≥ 10 个事件（status = 1）\n\n\nstatus=1 的比例\n≥ 30% 最佳\n\n\n是否有严重缺失？\n不推荐变量缺失率 &gt; 15%\n\n\n是否满足比例风险？\n拟合后需检验（如 Schoenfeld 残差）"
+  },
+  {
+    "objectID": "L4slide.html#cox模型建模前对数据的检查-1",
+    "href": "L4slide.html#cox模型建模前对数据的检查-1",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 Cox模型建模前对数据的检查",
+    "text": "4.2 Cox模型建模前对数据的检查\n\n\nCode\nlibrary(survival)\nlibrary(tidyverse)\n\ndata(lung, package = \"survival\")\n\nlung &lt;- lung %&gt;%\n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1)\n  )\n\nvars &lt;- c(\"female\", \"age\", \"wt.loss\", \"meal.cal\", \"ph.ecog\", \"ph.karno\", \"pat.karno\")\n\n# 样本总数、事件数、删失数\ntable(lung$status)\n\n\n\n  0   1 \n 63 165 \n\n\nCode\n# 缺失值统计\nsapply(lung[, vars], \\(x) sum(is.na(x)))\n\n\n   female       age   wt.loss  meal.cal   ph.ecog  ph.karno pat.karno \n        0         0        14        47         1         1         3 \n\n\nCode\n# Event per Variable \nevent_n &lt;- sum(lung$status == 1)\nepv &lt;- event_n / length(vars)\nepv\n\n\n[1] 23.57143"
+  },
+  {
+    "objectID": "L4slide.html#比例风险假设",
+    "href": "L4slide.html#比例风险假设",
+    "title": "L4 Cox比例风险模型",
+    "section": "比例风险假设",
+    "text": "比例风险假设\nCox 模型假设不同个体间的风险比在时间上是恒定的：\n\\[\n\\frac{h(t|X_1)}{h(t|X_2)} = \\text{常数}, \\quad \\forall t\n\\]\n这意味着协变量对风险的影响是比例的，即风险比不随时间变化。"
+  },
+  {
+    "objectID": "L4slide.html#与其他生存模型比较",
+    "href": "L4slide.html#与其他生存模型比较",
+    "title": "L4 Cox比例风险模型",
+    "section": "与其他生存模型比较",
+    "text": "与其他生存模型比较\n\n\n\n模型\n参数类型\n是否建模 ( h_0(t) )\n是否允许协变量\n\n\n\n\nKaplan-Meier\n非参数\n❌\n❌\n\n\nCox 模型\n半参数\n❌\n✅\n\n\nAFT 模型\n参数\n✅（如 Weibull）\n✅"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的数据结构样本容量",
+    "href": "L4slide.html#cox模型的数据结构样本容量",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 Cox模型的数据结构：样本容量",
+    "text": "4.2 Cox模型的数据结构：样本容量\n每个协变量（解释变量）至少需要约 10 个事件（即 status = 1 的个体）\n\n\n\n项目\n推荐数量\n\n\n\n\n每个变量（predictor）\n≥ 10 个事件（status = 1）\n\n\n模型变量数为 k\n至少 10 × k 个 status = 1\n\n\n示例：5 个变量\n需要至少 50 个死亡（status = 1）事件\n\n\n样本删失比例不宜过高\nstatus=1 的比例最好 ≥ 30%\n\n\n\n\n\n\n\n\nVittinghoff, E., & McCulloch, C. E. (2007). Relaxing the rule of ten events per variable in logistic and Cox regression. American Journal of Epidemiology."
+  },
+  {
+    "objectID": "L4slide.html#cox模型建模前对数据的检查-2",
+    "href": "L4slide.html#cox模型建模前对数据的检查-2",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.2 Cox模型建模前对数据的检查",
+    "text": "4.2 Cox模型建模前对数据的检查\n\nlibrary(survival)\n\n# lung: status = 1 or 2, 对status重新编码：status: 0 = censored, 1 = dead\n# lung: sex = 1 or 2, 创建female\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-语法结构",
+    "href": "L4slide.html#cox模型的估计-语法结构",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计: 语法结构",
+    "text": "4.3 Cox模型的估计: 语法结构\nR语言中，Cox比例风险模型的核心函数是 survival::coxph()，它用于拟合 Cox 模型。\n\ncoxph(Surv(time, status) ~ covariates, data = dataset)\nSurv(time, status) 创建生存对象，包含生存时间和生存状态。\ncovariates 是一个或多个解释变量，可以是连续型或分类型。"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-r代码",
+    "href": "L4slide.html#cox模型的估计-r代码",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计: R代码",
+    "text": "4.3 Cox模型的估计: R代码\n\n\nCode\nlibrary(survival)\ndata(cancer)\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1)\n  )\n\n\ncoxph(Surv(time, status) ~ female, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female, data = lung)\n\n          coef exp(coef) se(coef)      z       p\nfemale -0.5310    0.5880   0.1672 -3.176 0.00149\n\nLikelihood ratio test=10.63  on 1 df, p=0.001111\nn= 228, number of events= 165"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计系-数解读",
+    "href": "L4slide.html#cox模型的估计系-数解读",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计系: 数解读",
+    "text": "4.3 Cox模型的估计系: 数解读\n\n线性回归：\n\\[\ny = \\beta_0 + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]\nCox 模型：\n\\[\n\\log h(t \\mid x) = \\log h_0(t) + \\beta_1 x_1 + \\cdots + \\beta_p x_p\n\\]\n\n区别\n\n线性回归：\\(x_j\\) 对Y的影响\nCox 回归：\\(x_j\\) 对\\(\\log(\\text{hazard})\\) 的影响"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-系数解读",
+    "href": "L4slide.html#cox模型的估计-系数解读",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计: 系数解读",
+    "text": "4.3 Cox模型的估计: 系数解读\n\n正系数 → 风险增加，生存时间变短\n负系数 → 风险降低，生存时间变长\n\\(\\beta_j\\) (\\(coef\\))：\n\n\\(x_j\\) 每增加一个单位，\\(\\log(\\text{hazard})\\) 增加 \\(\\beta_j\\)\n抽象\n\n\\(exp(\\beta_j)\\) (\\(exp(coef)\\))：\n\n\\(x_j\\) 每增加一个单位，hazard（风险）会乘上一个因子 \\(\\exp(\\beta_j)\\)\nhazard（风险）会增加 \\(\\exp(\\beta_j) - 1\\) 倍\n直观，容易理解\n\n\n在控制其他变量后，\\(x_j\\) 每增加1个单位 ，死亡风险(上升/下降）\\((\\exp(\\beta_j) - 1) \\times 100\\%\\)"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-系数解读-1",
+    "href": "L4slide.html#cox模型的估计-系数解读-1",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计: 系数解读",
+    "text": "4.3 Cox模型的估计: 系数解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss, \n    data = lung)\n\n              coef  exp(coef)   se(coef)      z      p\nfemale  -0.5210319  0.5939074  0.1743541 -2.988 0.0028\nage      0.0200882  1.0202913  0.0096644  2.079 0.0377\nwt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024\n\nLikelihood ratio test=14.67  on 3 df, p=0.002122\nn= 214, number of events= 152 \n   (14 observations deleted due to missingness)\n\n\n\n在控制其他变量后：\n女性比男性的死亡风险降低了约 46%. \\(\\left( \\exp(-0.625) - 1 \\right) \\times 100\\% = (0.535 - 1) \\times 100\\% \\approx -46\\%\\)。\n年龄每增加1岁, 死亡风险增加2%. \\(\\left( \\exp(0.020) - 1 \\right) \\times 100\\% = (1.020 - 1) \\times 100\\% \\approx 2\\%\\)。"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-系数解读-2",
+    "href": "L4slide.html#cox模型的估计-系数解读-2",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计: 系数解读",
+    "text": "4.3 Cox模型的估计: 系数解读\n\n\nCode\ndata(cancer, package = \"survival\")\n\nlung &lt;- \n  lung %&gt;% \n  mutate(\n    status = recode(status, `1` = 0, `2` = 1),\n    female = recode(sex, `1` = 0, `2` = 1))\n\ncoxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + \n                  pat.karno, data = lung)\n\n\nCall:\ncoxph(formula = Surv(time, status) ~ female + age + wt.loss + \n    ph.ecog + ph.karno + pat.karno, data = lung)\n\n               coef exp(coef)  se(coef)      z        p\nfemale    -0.625167  0.535172  0.178703 -3.498 0.000468\nage        0.013058  1.013144  0.009866  1.324 0.185639\nwt.loss   -0.013243  0.986844  0.007009 -1.889 0.058836\nph.ecog    0.675227  1.964479  0.198735  3.398 0.000680\nph.karno   0.020116  1.020320  0.010178  1.976 0.048111\npat.karno -0.014743  0.985365  0.007300 -2.019 0.043440\n\nLikelihood ratio test=37.2  on 6 df, p=1.611e-06\nn= 210, number of events= 148 \n   (18 observations deleted due to missingness)\n\n\n\n在控制其他变量后:\n女性比男性的死亡风险降低了约 46%. \\(\\left( \\exp(-0.625) - 1 \\right) \\times 100\\% = (0.535 - 1) \\times 100\\% \\approx -46\\%\\)\nph.ecog每增加1分(机能恶化), 死亡风险增加96%. \\(\\left( \\exp(0.675) - 1 \\right) \\times 100\\% = (1.964 - 1) \\times 100\\% \\approx 96\\%\\)"
+  },
+  {
+    "objectID": "L4slide.html#cox模型的估计-导出到-word文档",
+    "href": "L4slide.html#cox模型的估计-导出到-word文档",
+    "title": "L4 Cox比例风险模型",
+    "section": "4.3 Cox模型的估计: 导出到 Word文档",
+    "text": "4.3 Cox模型的估计: 导出到 Word文档\n\ntbl_combined &lt;- tbl_merge(\n  tbls = list(tbl1, tbl2),\n  tab_spanner = c(\"**Model 1**\", \"**Model 2**\")\n)\n\n\nlibrary(flextable)\nlibrary(officer)\n\n\nread_docx() %&gt;%\n  body_add_par(\"Table 2. Results of Cox Proportional Hazards Regression Models\") %&gt;%\n  body_add_flextable(as_flex_table(tbl_combined)) %&gt;%\n  print(target = \"cox_results.docx\")"
   }
 ]

@@ -18,9 +18,6 @@ title:  "L4 Cox模型"
 
 -   <img src="img/download.png" style="width: 24px; height: 24px;margin-right: 10px"><a href="https://github.com/lizongzhang/deepseekcamp/raw/main/stroke.xlsx" download="stroke.xlsx">点击下载数据文件: L4.xlsx</a>
 
-<p style="font-family: STKaiti !important; font-size: 36px;">这是 STKaiti 字体（强制）</p>
-<p style="font-family: serif; font-size: 36px;">这是 serif 字体</p>
-
 
 :::
 
