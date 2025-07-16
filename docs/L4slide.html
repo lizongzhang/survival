@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.6.42">
 
   <meta name="author" content="Lzz">
-  <meta name="dcterms.date" content="2025-06-18">
+  <meta name="dcterms.date" content="2025-07-16">
   <title>R生存分析 – L4 Cox比例风险模型</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -248,7 +248,7 @@ z-index: 1000;">
 </div>
 </div>
 
-  <p class="date">2025-06-18</p>
+  <p class="date">2025-07-16</p>
 </section>
 <section id="大纲" class="slide level2">
 <h2>大纲</h2>
@@ -258,32 +258,145 @@ z-index: 1000;">
 <li><p>4.3 Cox模型的估计</p></li>
 <li><p>4.4 Cox模型的检验</p></li>
 <li><p>4.5 Cox模型的可视化</p></li>
-<li><p>4.6 Cox模型的扩展</p></li>
 </ul>
 </section>
 <section id="cox模型简介" class="slide level2">
 <h2>4.1 Cox模型简介</h2>
-<p>Cox 比例风险模型（Cox Proportional Hazards Model）</p>
 <ul>
-<li>英国统计学家 David Cox 于 1972 年提出的一种<strong>半参数生存分析模型</strong></li>
+<li><p><strong>Cox比例风险模型</strong>（Cox Proportional Hazards Model, 简称CoxPH）是生存分析中最常用的统计方法之一。</p>
+<ul>
+<li>用于分析<strong>生存时间</strong>（或“事件发生时间”）与<strong>影响因素（协变量）</strong>之间的关系。</li>
+</ul></li>
 </ul>
 <p><span class="math display">\[
-h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
+h(t|X) = h_0(t) \exp(\beta^T X)
 \]</span></p>
-<p>其中：</p>
-<p><span class="math inline">\(h(t | X)\)</span> 在时间t的<strong>瞬时风险（hazard）</strong></p>
-<p><span class="math inline">\(h_0(t)\)</span> <strong>基线风险函数（baseline hazard）</strong></p>
+<ul>
+<li><span class="math inline">\(h(t|X)\)</span>：个体在时刻 <span class="math inline">\(t\)</span> 的<strong>风险率</strong>（hazard rate）</li>
+<li><span class="math inline">\(h_0(t)\)</span>：<strong>基线风险函数</strong>，当所有协变量取0时的风险率，随时间变化</li>
+<li><span class="math inline">\(\beta\)</span>：<strong>回归系数向量</strong>，每个协变量对应一个系数</li>
+<li><span class="math inline">\(X\)</span>：<strong>协变量向量</strong>，如年龄、性别、分组等</li>
+</ul>
 </section>
-<section id="比例风险假设" class="slide level2">
-<h2>比例风险假设</h2>
-<p>Cox 模型假设不同个体间的风险比在时间上是<strong>恒定的</strong>：</p>
+<section class="slide level2">
+
+<h3 id="cox模型的优势">Cox模型的优势</h3>
+<ul>
+<li><strong>半参数模型</strong>：不需要事先假定基线风险函数<span class="math inline">\(h_0(t)\)</span>的具体分布形式。</li>
+<li><strong>关注风险率（hazard）</strong>：关注个体在某一时刻发生事件的风险。</li>
+<li>支持<strong>删失数据</strong>（如随访未结束或中途失访的个体）。</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="cox比例风险模型的设定">Cox比例风险模型的设定</h3>
 <p><span class="math display">\[
-\frac{h(t|X_1)}{h(t|X_2)} = \text{常数}, \quad \forall t
+  h(t|X) = h_0(t) \exp(\beta^T X)
+  \]</span> <span class="math display">\[
+h(t | X) = h_0(t) \cdot \exp(\beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p)
+\]</span> <span class="math display">\[
+\log h(t|X) = \log h_0(t) + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p
 \]</span></p>
-<p>这意味着协变量对风险的影响是<strong>比例的</strong>，即风险比不随时间变化。</p>
+<ul>
+<li><p><span class="math inline">\(h(t|X)\)</span>：时刻 <span class="math inline">\(t\)</span> 的瞬时风险</p></li>
+<li><p><span class="math inline">\(h_0(t)\)</span>：基线风险</p></li>
+<li><p><span class="math inline">\(x_1, x_2, \ldots, x_p\)</span>：协变量(解释变量)</p></li>
+<li><p><span class="math inline">\(\beta\)</span>代表该变量每增加一个单位时，<span class="math inline">\(\log\)</span>风险比的改变。</p></li>
+<li><p>对于预测变量，<span class="math inline">\(\exp(\beta)\)</span>为“风险比”（Hazard Ratio）：</p>
+<ul>
+<li><span class="math inline">\(\beta &gt; 0\)</span>：风险增加</li>
+<li><span class="math inline">\(\beta &lt; 0\)</span>：风险降低</li>
+</ul></li>
+</ul>
+<p>Cox模型围绕风险函数建模，是因为风险函数能自然处理删失数据、便于推导似然函数、模型解释直观、无需假定基线风险<span class="math inline">\(h_0(t)\)</span>分布。</p>
 </section>
-<section id="与其他生存模型比较" class="slide level2">
-<h2>与其他生存模型比较</h2>
+<section class="slide level2">
+
+<h3 id="风险比例假设-proportional-hazards-assumption">风险比例假设 Proportional Hazards Assumption</h3>
+<ul>
+<li>不同协变量组之间的风险比（Hazard Ratio, HR）在整个随访期间是恒定的，不随时间变化。</li>
+</ul>
+<h3 id="风险比例的数学表达式">风险比例的数学表达式</h3>
+<p>Cox模型的风险函数公式： <span class="math display">\[
+h(t|X) = h_0(t)\exp(\beta^T X)
+\]</span></p>
+<ul>
+<li>对于两个不同的协变量组<span class="math inline">\(X_1\)</span>和<span class="math inline">\(X_2\)</span>，它们的风险比为： <span class="math display">\[
+\frac{h(t|X_1)}{h(t|X_2)} = \frac{h_0(t)\exp(\beta^T X_1)}{h_0(t)\exp(\beta^T X_2)} = \exp\left(\beta^T(X_1 - X_2)\right)
+\]</span></li>
+<li>这个比值<strong>与时间</strong><span class="math inline">\(t\)</span>无关，只与协变量差异有关。</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="风险比例假设的直观理解">风险比例假设的直观理解</h3>
+<ul>
+<li><strong>举例</strong>：
+<ul>
+<li>假如男性和女性的风险比为2，无论研究到第1年还是第5年，男性的风险率始终是女性的2倍。</li>
+</ul></li>
+<li>换句话说，<strong>不同组的风险曲线“始终相隔一条固定倍数的距离”</strong>，不会随时间交叉或逐渐靠近/远离。</li>
+</ul>
+<h3 id="风险比例假设成立的后果">风险比例假设成立的后果</h3>
+<ul>
+<li>模型中的回归系数<span class="math inline">\(\beta\)</span>可直接解释为风险比对数。</li>
+<li>计算出的风险比（HR）对所有时间点都适用。</li>
+</ul>
+<h3 id="风险比例假设不成立的情况">风险比例假设不成立的情况</h3>
+<ul>
+<li>有些情况下，风险比随时间变化（如药物疗效消退、不同组风险曲线交叉），则不满足风险比例假设，CoxPH模型结果可能不可靠。</li>
+<li>这时可考虑使用<strong>时间依赖协变量模型</strong>或<strong>分层Cox模型</strong>等替代方法。</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="检验风险比例假设的方法">检验风险比例假设的方法</h3>
+<ul>
+<li><strong>Schoenfeld残差检验</strong>（最常用）</li>
+<li>绘制对数(-log)生存曲线，观察是否平行</li>
+<li>引入时间交互项，检验交互项是否显著</li>
+<li>应在分析前后检验该假设，确保结果可靠！</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="cox模型中如何计算生存函数">Cox模型中如何计算生存函数？</h3>
+<h4 id="第1步生存函数与风险函数的关系参见l1讲义">第1步：生存函数与风险函数的关系(参见L1讲义)</h4>
+<p><span class="math display">\[
+S(t|X) = \exp\left(-\int_0^t h(u|X) du\right)
+\]</span></p>
+<h4 id="第2步带入cox模型的风险函数">第2步：带入Cox模型的风险函数</h4>
+<p>将 <span class="math inline">\(h(t|X) = h_0(t) \exp(\beta^T X)\)</span> 代入上式：</p>
+<p><span class="math display">\[
+S(t|X) = \exp\left(-\int_0^t h_0(u) \exp(\beta^T X) du\right)
+\]</span></p>
+<h4 id="第3步分离协变量与时间">第3步：分离协变量与时间</h4>
+<p>注意 <span class="math inline">\(\exp(\beta^T X)\)</span> 对于特定个体是常数，可以提到积分符号外：</p>
+<p><span class="math display">\[
+S(t|X) = \exp\left(-\exp(\beta^T X) \int_0^t h_0(u) du\right)
+\]</span></p>
+</section>
+<section class="slide level2">
+
+<h4 id="第4步引入基线生存函数-s_0t">第4步：引入基线生存函数 <span class="math inline">\(S_0(t)\)</span></h4>
+<p>定义基线生存函数（当 <span class="math inline">\(X=0\)</span>）：</p>
+<p><span class="math display">\[
+S_0(t) = \exp\left(-\int_0^t h_0(u) du\right)
+\]</span></p>
+<h4 id="第5步生存函数的最终表达式">第5步：生存函数的最终表达式</h4>
+<p>将基线生存函数带入，得到：</p>
+<p><span class="math display">\[ S(t|X) = [S_0(t)]^{\exp(\beta^T X)} = \exp\left( -\exp(\beta^T X) \int_0^t h_0(u) du \right) \]</span></p>
+<ul>
+<li><p><strong>模型估计形式</strong>：</p>
+<ul>
+<li>使用<strong>部分似然函数</strong>（Partial Likelihood）估计回归系数 <span class="math inline">\(\beta\)</span></li>
+<li>基线生存函数 <span class="math inline">\(S_0(t)\)</span> 用非参数法估计</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="cox模型与其他生存分析模型比较">Cox模型与其他生存分析模型比较</h3>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -315,68 +428,13 @@ h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
 </tbody>
 </table>
 </section>
-<section id="cox模型的数据结构" class="slide level2">
-<h2>4.2 Cox模型的数据结构</h2>
-<ul>
-<li><p>生存时间（time）</p></li>
-<li><p>生存状态（status）</p>
-<ul>
-<li><p>1 = 事件发生（event）</p></li>
-<li><p>0 = 删失（censored）</p></li>
-</ul></li>
-<li><p>解释变量（covariates）</p>
-<ul>
-<li><p>连续型（如年龄、血压）或分类型（如性别、治疗组）</p></li>
-<li><p>二分类变量: 用二分类变量等于1的事件命名</p>
-<ul>
-<li><p>female: female = 1, 女性， female = 0 , 男性</p></li>
-<li><p>smoke: smoke = 1, 吸烟， smoke = 0 , 不吸烟</p></li>
-<li><p>treatment: treatment = 1, 实验组， treatment = 0 , 对照组</p></li>
-<li><p>diabetes: diabetes = 1, 患有糖尿病， diabetes = 0 , 不患有糖尿病</p></li>
-</ul></li>
-</ul></li>
-</ul>
-</section>
-<section id="cox模型的数据结构样本容量" class="slide level2">
-<h2>4.2 Cox模型的数据结构：样本容量</h2>
-<p>每个协变量（解释变量）至少需要约 10 个事件（即 status = 1 的个体）</p>
+<section id="cox建模的数据要求" class="slide level2">
+<h2>4.3 Cox建模的数据要求</h2>
 <table class="caption-top">
-<thead>
-<tr class="header">
-<th>项目</th>
-<th>推荐数量</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>每个变量（predictor）</td>
-<td>≥ 10 个事件（status = 1）</td>
-</tr>
-<tr class="even">
-<td>模型变量数为 <code>k</code></td>
-<td>至少 <code>10 × k</code> 个 status = 1</td>
-</tr>
-<tr class="odd">
-<td>示例：5 个变量</td>
-<td>需要至少 50 个死亡（status = 1）事件</td>
-</tr>
-<tr class="even">
-<td>样本删失比例不宜过高</td>
-<td>status=1 的比例最好 ≥ 30%</td>
-</tr>
-</tbody>
-</table>
-<p><br>
-</p>
-<p><br>
-</p>
-<div class="reference-text-small">
-<p>Vittinghoff, E., &amp; McCulloch, C. E. (2007). Relaxing the rule of ten events per variable in logistic and Cox regression. American Journal of Epidemiology.</p>
-</div>
-</section>
-<section id="cox模型建模前对数据的检查" class="slide level2">
-<h2>4.2 Cox模型建模前对数据的检查</h2>
-<table class="caption-top">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 69%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>检查点</th>
@@ -386,14 +444,14 @@ h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
 <tbody>
 <tr class="odd">
 <td>是否有足够事件？</td>
-<td>每个变量 ≥ 10 个事件（status = 1）</td>
+<td>每个解释变量 (predictor) 至少需要 10 个发生的事件（status = 1）</td>
 </tr>
 <tr class="even">
-<td>status=1 的比例</td>
-<td>≥ 30% 最佳</td>
+<td>样本删失比例不宜过高</td>
+<td>status = 1 的比例 ≥ 30% 最佳</td>
 </tr>
 <tr class="odd">
-<td>是否有严重缺失？</td>
+<td>变量是否有严重缺失？</td>
 <td>不推荐变量缺失率 &gt; 15%</td>
 </tr>
 <tr class="even">
@@ -402,9 +460,13 @@ h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
 </tr>
 </tbody>
 </table>
+<div class="reference-text-small">
+<p>Vittinghoff, E., &amp; McCulloch, C. E. (2007). Relaxing the rule of ten events per variable in logistic and Cox regression. American Journal of Epidemiology.</p>
+</div>
 </section>
-<section id="应用晚期肺癌患者的生存分析" class="slide level2">
-<h2>4.2 应用：晚期肺癌患者的生存分析</h2>
+<section id="cox模型在r中的实现" class="slide level2">
+<h2>4.4 Cox模型在R中的实现</h2>
+<h4 id="数据集变量说明">4.4.1 数据集变量说明</h4>
 <ul>
 <li><p><strong><code>inst</code></strong>：医疗机构编号</p></li>
 <li><p><strong><code>time</code></strong>：生存时间（天）</p></li>
@@ -421,81 +483,55 @@ h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
 <p>Loprinzi, Charles Lawrence, et al.&nbsp;“Prospective evaluation of prognostic variables from patient-completed questionnaires. North Central Cancer Treatment Group.” <em>Journal of Clinical Oncology</em> 12.3 (1994): 601–607.</p>
 </div>
 </section>
-<section id="cox模型建模前对数据的检查-1" class="slide level2">
-<h2>4.2 Cox模型建模前对数据的检查</h2>
+<section class="slide level2">
+
+<h4 id="变量赋值">4.4.2 变量赋值</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">library</span>(survival)</span>
-<span id="cb1-2"><a></a><span class="fu">library</span>(tidyverse)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="do">## 加载示例数据, cancer列表中的lung数据框</span></span>
+<span id="cb1-2"><a></a><span class="fu">data</span>(cancer, <span class="at">package=</span><span class="st">"survival"</span>)</span>
 <span id="cb1-3"><a></a></span>
-<span id="cb1-4"><a></a><span class="fu">data</span>(lung, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb1-5"><a></a></span>
-<span id="cb1-6"><a></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
-<span id="cb1-7"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-8"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb1-9"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
-<span id="cb1-10"><a></a>  )</span>
-<span id="cb1-11"><a></a></span>
-<span id="cb1-12"><a></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"female"</span>, <span class="st">"age"</span>, <span class="st">"wt.loss"</span>, <span class="st">"meal.cal"</span>, <span class="st">"ph.ecog"</span>, <span class="st">"ph.karno"</span>, <span class="st">"pat.karno"</span>)</span>
-<span id="cb1-13"><a></a></span>
-<span id="cb1-14"><a></a><span class="co"># 样本总数、事件数、删失数</span></span>
-<span id="cb1-15"><a></a><span class="fu">table</span>(lung<span class="sc">$</span>status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
+<span id="cb1-5"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-6"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),   <span class="co"># 事件状态重编码：1=生存(0), 2=死亡(1)</span></span>
+<span id="cb1-7"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),      <span class="co"># 性别重编码：1=男(0), 2=女(1)</span></span>
+<span id="cb1-8"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="数据建模前的合规性检查">4.4.3 数据建模前的合规性检查</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"female"</span>, <span class="st">"age"</span>, <span class="st">"wt.loss"</span>, <span class="st">"meal.cal"</span>, <span class="st">"ph.ecog"</span>, <span class="st">"ph.karno"</span>, <span class="st">"pat.karno"</span>)</span>
+<span id="cb2-2"><a></a></span>
+<span id="cb2-3"><a></a><span class="co"># 样本总数、事件数、删失数</span></span>
+<span id="cb2-4"><a></a><span class="fu">table</span>(lung<span class="sc">$</span>status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
   0   1 
  63 165 </code></pre>
 </div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="co"># 缺失值统计</span></span>
-<span id="cb3-2"><a></a><span class="fu">sapply</span>(lung[, vars], \(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="co"># 缺失值统计</span></span>
+<span id="cb4-2"><a></a><span class="fu">sapply</span>(lung[, vars], \(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   female       age   wt.loss  meal.cal   ph.ecog  ph.karno pat.karno 
         0         0        14        47         1         1         3 </code></pre>
 </div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="co"># Event per Variable </span></span>
-<span id="cb5-2"><a></a>event_n <span class="ot">&lt;-</span> <span class="fu">sum</span>(lung<span class="sc">$</span>status <span class="sc">==</span> <span class="dv">1</span>)</span>
-<span id="cb5-3"><a></a>epv <span class="ot">&lt;-</span> event_n <span class="sc">/</span> <span class="fu">length</span>(vars)</span>
-<span id="cb5-4"><a></a>epv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="co"># Event per Variable </span></span>
+<span id="cb6-2"><a></a>event_n <span class="ot">&lt;-</span> <span class="fu">sum</span>(lung<span class="sc">$</span>status <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb6-3"><a></a>epv <span class="ot">&lt;-</span> event_n <span class="sc">/</span> <span class="fu">length</span>(vars)</span>
+<span id="cb6-4"><a></a>epv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 23.57143</code></pre>
 </div>
 </div>
 </section>
-<section id="cox模型建模前对数据的检查-2" class="slide level2">
-<h2>4.2 Cox模型建模前对数据的检查</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">library</span>(survival)</span>
-<span id="cb7-2"><a></a></span>
-<span id="cb7-3"><a></a><span class="co"># lung: status = 1 or 2, 对status重新编码：status: 0 = censored, 1 = dead</span></span>
-<span id="cb7-4"><a></a><span class="co"># lung: sex = 1 or 2, 创建female</span></span>
-<span id="cb7-5"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb7-6"><a></a></span>
-<span id="cb7-7"><a></a>lung <span class="ot">&lt;-</span> </span>
-<span id="cb7-8"><a></a>  lung <span class="sc">%&gt;%</span> </span>
-<span id="cb7-9"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-10"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb7-11"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="cox模型的估计" class="slide level2">
-<h2>4.3 Cox模型的估计</h2>
-<ul>
-<li><p>语法结构</p></li>
-<li><p>R代码</p></li>
-<li><p>系数解释</p></li>
-<li><p>表格化输出</p></li>
-<li><p>导出到 Word文档</p></li>
-</ul>
-</section>
-<section id="cox模型的估计-语法结构" class="slide level2">
-<h2>4.3 Cox模型的估计: 语法结构</h2>
+<section class="slide level2">
+
+<h4 id="cox模型的估计">4.4.4 Cox模型的估计</h4>
+<h5 id="语法结构">语法结构</h5>
 <p>R语言中，Cox比例风险模型的核心函数是 <code>survival::coxph()</code>，它用于拟合 Cox 模型。</p>
 <ul>
 <li><p><code>coxph(Surv(time, status) ~ covariates, data = dataset)</code></p></li>
@@ -503,244 +539,238 @@ h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
 <li><p><code>covariates</code> 是一个或多个解释变量，可以是连续型或分类型。</p></li>
 </ul>
 </section>
-<section id="cox模型的估计-r代码" class="slide level2">
-<h2>4.3 Cox模型的估计: R代码</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">library</span>(survival)</span>
-<span id="cb8-2"><a></a><span class="fu">data</span>(cancer)</span>
-<span id="cb8-3"><a></a>lung <span class="ot">&lt;-</span> </span>
-<span id="cb8-4"><a></a>  lung <span class="sc">%&gt;%</span> </span>
-<span id="cb8-5"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-6"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb8-7"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
-<span id="cb8-8"><a></a>  )</span>
-<span id="cb8-9"><a></a></span>
-<span id="cb8-10"><a></a></span>
-<span id="cb8-11"><a></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Call:
-coxph(formula = Surv(time, status) ~ female, data = lung)
+<section class="slide level2">
 
-          coef exp(coef) se(coef)      z       p
-female -0.5310    0.5880   0.1672 -3.176 0.00149
-
-Likelihood ratio test=10.63  on 1 df, p=0.001111
-n= 228, number of events= 165 </code></pre>
-</div>
-</div>
-</section>
-<section id="cox模型的估计-r代码2" class="slide level2">
-<h2>4.3 Cox模型的估计: R代码2</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb10-2"><a></a></span>
-<span id="cb10-3"><a></a>lung <span class="ot">&lt;-</span> </span>
-<span id="cb10-4"><a></a>  lung <span class="sc">%&gt;%</span> </span>
-<span id="cb10-5"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-6"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb10-7"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span>
-<span id="cb10-8"><a></a></span>
-<span id="cb10-9"><a></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Call:
-coxph(formula = Surv(time, status) ~ female + age + wt.loss, 
-    data = lung)
-
-              coef  exp(coef)   se(coef)      z      p
-female  -0.5210319  0.5939074  0.1743541 -2.988 0.0028
-age      0.0200882  1.0202913  0.0096644  2.079 0.0377
-wt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024
-
-Likelihood ratio test=14.67  on 3 df, p=0.002122
-n= 214, number of events= 152 
-   (14 observations deleted due to missingness)</code></pre>
-</div>
-</div>
-</section>
-<section id="cox模型系数的解读" class="slide level2">
-<h2>4.3 Cox模型系数的解读</h2>
-<p>Cox 模型的数学形式如下：</p>
+<h5 id="cox模型系数的解读">Cox模型系数的解读</h5>
+<p>Cox模型的数学形式如下：</p>
 <p><span class="math display">\[
 \log h(t|x) = \log h_0(t) + \beta_1 x_1 + \beta_2 x_2 + \cdots + \beta_p x_p
 \]</span></p>
 <ul>
-<li><code>coef</code>：模型估计的回归系数 <span class="math inline">\(\beta\)</span>，表示对数风险的线性影响；</li>
-<li><code>exp(coef)</code>：即 <span class="math inline">\(\exp(\beta)\)</span>，为风险比（Hazard Ratio, HR），表示死亡风险的变化倍数。</li>
-</ul>
-</section>
-<section id="cox模型的估计系-数解读" class="slide level2">
-<h2>4.3 Cox模型的估计系: 数解读</h2>
+<li><p><strong><code>coef</code></strong></p>
 <ul>
-<li><p><strong>线性回归</strong>：<br>
-<span class="math display">\[
-y = \beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p
-\]</span></p></li>
-<li><p><strong>Cox 模型</strong>：<br>
-<span class="math display">\[
-\log h(t \mid x) = \log h_0(t) + \beta_1 x_1 + \cdots + \beta_p x_p
-\]</span></p></li>
-</ul>
-<p><strong>区别</strong></p>
-<ul>
-<li><p>线性回归：<span class="math inline">\(x_j\)</span> 对Y的影响</p></li>
-<li><p>Cox 回归：<span class="math inline">\(x_j\)</span> 对<span class="math inline">\(\log(\text{hazard})\)</span> 的影响</p></li>
-</ul>
-</section>
-<section id="cox模型的估计-系数解读" class="slide level2">
-<h2>4.3 Cox模型的估计: 系数解读</h2>
-<ul>
-<li><p>正系数 → 风险增加，生存时间变短</p></li>
-<li><p>负系数 → 风险降低，生存时间变长</p></li>
-<li><p><span class="math inline">\(\beta_j\)</span> (<span class="math inline">\(coef\)</span>)：</p>
-<ul>
-<li><span class="math inline">\(x_j\)</span> <strong>每增加一个单位</strong>，<span class="math inline">\(\log(\text{hazard})\)</span> 增加 <span class="math inline">\(\beta_j\)</span></li>
-<li>抽象</li>
-</ul></li>
-<li><p><span class="math inline">\(exp(\beta_j)\)</span> (<span class="math inline">\(exp(coef)\)</span>)：</p>
-<ul>
-<li><span class="math inline">\(x_j\)</span> <strong>每增加一个单位</strong>，hazard（风险）会乘上一个因子 <span class="math inline">\(\exp(\beta_j)\)</span></li>
-<li>hazard（风险）会增加 <span class="math inline">\(\exp(\beta_j) - 1\)</span> 倍</li>
-<li>直观，容易理解</li>
+<li><span class="math inline">\(\beta\)</span>，表示每个解释变量 <span class="math inline">\(x_p\)</span> 对对数风险函数 <span class="math inline">\(\log h(t|x)\)</span> 的线性影响。即 <span class="math inline">\(x_p\)</span> 增加1个单位，<span class="math inline">\(\log h(t|x)\)</span> 增加 <span class="math inline">\(\beta_p\)</span>。</li>
 </ul></li>
 </ul>
-<p>在控制其他变量后，<span class="math inline">\(x_j\)</span> 每增加1个单位 ，死亡风险(上升/下降）<span class="math inline">\((\exp(\beta_j) - 1) \times 100\%\)</span></p>
+<p><span class="math display">\[
+h(t | X) = h_0(t) \cdot \exp(\beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p)
+\]</span></p>
+<ul>
+<li><p><strong><code>exp(coef)</code></strong></p>
+<p>-<span class="math inline">\(\exp(\beta)\)</span>，表示 <span class="math inline">\(x_p\)</span> 增加1个单位时，事件发生的风险(即刻发生该事件的瞬时速率) <span class="math inline">\(h(t|x)\)</span> 的相对变化倍数。 (_p) 表示风险增加, (_p) &lt; 1$ 表示风险降低。</p>
+<p><span class="math display">\[
+Hazard \space Ratio = \exp(\beta_p)
+\]</span></p></li>
+<li><p>正系数 → 风险增加</p></li>
+<li><p>负系数 → 风险降低</p></li>
+</ul>
 </section>
-<section id="cox模型的估计-系数解读-1" class="slide level2">
-<h2>4.3 Cox模型的估计: 系数解读</h2>
+<section class="slide level2">
+
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb12-2"><a></a></span>
-<span id="cb12-3"><a></a>lung <span class="ot">&lt;-</span> </span>
-<span id="cb12-4"><a></a>  lung <span class="sc">%&gt;%</span> </span>
-<span id="cb12-5"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb12-6"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb12-7"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span>
-<span id="cb12-8"><a></a></span>
-<span id="cb12-9"><a></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Call:
-coxph(formula = Surv(time, status) ~ female + age + wt.loss, 
-    data = lung)
-
-              coef  exp(coef)   se(coef)      z      p
-female  -0.5210319  0.5939074  0.1743541 -2.988 0.0028
-age      0.0200882  1.0202913  0.0096644  2.079 0.0377
-wt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024
-
-Likelihood ratio test=14.67  on 3 df, p=0.002122
-n= 214, number of events= 152 
-   (14 observations deleted due to missingness)</code></pre>
-</div>
-</div>
-<div class="smaller-text">
-<p>在控制其他变量后：</p>
-<p>女性比男性的死亡风险降低了约 41%. <span class="math inline">\(\left( \exp(-0.521) - 1 \right) \times 100\% = (0.594 - 1) \times 100\% \approx -41\%\)</span>。</p>
-<p>年龄每增加1岁, 死亡风险增加2%. <span class="math inline">\(\left( \exp(0.020) - 1 \right) \times 100\% = (1.020 - 1) \times 100\% \approx 2\%\)</span>。</p>
-</div>
-</section>
-<section id="cox模型的估计-系数解读-2" class="slide level2">
-<h2>4.3 Cox模型的估计: 系数解读</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb14-2"><a></a></span>
-<span id="cb14-3"><a></a>lung <span class="ot">&lt;-</span> </span>
-<span id="cb14-4"><a></a>  lung <span class="sc">%&gt;%</span> </span>
-<span id="cb14-5"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb14-6"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb14-7"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span>
-<span id="cb14-8"><a></a></span>
-<span id="cb14-9"><a></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno <span class="sc">+</span> </span>
-<span id="cb14-10"><a></a>                  pat.karno, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
+<span id="cb8-2"><a></a></span>
+<span id="cb8-3"><a></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-5"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),   </span>
+<span id="cb8-6"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) </span>
+<span id="cb8-7"><a></a>  </span>
+<span id="cb8-8"><a></a></span>
+<span id="cb8-9"><a></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
 coxph(formula = Surv(time, status) ~ female + age + wt.loss + 
-    ph.ecog + ph.karno + pat.karno, data = lung)
+    ph.ecog + ph.karno, data = lung)
 
-               coef exp(coef)  se(coef)      z        p
-female    -0.625167  0.535172  0.178703 -3.498 0.000468
-age        0.013058  1.013144  0.009866  1.324 0.185639
-wt.loss   -0.013243  0.986844  0.007009 -1.889 0.058836
-ph.ecog    0.675227  1.964479  0.198735  3.398 0.000680
-ph.karno   0.020116  1.020320  0.010178  1.976 0.048111
-pat.karno -0.014743  0.985365  0.007300 -2.019 0.043440
+              coef exp(coef)  se(coef)      z        p
+female   -0.631422  0.531835  0.177134 -3.565 0.000364
+age       0.015157  1.015273  0.009763  1.553 0.120538
+wt.loss  -0.009298  0.990745  0.006699 -1.388 0.165168
+ph.ecog   0.740204  2.096364  0.191332  3.869 0.000109
+ph.karno  0.015251  1.015368  0.009797  1.557 0.119553
 
-Likelihood ratio test=37.2  on 6 df, p=1.611e-06
-n= 210, number of events= 148 
-   (18 observations deleted due to missingness)</code></pre>
+Likelihood ratio test=33.53  on 5 df, p=2.951e-06
+n= 213, number of events= 151 
+   (15 observations deleted due to missingness)</code></pre>
 </div>
 </div>
 <div class="smaller-text">
-<p>在控制其他变量后:</p>
-<p>女性比男性的死亡风险降低了约 46%. <span class="math inline">\(\left( \exp(-0.625) - 1 \right) \times 100\% = (0.535 - 1) \times 100\% \approx -46\%\)</span></p>
-<p>ph.ecog每增加1分(机能恶化), 死亡风险增加96%. <span class="math inline">\(\left( \exp(0.675) - 1 \right) \times 100\% = (1.964 - 1) \times 100\% \approx 96\%\)</span></p>
+<p>主要变量详细解读</p>
+<p>female：女性与男性相比，死亡风险约为男性的0.53（降低47%），且差异高度显著（p &lt; 0.001）。</p>
+<p>age：年龄对风险影响不显著（p &gt; 0.05）。</p>
+<p>wt.loss：体重下降对风险影响不显著。</p>
+<p>ph.ecog（体能评分）：评分每增加1分，风险增加约2倍（HR=2.10），且高度显著（p &lt; 0.001），说明体能状况差的人死亡风险更高。</p>
+<p>ph.karno（Karnofsky评分）：ph.karno对风险影响不显著。</p>
+<hr>
+<p>Likelihood ratio test（似然比检验）：用于判断整个模型是否显著优于无解释变量（空模型）。 统计量=33.53，自由度（df）=5（模型中有5个自变量）。 p=2.951e-06（约0.000003）极小，远小于0.05。 解释：至少有一个变量对生存时间有显著影响，模型整体是有统计学意义的。</p>
 </div>
 </section>
-<section id="cox模型的表格化输出" class="slide level2">
-<h2>4.3 Cox模型的表格化输出</h2>
+<section class="slide level2">
+
+<h5 id="模型整体显著性检验">模型整体显著性检验</h5>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ female + age + wt.loss + 
+    ph.ecog + ph.karno, data = lung)
+
+  n= 213, number of events= 151 
+   (15 observations deleted due to missingness)
+
+              coef exp(coef)  se(coef)      z Pr(&gt;|z|)    
+female   -0.631422  0.531835  0.177134 -3.565 0.000364 ***
+age       0.015157  1.015273  0.009763  1.553 0.120538    
+wt.loss  -0.009298  0.990745  0.006699 -1.388 0.165168    
+ph.ecog   0.740204  2.096364  0.191332  3.869 0.000109 ***
+ph.karno  0.015251  1.015368  0.009797  1.557 0.119553    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+         exp(coef) exp(-coef) lower .95 upper .95
+female      0.5318     1.8803    0.3758    0.7526
+age         1.0153     0.9850    0.9960    1.0349
+wt.loss     0.9907     1.0093    0.9778    1.0038
+ph.ecog     2.0964     0.4770    1.4408    3.0502
+ph.karno    1.0154     0.9849    0.9961    1.0351
+
+Concordance= 0.64  (se = 0.026 )
+Likelihood ratio test= 33.53  on 5 df,   p=3e-06
+Wald test            = 32.27  on 5 df,   p=5e-06
+Score (logrank) test = 32.83  on 5 df,   p=4e-06</code></pre>
+</div>
+</div>
+<ul>
+<li><p>Concordance（一致性指数，也叫C-index）是衡量模型区分能力的指标，范围0~1。0.5 表示模型无辨别力（和随机一样），1 表示预测完全正确。</p></li>
+<li><p>Likelihood ratio test似然比检验，p-value &lt; 0.05, 模型整体显著。</p></li>
+<li><p>Wald检验，p-value &lt; 0.05, 模型整体显著。</p></li>
+<li><p>Score test（也叫logrank检验），p-value &lt; 0.05, 模型整体显著。</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h4 id="检验风险比例假定">4.4.5 检验风险比例假定</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb16-2"><a></a></span>
-<span id="cb16-3"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb16-4"><a></a></span>
-<span id="cb16-5"><a></a>lung <span class="ot">&lt;-</span> </span>
-<span id="cb16-6"><a></a>  lung <span class="sc">%&gt;%</span> </span>
-<span id="cb16-7"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb16-8"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb16-9"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span>
-<span id="cb16-10"><a></a><span class="co"># 拟合模型</span></span>
-<span id="cb16-11"><a></a>model1 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss, <span class="at">data =</span> lung)</span>
-<span id="cb16-12"><a></a>model2 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno <span class="sc">+</span> </span>
-<span id="cb16-13"><a></a>                  pat.karno, <span class="at">data =</span> lung)</span>
-<span id="cb16-14"><a></a></span>
-<span id="cb16-15"><a></a>tbl1 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(</span>
-<span id="cb16-16"><a></a>  model1,</span>
-<span id="cb16-17"><a></a>  <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb16-18"><a></a>  <span class="at">estimate_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_number</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
-<span id="cb16-19"><a></a>)</span>
-<span id="cb16-20"><a></a></span>
-<span id="cb16-21"><a></a>tbl2 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(</span>
-<span id="cb16-22"><a></a>  model2,</span>
-<span id="cb16-23"><a></a>  <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb16-24"><a></a>  <span class="at">estimate_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_number</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
-<span id="cb16-25"><a></a>)</span>
-<span id="cb16-26"><a></a></span>
-<span id="cb16-27"><a></a><span class="fu">tbl_merge</span>(</span>
-<span id="cb16-28"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2),</span>
-<span id="cb16-29"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>)</span>
-<span id="cb16-30"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">library</span>(survival)</span>
+<span id="cb11-2"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
+<span id="cb11-3"><a></a></span>
+<span id="cb11-4"><a></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-6"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),   </span>
+<span id="cb11-7"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
+<span id="cb11-8"><a></a>  )</span>
+<span id="cb11-9"><a></a></span>
+<span id="cb11-10"><a></a>fit <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung) </span>
+<span id="cb11-11"><a></a></span>
+<span id="cb11-12"><a></a><span class="co"># 检验风险比例假定--Schoenfeld残差检验</span></span>
+<span id="cb11-13"><a></a>fit <span class="sc">%&gt;%</span> <span class="fu">cox.zph</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>         chisq df     p
+female   2.059  1 0.151
+age      0.186  1 0.666
+wt.loss  0.110  1 0.740
+ph.ecog  1.359  1 0.244
+ph.karno 4.916  1 0.027
+GLOBAL   7.174  5 0.208</code></pre>
+</div>
+</div>
+<p>Schoenfeld残差检验的结果</p>
+<ul>
+<li><p>chisq：Schoenfeld残差检验的卡方统计量, df：自由度</p></li>
+<li><p>对于每个变量及全局（GLOBAL），p值越大于0.05，说明风险比例假定越成立；若p值小于0.05，说明该变量（或整体）可能不满足风险比例假定。</p></li>
+<li><p>GLOBAL表示对整个Cox模型的风险比例假定整体检验，也叫“全局检验”。它的p值反映了所有协变量加在一起时，模型整体是否违反了风险比例假定。</p></li>
+<li><p>如果GLOBAL的p值较大（通常&gt;0.05），说明整体上Cox模型的风险比例假定是成立的。</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co"># Schoenfeld残差检验的可视化</span></span>
+<span id="cb13-2"><a></a>fit <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a></a>  <span class="fu">cox.zph</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a></a>  <span class="fu">plot</span>(<span class="at">var =</span> <span class="st">"female"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L4slide_files/figure-revealjs/unnamed-chunk-7-1.png" width="960" class="r-stretch"><ul>
+<li>Schoenfeld残差图若平滑曲线接近水平，说明风险比随时间不变，PH假定成立；若明显有趋势，则PH假定可能不成立。</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="co"># Schoenfeld残差检验的可视化</span></span>
+<span id="cb14-2"><a></a>fit <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a></a>  <span class="fu">cox.zph</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb14-4"><a></a>  <span class="fu">plot</span>(<span class="at">var =</span> <span class="st">"ph.ecog"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L4slide_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h4 id="cox模型的表格化输出">4.4.6 Cox模型的表格化输出</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb15-2"><a></a></span>
+<span id="cb15-3"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
+<span id="cb15-4"><a></a></span>
+<span id="cb15-5"><a></a>lung <span class="ot">&lt;-</span> </span>
+<span id="cb15-6"><a></a>  lung <span class="sc">%&gt;%</span> </span>
+<span id="cb15-7"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-8"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
+<span id="cb15-9"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span>
+<span id="cb15-10"><a></a></span>
+<span id="cb15-11"><a></a><span class="co"># 拟合模型</span></span>
+<span id="cb15-12"><a></a>model1 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss, <span class="at">data =</span> lung)</span>
+<span id="cb15-13"><a></a>model2 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung)</span>
+<span id="cb15-14"><a></a></span>
+<span id="cb15-15"><a></a>tbl1 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(</span>
+<span id="cb15-16"><a></a>  model1,</span>
+<span id="cb15-17"><a></a>  <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-18"><a></a>  <span class="at">estimate_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_number</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb15-19"><a></a>)</span>
+<span id="cb15-20"><a></a></span>
+<span id="cb15-21"><a></a>tbl2 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(</span>
+<span id="cb15-22"><a></a>  model2,</span>
+<span id="cb15-23"><a></a>  <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-24"><a></a>  <span class="at">estimate_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_number</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb15-25"><a></a>)</span>
+<span id="cb15-26"><a></a></span>
+<span id="cb15-27"><a></a><span class="fu">tbl_merge</span>(</span>
+<span id="cb15-28"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2),</span>
+<span id="cb15-29"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>)</span>
+<span id="cb15-30"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="qtazzlzbnz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qtazzlzbnz table {
+<div id="mjxsfjyzup" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mjxsfjyzup table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#qtazzlzbnz thead, #qtazzlzbnz tbody, #qtazzlzbnz tfoot, #qtazzlzbnz tr, #qtazzlzbnz td, #qtazzlzbnz th {
+#mjxsfjyzup thead, #mjxsfjyzup tbody, #mjxsfjyzup tfoot, #mjxsfjyzup tr, #mjxsfjyzup td, #mjxsfjyzup th {
   border-style: none;
 }
 
-#qtazzlzbnz p {
+#mjxsfjyzup p {
   margin: 0;
   padding: 0;
 }
 
-#qtazzlzbnz .gt_table {
+#mjxsfjyzup .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -766,12 +796,12 @@ n= 210, number of events= 148
   border-left-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_caption {
+#mjxsfjyzup .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#qtazzlzbnz .gt_title {
+#mjxsfjyzup .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -783,7 +813,7 @@ n= 210, number of events= 148
   border-bottom-width: 0;
 }
 
-#qtazzlzbnz .gt_subtitle {
+#mjxsfjyzup .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -795,7 +825,7 @@ n= 210, number of events= 148
   border-top-width: 0;
 }
 
-#qtazzlzbnz .gt_heading {
+#mjxsfjyzup .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -807,13 +837,13 @@ n= 210, number of events= 148
   border-right-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_bottom_border {
+#mjxsfjyzup .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_col_headings {
+#mjxsfjyzup .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -828,7 +858,7 @@ n= 210, number of events= 148
   border-right-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_col_heading {
+#mjxsfjyzup .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -848,7 +878,7 @@ n= 210, number of events= 148
   overflow-x: hidden;
 }
 
-#qtazzlzbnz .gt_column_spanner_outer {
+#mjxsfjyzup .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -860,15 +890,15 @@ n= 210, number of events= 148
   padding-right: 4px;
 }
 
-#qtazzlzbnz .gt_column_spanner_outer:first-child {
+#mjxsfjyzup .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qtazzlzbnz .gt_column_spanner_outer:last-child {
+#mjxsfjyzup .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qtazzlzbnz .gt_column_spanner {
+#mjxsfjyzup .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -880,11 +910,11 @@ n= 210, number of events= 148
   width: 100%;
 }
 
-#qtazzlzbnz .gt_spanner_row {
+#mjxsfjyzup .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#qtazzlzbnz .gt_group_heading {
+#mjxsfjyzup .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -910,7 +940,7 @@ n= 210, number of events= 148
   text-align: left;
 }
 
-#qtazzlzbnz .gt_empty_group_heading {
+#mjxsfjyzup .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -925,15 +955,15 @@ n= 210, number of events= 148
   vertical-align: middle;
 }
 
-#qtazzlzbnz .gt_from_md > :first-child {
+#mjxsfjyzup .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qtazzlzbnz .gt_from_md > :last-child {
+#mjxsfjyzup .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qtazzlzbnz .gt_row {
+#mjxsfjyzup .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -952,7 +982,7 @@ n= 210, number of events= 148
   overflow-x: hidden;
 }
 
-#qtazzlzbnz .gt_stub {
+#mjxsfjyzup .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -965,7 +995,7 @@ n= 210, number of events= 148
   padding-right: 5px;
 }
 
-#qtazzlzbnz .gt_stub_row_group {
+#mjxsfjyzup .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -979,15 +1009,15 @@ n= 210, number of events= 148
   vertical-align: top;
 }
 
-#qtazzlzbnz .gt_row_group_first td {
+#mjxsfjyzup .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qtazzlzbnz .gt_row_group_first th {
+#mjxsfjyzup .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#qtazzlzbnz .gt_summary_row {
+#mjxsfjyzup .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -997,16 +1027,16 @@ n= 210, number of events= 148
   padding-right: 5px;
 }
 
-#qtazzlzbnz .gt_first_summary_row {
+#mjxsfjyzup .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_first_summary_row.thick {
+#mjxsfjyzup .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qtazzlzbnz .gt_last_summary_row {
+#mjxsfjyzup .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1016,7 +1046,7 @@ n= 210, number of events= 148
   border-bottom-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_grand_summary_row {
+#mjxsfjyzup .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1026,7 +1056,7 @@ n= 210, number of events= 148
   padding-right: 5px;
 }
 
-#qtazzlzbnz .gt_first_grand_summary_row {
+#mjxsfjyzup .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1036,7 +1066,7 @@ n= 210, number of events= 148
   border-top-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_last_grand_summary_row_top {
+#mjxsfjyzup .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1046,11 +1076,11 @@ n= 210, number of events= 148
   border-bottom-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_striped {
+#mjxsfjyzup .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#qtazzlzbnz .gt_table_body {
+#mjxsfjyzup .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1059,7 +1089,7 @@ n= 210, number of events= 148
   border-bottom-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_footnotes {
+#mjxsfjyzup .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1073,7 +1103,7 @@ n= 210, number of events= 148
   border-right-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_footnote {
+#mjxsfjyzup .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1082,7 +1112,7 @@ n= 210, number of events= 148
   padding-right: 5px;
 }
 
-#qtazzlzbnz .gt_sourcenotes {
+#mjxsfjyzup .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1096,7 +1126,7 @@ n= 210, number of events= 148
   border-right-color: #D3D3D3;
 }
 
-#qtazzlzbnz .gt_sourcenote {
+#mjxsfjyzup .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1104,72 +1134,72 @@ n= 210, number of events= 148
   padding-right: 5px;
 }
 
-#qtazzlzbnz .gt_left {
+#mjxsfjyzup .gt_left {
   text-align: left;
 }
 
-#qtazzlzbnz .gt_center {
+#mjxsfjyzup .gt_center {
   text-align: center;
 }
 
-#qtazzlzbnz .gt_right {
+#mjxsfjyzup .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qtazzlzbnz .gt_font_normal {
+#mjxsfjyzup .gt_font_normal {
   font-weight: normal;
 }
 
-#qtazzlzbnz .gt_font_bold {
+#mjxsfjyzup .gt_font_bold {
   font-weight: bold;
 }
 
-#qtazzlzbnz .gt_font_italic {
+#mjxsfjyzup .gt_font_italic {
   font-style: italic;
 }
 
-#qtazzlzbnz .gt_super {
+#mjxsfjyzup .gt_super {
   font-size: 65%;
 }
 
-#qtazzlzbnz .gt_footnote_marks {
+#mjxsfjyzup .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#qtazzlzbnz .gt_asterisk {
+#mjxsfjyzup .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qtazzlzbnz .gt_indent_1 {
+#mjxsfjyzup .gt_indent_1 {
   text-indent: 5px;
 }
 
-#qtazzlzbnz .gt_indent_2 {
+#mjxsfjyzup .gt_indent_2 {
   text-indent: 10px;
 }
 
-#qtazzlzbnz .gt_indent_3 {
+#mjxsfjyzup .gt_indent_3 {
   text-indent: 15px;
 }
 
-#qtazzlzbnz .gt_indent_4 {
+#mjxsfjyzup .gt_indent_4 {
   text-indent: 20px;
 }
 
-#qtazzlzbnz .gt_indent_5 {
+#mjxsfjyzup .gt_indent_5 {
   text-indent: 25px;
 }
 
-#qtazzlzbnz .katex-display {
+#mjxsfjyzup .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#qtazzlzbnz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#mjxsfjyzup div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1209,8 +1239,8 @@ n= 210, number of events= 148
 <td class="gt_row gt_center" headers="estimate_1">0.594</td>
 <td class="gt_row gt_center" headers="conf.low_1">0.422, 0.836</td>
 <td class="gt_row gt_center" headers="p.value_1">0.003</td>
-<td class="gt_row gt_center" headers="estimate_2">0.535</td>
-<td class="gt_row gt_center" headers="conf.low_2">0.377, 0.760</td>
+<td class="gt_row gt_center" headers="estimate_2">0.532</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.376, 0.753</td>
 <td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
 </tr>
 <tr class="even">
@@ -1218,18 +1248,18 @@ n= 210, number of events= 148
 <td class="gt_row gt_center" headers="estimate_1">1.020</td>
 <td class="gt_row gt_center" headers="conf.low_1">1.001, 1.040</td>
 <td class="gt_row gt_center" headers="p.value_1">0.038</td>
-<td class="gt_row gt_center" headers="estimate_2">1.013</td>
-<td class="gt_row gt_center" headers="conf.low_2">0.994, 1.033</td>
-<td class="gt_row gt_center" headers="p.value_2">0.2</td>
+<td class="gt_row gt_center" headers="estimate_2">1.015</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.996, 1.035</td>
+<td class="gt_row gt_center" headers="p.value_2">0.12</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">wt.loss</td>
 <td class="gt_row gt_center" headers="estimate_1">1.001</td>
 <td class="gt_row gt_center" headers="conf.low_1">0.989, 1.013</td>
 <td class="gt_row gt_center" headers="p.value_1">&gt;0.9</td>
-<td class="gt_row gt_center" headers="estimate_2">0.987</td>
-<td class="gt_row gt_center" headers="conf.low_2">0.973, 1.000</td>
-<td class="gt_row gt_center" headers="p.value_2">0.059</td>
+<td class="gt_row gt_center" headers="estimate_2">0.991</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.978, 1.004</td>
+<td class="gt_row gt_center" headers="p.value_2">0.2</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">ph.ecog</td>
@@ -1239,8 +1269,8 @@ n= 210, number of events= 148
 </td>
 <td class="gt_row gt_center" headers="p.value_1"><br>
 </td>
-<td class="gt_row gt_center" headers="estimate_2">1.964</td>
-<td class="gt_row gt_center" headers="conf.low_2">1.331, 2.900</td>
+<td class="gt_row gt_center" headers="estimate_2">2.096</td>
+<td class="gt_row gt_center" headers="conf.low_2">1.441, 3.050</td>
 <td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
 </tr>
 <tr class="odd">
@@ -1251,21 +1281,9 @@ n= 210, number of events= 148
 </td>
 <td class="gt_row gt_center" headers="p.value_1"><br>
 </td>
-<td class="gt_row gt_center" headers="estimate_2">1.020</td>
-<td class="gt_row gt_center" headers="conf.low_2">1.000, 1.041</td>
-<td class="gt_row gt_center" headers="p.value_2">0.048</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">pat.karno</td>
-<td class="gt_row gt_center" headers="estimate_1"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low_1"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value_1"><br>
-</td>
-<td class="gt_row gt_center" headers="estimate_2">0.985</td>
-<td class="gt_row gt_center" headers="conf.low_2">0.971, 1.000</td>
-<td class="gt_row gt_center" headers="p.value_2">0.043</td>
+<td class="gt_row gt_center" headers="estimate_2">1.015</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.996, 1.035</td>
+<td class="gt_row gt_center" headers="p.value_2">0.12</td>
 </tr>
 </tbody><tfoot class="gt_sourcenotes">
 <tr class="odd">
@@ -1279,36 +1297,179 @@ n= 210, number of events= 148
 </div>
 </div>
 </section>
-<section id="cox模型的估计-导出到-word文档" class="slide level2">
-<h2>4.3 Cox模型的估计: 导出到 Word文档</h2>
+<section class="slide level2">
+
+<h3 id="cox模型的估计-导出到-word文档">4.4.7 Cox模型的估计: 导出到 Word文档</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a>tbl_combined <span class="ot">&lt;-</span> <span class="fu">tbl_merge</span>(</span>
-<span id="cb17-2"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2),</span>
-<span id="cb17-3"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>)</span>
-<span id="cb17-4"><a></a>)</span>
-<span id="cb17-5"><a></a></span>
-<span id="cb17-6"><a></a></span>
-<span id="cb17-7"><a></a><span class="fu">library</span>(flextable)</span>
-<span id="cb17-8"><a></a><span class="fu">library</span>(officer)</span>
-<span id="cb17-9"><a></a></span>
-<span id="cb17-10"><a></a></span>
-<span id="cb17-11"><a></a><span class="fu">read_docx</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb17-12"><a></a>  <span class="fu">body_add_par</span>(<span class="st">"Table 2. Results of Cox Proportional Hazards Regression Models"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb17-13"><a></a>  <span class="fu">body_add_flextable</span>(<span class="fu">as_flex_table</span>(tbl_combined)) <span class="sc">%&gt;%</span></span>
-<span id="cb17-14"><a></a>  <span class="fu">print</span>(<span class="at">target =</span> <span class="st">"cox_results.docx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a>tbl_combined <span class="ot">&lt;-</span> <span class="fu">tbl_merge</span>(</span>
+<span id="cb16-2"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2),</span>
+<span id="cb16-3"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>)</span>
+<span id="cb16-4"><a></a>)</span>
+<span id="cb16-5"><a></a></span>
+<span id="cb16-6"><a></a></span>
+<span id="cb16-7"><a></a><span class="fu">library</span>(flextable)</span>
+<span id="cb16-8"><a></a><span class="fu">library</span>(officer)</span>
+<span id="cb16-9"><a></a></span>
+<span id="cb16-10"><a></a></span>
+<span id="cb16-11"><a></a><span class="fu">read_docx</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-12"><a></a>  <span class="fu">body_add_par</span>(<span class="st">"Table 2. Results of Cox Proportional Hazards Regression Models"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-13"><a></a>  <span class="fu">body_add_flextable</span>(<span class="fu">as_flex_table</span>(tbl_combined)) <span class="sc">%&gt;%</span></span>
+<span id="cb16-14"><a></a>  <span class="fu">print</span>(<span class="at">target =</span> <span class="st">"cox_results.docx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="cox模型的检验" class="slide level2">
-<h2>4.4 Cox模型的检验</h2>
-</section>
-<section id="cox模型的可视化" class="slide level2">
-<h2>4.5 Cox模型的可视化</h2>
-</section>
-<section id="cox模型的扩展" class="slide level2">
-<h2>4.6 Cox模型的扩展</h2>
+<section id="cox模型的可视化工具" class="slide level2">
+<h2>4.5 Cox模型的可视化工具</h2>
+<h3 id="基线生存曲线">4.5.1 基线生存曲线</h3>
+<p>基线生存曲线: 在所有协变量（自变量）取基线值时（通常是0，或者参考组），个体在各时间点的生存概率。</p>
+<p><span class="math display">\[
+S_0(t) = \exp\left(-\int_0^t h_0(u) du\right)
+\]</span></p>
+<p>基线生存曲线是所有预测型生存曲线的“原型”或“起点”，其它所有人的生存曲线都是在它的基础上根据风险因子调整得到的。</p>
+<p>描述“标准人群”（参考组）或“平均水平”个体的生存情况。，在现实中确实可能并不存在（比如所有变量都取0或参考组值，这个人其实不在你的样本里）。但它依然有重要的统计与实际意义，参考组本质是“数学基准”，不是现实个体, 即使现实中没有这样的人，所有其他个体的生存概率都必须以它为基准来调整。</p>
 </section>
 <section class="slide level2">
 
+<p>绘制基线生存曲线</p>
+
+<img data-src="L4slide_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="不同人群特征组合下的预测生存曲线">4.5.2 不同人群特征组合下的预测生存曲线</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a>newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb17-2"><a></a>  <span class="at">female   =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb17-3"><a></a>  <span class="at">age      =</span> <span class="fu">c</span>(<span class="dv">60</span>, <span class="dv">60</span>, <span class="dv">70</span>),</span>
+<span id="cb17-4"><a></a>  <span class="at">wt.loss  =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<span id="cb17-5"><a></a>  <span class="at">ph.ecog  =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb17-6"><a></a>  <span class="at">ph.karno =</span> <span class="fu">c</span>(<span class="dv">80</span>, <span class="dv">80</span>, <span class="dv">60</span>)</span>
+<span id="cb17-7"><a></a>)</span>
+<span id="cb17-8"><a></a></span>
+<span id="cb17-9"><a></a>sf <span class="ot">&lt;-</span> <span class="fu">survfit</span>(fit, <span class="at">newdata =</span> newdata)</span>
+<span id="cb17-10"><a></a></span>
+<span id="cb17-11"><a></a><span class="fu">library</span>(survminer)</span>
+<span id="cb17-12"><a></a><span class="fu">ggsurvplot</span>(</span>
+<span id="cb17-13"><a></a>  sf,</span>
+<span id="cb17-14"><a></a>  <span class="at">data =</span> lung,</span>
+<span id="cb17-15"><a></a>  <span class="at">conf.int =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb17-16"><a></a>  <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"男性, 60岁, wt.loss =0, ph.ecog=1, ph.karno=80"</span>,</span>
+<span id="cb17-17"><a></a>                  <span class="st">"女性, 60岁, wt.loss =0, ph.ecog=1, ph.karno=80"</span>,</span>
+<span id="cb17-18"><a></a>                  <span class="st">"女性, 70岁, wt.loss =5, ECOG=2,ph.ecog=2,ph.karno=80"</span> ),</span>
+<span id="cb17-19"><a></a>  <span class="at">palette =</span> <span class="st">"Set2"</span>, <span class="co"># 使用RColorBrewer的 Set2 调色板</span></span>
+<span id="cb17-20"><a></a>  <span class="at">title =</span> <span class="st">"不同变量组合下的预测生存曲线"</span>,</span>
+<span id="cb17-21"><a></a>  <span class="at">xlab =</span> <span class="st">"时间（天）"</span>,</span>
+<span id="cb17-22"><a></a>  <span class="at">ylab =</span> <span class="st">"生存概率"</span></span>
+<span id="cb17-23"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L4slide_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="cox回归系数森林图">4.5.3 Cox回归系数森林图</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a><span class="fu">library</span>(survminer)</span>
+<span id="cb18-2"><a></a></span>
+<span id="cb18-3"><a></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-4"><a></a>  <span class="fu">ggforest</span>(<span class="at">main =</span> <span class="st">"Cox回归系数森林图"</span>, <span class="at">fontsize =</span> <span class="fl">1.2</span>,</span>
+<span id="cb18-5"><a></a>         <span class="at">cpositions =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.22</span>, <span class="fl">0.4</span>), <span class="at">refLabel =</span> <span class="st">"对照"</span>, <span class="at">noDigits =</span> <span class="dv">3</span>, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L4slide_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="列线图">4.5.4 列线图</h3>
+<p><strong>列线图（Nomogram）</strong>是将回归模型（如Cox、Logistic回归）转化为可视化评分表的工具，用于临床个体化预测。它把每个变量的取值转换为分数，然后通过总分推算某一结局（如1年生存率）。</p>
+<p>把模型变成“分数表”，你只需查分、加分、对照即可得到个体预测概率。</p>
+<p>一张列线图的结构一般包括： - 最上方一行：Points（得分）</p>
+<ul>
+<li><p>这是一把“定标尺”，用于查每个变量取值对应的分数。</p></li>
+<li><p>中间多行：各个变量</p></li>
+<li><p>每个变量一行，旁边有对应取值的刻度线。</p></li>
+<li><p>把所有变量的分数加起来，落在这一行的某个位置。</p></li>
+<li><p>底部：预测概率（如1年生存率）</p></li>
+<li><p>总分可以对应到一个概率，比如“1年生存率”</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="co">#install.packages("rms")</span></span>
+<span id="cb19-2"><a></a><span class="fu">library</span>(rms)</span>
+<span id="cb19-3"><a></a>dd <span class="ot">&lt;-</span> <span class="fu">datadist</span>(lung)</span>
+<span id="cb19-4"><a></a><span class="fu">options</span>(<span class="at">datadist=</span><span class="st">"dd"</span>)</span>
+<span id="cb19-5"><a></a></span>
+<span id="cb19-6"><a></a><span class="co"># 用cph拟合</span></span>
+<span id="cb19-7"><a></a>fit <span class="ot">&lt;-</span> <span class="fu">cph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung, <span class="at">x =</span> <span class="cn">TRUE</span>, <span class="at">y =</span> <span class="cn">TRUE</span>, <span class="at">surv =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-8"><a></a></span>
+<span id="cb19-9"><a></a>surv <span class="ot">&lt;-</span> <span class="fu">Survival</span>(fit)</span>
+<span id="cb19-10"><a></a></span>
+<span id="cb19-11"><a></a></span>
+<span id="cb19-12"><a></a>nom <span class="ot">&lt;-</span> <span class="fu">nomogram</span>(fit, <span class="at">fun=</span><span class="fu">list</span>(<span class="cf">function</span>(x) <span class="fu">surv</span>(<span class="dv">365</span>, x)), <span class="at">funlabel=</span><span class="st">"1年生存概率"</span>)</span>
+<span id="cb19-13"><a></a></span>
+<span id="cb19-14"><a></a><span class="fu">plot</span>(nom)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L4slide_files/figure-revealjs/unnamed-chunk-14-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="高低风险组生存曲线">4.5.5 高低风险组生存曲线</h3>
+<p>使用 Cox 比例风险模型对病人进行风险分层后，高低风险组的Kaplan-Meier 生存曲线。你使用了 predict(fit, type = “lp”) 计算每位患者的风险评分（线性预测值），然后基于中位数将样本分为高风险组与低风险组。</p>
+<p>在Cox回归生存分析中，高风险组（High risk group）是指： 对每个患者（样本），根据Cox回归模型计算出其风险评分（risk score，通常就是线性预测得分：risk_score = β1×X1 + β2×X2 + … + βn×Xn）。 然后，通常以风险评分的中位数为阈值，大于中位数的分为“高风险组”，小于等于中位数的分为“低风险组”。</p>
+<p>显著生存差异：红色曲线（高风险组）与蓝色曲线（低风险组）之间差距明显，p 值远小于 0.05，说明模型能有效区分不同风险个体的生存预后。</p>
+<p>模型有较好判别力：高低风险组的生存曲线没有交叉，且间距较大，说明 Cox 模型捕捉到了关键影响因素。</p>
+<p>删失信息充分：小“+”符号分布均匀，说明删失数据处理得当，未引起偏倚。</p>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="co"># 步骤1: 计算风险评分</span></span>
+<span id="cb20-2"><a></a>risk_score <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"lp"</span>)  <span class="co"># "lp" = linear predictor</span></span>
+<span id="cb20-3"><a></a></span>
+<span id="cb20-4"><a></a><span class="co"># 步骤2: 分组（以中位数为界）</span></span>
+<span id="cb20-5"><a></a>lung<span class="sc">$</span>risk_group <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(risk_score <span class="sc">&gt;</span> <span class="fu">median</span>(risk_score, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb20-6"><a></a>                          <span class="st">"High risk"</span>, <span class="st">"Low risk"</span>)</span>
+<span id="cb20-7"><a></a></span>
+<span id="cb20-8"><a></a><span class="co"># 步骤3: 拟合分组生存曲线</span></span>
+<span id="cb20-9"><a></a>fit_group <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> risk_group, </span>
+<span id="cb20-10"><a></a>                     <span class="at">data =</span> lung)</span>
+<span id="cb20-11"><a></a></span>
+<span id="cb20-12"><a></a><span class="co"># 步骤4: 绘制生存曲线</span></span>
+<span id="cb20-13"><a></a><span class="fu">ggsurvplot</span>(</span>
+<span id="cb20-14"><a></a>  fit_group,</span>
+<span id="cb20-15"><a></a>  <span class="at">data =</span> lung,</span>
+<span id="cb20-16"><a></a>  <span class="at">pval =</span> <span class="cn">TRUE</span>,                  <span class="co"># 显示log-rank检验p值</span></span>
+<span id="cb20-17"><a></a>  <span class="at">legend.title =</span> <span class="st">"Risk Group"</span>,</span>
+<span id="cb20-18"><a></a>  <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"High risk"</span>, <span class="st">"Low risk"</span>),</span>
+<span id="cb20-19"><a></a>  <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"#E41A1C"</span>, <span class="st">"#377EB8"</span>),  <span class="co"># 红、蓝</span></span>
+<span id="cb20-20"><a></a>  <span class="at">xlab =</span> <span class="st">"时间（天）"</span>,</span>
+<span id="cb20-21"><a></a>  <span class="at">ylab =</span> <span class="st">"生存概率"</span>,</span>
+<span id="cb20-22"><a></a>  <span class="at">title =</span> <span class="st">"高低风险组生存曲线"</span></span>
+<span id="cb20-23"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L4slide_files/figure-revealjs/unnamed-chunk-15-1.png" width="960" class="r-stretch"></section>
+<section id="总结" class="slide level2">
+<h2>总结</h2>
+<ul>
+<li><strong>CoxPH模型</strong>：生存分析最常用方法，探究时间与多因素关系，无需指定基线风险分布。</li>
+<li><strong>模型公式</strong>：<span class="math inline">\(h(t|X) = h_0(t) \exp(\beta^T X)\)</span>，<span class="math inline">\(\exp(\beta)\)</span>为风险比（HR），直观反映协变量影响。</li>
+<li><strong>核心假设</strong>：风险比随时间恒定（比例风险假设），分析前后须检验（如Schoenfeld残差）。</li>
+<li><strong>建模流程</strong>：保证事件数充足、缺失少，<code>coxph()</code>建模，配合森林图、风险分层生存曲线、列线图等可视化。</li>
+<li><strong>模型解读</strong>：正系数变量风险升高，负系数降低风险；整体显著性依赖似然比检验、C-index等指标。</li>
+<li><strong>临床应用</strong>：支持删失数据，便于个体化风险预测和人群风险分层，广泛用于医学科研和决策。</li>
+</ul>
+<p><strong>推荐R包</strong>：<code>survival</code>、<code>ggsurvfit</code>、<code>gtsummary</code>、<code>survminer</code>、<code>rms</code></p>
 
 
 </section>

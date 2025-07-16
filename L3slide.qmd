@@ -1,0 +1,433 @@
+---
+title:  "L3 Kaplan-Meier分析"
+date: today
+author: 
+  name: "Lzz"
+  url: https://space.bilibili.com/590872906/
+format: 
+  revealjs:
+    incremental: FALSE
+    theme: sky
+    slide-number: true
+    code-fold: true
+    chalkboard: 
+      buttons: true
+    preview-links: auto
+    css: styles.css
+    footer: |
+      <https://lizongzhang.github.io/survival><br>© 2025 2025 医咖会 Li Zongzhang 
+    include-before-body: 
+      - header.html
+      - fonts.html
+    title-slide-attributes: 
+      data-background-image: "img/yikahui_qcr.png"  
+      data-background-size: "100px"        
+      data-background-position: "center bottom 200px"  
+    plugins: [highlight, zoom, notes]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+#| echo: FALSE
+par(family  = 'STKaiti')
+library(showtext)
+showtext_auto()
+
+# install.packages("survival")
+# install.packages("ggsurvfit")
+# install.packages("gtsummary")
+# install.packages("tidyverse")
+
+library(survival)
+library(survminer)
+library(ggsurvfit)
+library(gtsummary)
+library(tidyverse)
+library(broom)
+```
+
+------------------------------------------------------------------------
+
+## 大纲
+
+-   3.1 Kaplan-Meier分析简介
+
+-   3.2 一个简单的例子
+
+-   3.3 R代码：绘制Kaplan-Meier
+
+-   3.4 组间比较检验：Log-rank 检验
+
+-   3.5 多组生存曲线并列对比
+
+------------------------------------------------------------------------
+
+## 3.1 什么是Kaplan-Meier 分析？
+
+-   Kaplan-Meier 分析:
+    一种非参数生存分析方法，用来估计在不同时间点上，事件没有发生的概率。
+
+-   由 Edward Kaplan 和 Paul Meier 在 1958
+    年提出，是生存分析的基础工具。
+
+-   Kaplan-Meier曲线：横轴是“时间”，纵轴是“生存概率(事件没有发生的概率)”，展示随着时间推移，事件“还没发生”的概率如何变化。
+
+::: reference-text-small
+Kaplan, E. L., & Meier, P. (1958), Nonparametric estimation from
+incomplete observations, Journal of the American Statistical
+Association\*, 53(282), 457–481. [🔗 DOI:
+10.2307/2281868](https://doi.org/10.2307/2281868)
+:::
+
+------------------------------------------------------------------------
+
+### Kaplan-Meier核心思想
+
+-   Kaplan-Meier 分析:每当一个事件（如死亡）发生时，Kaplan-Meier
+    就更新一次“存活的概率”，并将它们连续相乘，逐步绘出生存曲线。
+
+-   优势：
+
+    -   无需假设分布形式
+
+    -   能处理右删失数据
+
+    -   可用于组间比较（如治疗组 vs 对照组）
+
+------------------------------------------------------------------------
+
+### Kaplan-Meier曲线的特征
+
+-   Kaplan-Meier曲线：随着时间推移，事件“还没发生”的概率如何变化。
+
+-   特征
+
+    -   从高到低：曲线从1（100%存活）开始，随着时间推移下降，最终趋近0（所有事件发生）。
+
+    -   阶梯状：每次有人去世，曲线会“跳一下”下降一点，反映事件发生。
+
+    -   考虑了删失
+
+------------------------------------------------------------------------
+
+### Kaplan-Meier分析的意义
+
+-   可视化生存概率变化: 展示随着时间推移，事件“还没发生”的概率如何变化。
+
+-   有效处理随访过程中出现的删失（censoring）数据，Kaplan-Meier分析能充分利用这些不完整信息，提高结果的可靠性。
+
+-   比较组间差异：比较不同人群、不同治疗方法的生存概率的差异是否显著(log-rank检验)
+
+-   生存分析的起点，探索性分析，作为Cox回归等更复杂模型的前置分析步骤，帮助理解数据的初步分布和趋势。
+
+------------------------------------------------------------------------
+
+### 生存函数的特征
+
+-   $S(0) = 1$：起点时刻所有个体尚未发生事件；
+
+-   $S(t)$ 是非递增函数，随着时间推移，生存概率不会上升
+
+-   长期生存概率趋近于 0 或某个稳定值
+
+    -   最终所有个体都发生了事件（如全部死亡、全部失效）
+
+    -   有一部分个体在研究期间永远不会发生目标事件（部分病人痊愈，信贷分析中有些客户从不违约）
+
+------------------------------------------------------------------------
+
+### Kaplan-Meier分析局限性
+
+-   只能处理单因素分析
+
+    -   如果想同时分析比如年龄、性别、治疗方式等多个因素对生存的影响，就需要用到Cox回归等方法。
+
+-   事件类型单一
+
+    -   若同时存在多种类型的结局事件（比如死亡和失访、不同死因），需要用到竞争风险（Competing
+        Risks）等模型。
+
+-   假定删失是无偏的
+
+    -   Kaplan-Meier分析假设删失数据与最终事件无关。如果删失与结局有关（比如身体状况差的人更容易失访），结果可能有偏。
+
+-   要求样本量足够
+
+    -   若随时间推移，样本量迅速减少（如大量删失），后期的生存率估计会非常不稳定、可信度下降。
+
+-   不能直接估计风险率
+
+    -   Kaplan-Meier关注的是“生存概率”，而不是“风险率”（hazard
+        ratio），无法像Cox回归等方法量化风险差异。
+
+------------------------------------------------------------------------
+
+## 3.2 一个简单的例子
+
+× 事件发生（event = 1），如死亡、再就业、信件送达等。
+
+● 删失（event = 0），表示观察期结束但事件尚未发生。
+
+```{r}
+#| echo: false
+
+# 模拟数据
+time <- c(5, 6, 2, 4, 4)          # 生存时间
+event <- c(1, 0, 0, 1, 1)         # 1 = 事件发生, 0 = 删失
+
+n <- length(time)
+y_pos <- rev(1:n)                 # 从上到下排列个体编号（1在最上）
+
+# 创建空白图形
+plot(NULL, xlim = c(0, max(time)), ylim = c(0.5, n + 0.5),
+     xlab = "t", ylab = "individual", yaxt = "n", 
+     col.axis = "blue", col.lab = "blue")
+
+axis(2, at = y_pos, labels = 1:n, col.axis = "blue")  # 添加个体编号
+
+# 设置边框颜色为蓝色
+box(col = "blue")
+
+# 绘制生存线段
+segments(x0 = 0, y0 = y_pos, x1 = time, y1 = y_pos, lwd = 2,
+         col = "blue")
+
+# 添加标记：事件为×，删失为●
+for (i in 1:n) {
+  if (event[i] == 1) {
+    points(time[i], y_pos[i], pch = 4, cex = 1.5, lwd = 2, col = "blue")  # ×
+  } else {
+    points(time[i], y_pos[i], pch = 16, cex = 1.2, col = "blue")          # ●
+  }
+}
+```
+
+------------------------------------------------------------------------
+
+### 计算生存概率
+
+$$
+\hat{S}(t) = \prod_{i: t_i \leq t} \frac{n_i - d_i}{n_i}
+$$
+
+$$
+\hat{S}(2) = \frac{5 - 0}{5} = \frac{5}{5} = 1
+$$
+
+$$
+\hat{S}(3) = \frac{4 - 0}{4} = \frac{4}{4} = 1
+$$
+
+$$
+\hat{S}(4) = \frac{4 - 2}{4} = \frac{2}{4} = \frac{1}{2} = 0.5
+$$
+
+$$
+\hat{S}(5) = \frac{1}{2} \cdot \frac{2 - 1}{2} = \frac{1}{4} = 0.25
+$$
+
+$$
+\hat{S}(6) = \frac{1}{4} \cdot \frac{1 - 0}{1} = \frac{1}{4} = 0.25
+$$
+
+------------------------------------------------------------------------
+
+### R代码计算生存概率
+
+```{r}
+#| echo: true
+
+# 创建数据框
+df <- data.frame(
+  time = c(5, 6, 2, 4, 4),
+  event = c(1, 0, 0, 1, 1)
+)
+
+# 创建生存对象
+Surv(time, event)
+
+# 拟合 KM 曲线，并指定数据
+km <- survfit(Surv(time, event) ~ 1, data = df)
+
+# 指定要显示的时刻
+times_to_show <- 1:6
+
+# 提取指定时刻的n.risk, n.event, survival prob
+km_sum <- summary(km, times = times_to_show)
+
+# 整理为数据框
+km_table <- data.frame(
+  time     = km_sum$time,
+  n.risk   = km_sum$n.risk,
+  n.event  = km_sum$n.event,
+  survival = km_sum$surv,
+  std.err  = km_sum$std.err,
+  lower95  = km_sum$lower,
+  upper95  = km_sum$upper
+)
+
+# 显示生存概率
+km_table
+
+```
+
+------------------------------------------------------------------------
+
+### 绘制Kaplan-Meier曲线
+
+```{r}
+# 绘制Kaplan-Meier曲线
+ggsurvplot(km, data = df, 
+           palette = "blue",
+           conf.int = TRUE, 
+           risk.table = TRUE)
+```
+
+------------------------------------------------------------------------
+
+## 3.3 绘制Kaplan-Meier曲线方法一：survminer::ggsurvplot()
+
+### 第1步：创建生存对象survial object
+
+::: {rcode}
+library(survival) Surv(time, event)
+:::
+
+-   time：一个数值向量，表示每个观测对象的生存时间（如观察到死亡的时间，或随访截止时未死亡的时间）
+
+-   event：一个二值（0/1）向量，表示该时间点是否发生了事件：
+
+    -   1 表示事件发生（如死亡）
+
+    -   0 表示删失（如随访结束时未发生事件）
+
+-   创建生存对象:
+    把“时间”和“事件状态”联合起来，所有生存分析建模函数（如survfit()、coxph()等）都要求第一个参数是
+    Surv() 生成的对象
+
+-   Surv()可以明确告诉R哪些是删失、哪些是已发生事件
+
+------------------------------------------------------------------------
+
+### 第2步：计算生存概率
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+# 计算生存概率
+km <- survfit(Surv(time, status) ~ 1, data = lung)
+
+# 显示对象的内部结构
+str(km)
+
+# 对生存分析结果km进行数据整洁化，并显示前6行
+km %>%         # Kaplan-Meier生存分析对象
+  tidy() %>%   # 转换为整洁数据框格式（需要broom包）
+  head()       # 显示前6行结果
+
+km %>% 
+  tidy() %>% 
+  tail() # 显示后6行结果
+```
+
+------------------------------------------------------------------------
+
+### 第3步：绘制KM曲线
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+# 绘制KM曲线
+library(survminer)
+
+ggsurvplot(
+  km,                # KM拟合对象
+  data = lung,       # 数据集
+  linetype = 1,      # 实线
+  palette = "jco",   # 颜色方案
+  conf.int = FALSE,  # 不显示置信区间
+  surv.median.line = "hv", # 显示中位生存水平/垂直线
+  # risk.table = TRUE,     # 风险表（如需可取消注释）
+  cumevents = TRUE,       # 显示累计事件
+  # cumcensor = TRUE,      # 累计删失（如需可取消注释）
+  tables.height = 0.2     # 表格高度
+)
+
+```
+
+----
+
+### 第4步：预测1年期生存概率
+
+```{r}
+# 1年 = 365.25天
+summary(survfit(Surv(time, status) ~ 1, data = lung), times = 365.25)
+
+# 表格化输出结果
+survfit(Surv(time, status) ~ 1, data = lung) %>% 
+  gtsummary::tbl_survfit(
+    times = 365.25,
+    label_header = "**1-year survival (95% CI)**"
+  )
+```
+
+
+
+------------------------------------------------------------------------
+
+## 3.4 绘制Kaplan-Meier曲线方法二: ggsurvfit::ggsurvfit() {auto-animate="true"}
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+# 加载包
+library(survival)
+library(ggsurvfit)
+
+# 创建数据框
+df <- data.frame(
+  time = c(5, 6, 2, 4, 4),
+  event = c(1, 0, 0, 1, 1)
+)
+
+# 拟合 KM 曲线
+survfit2(Surv(time, event) ~ 1, data = df) %>% 
+  ggsurvfit(color = "blue") +
+  add_risktable() +
+  theme_bw()
+
+
+```
+
+------------------------------------------------------------------------
+
+### `ggsurvplot()`和`ggsurvfit()`比较
+
+| 功能                 | `ggsurvplot()` | `ggsurvfit()`              |
+|----------------------|----------------|----------------------------|
+| 快速绘图             | ✅             | ❌（需多个语句）           |
+| 风格美化与控制       | 中等           | ✅✅✅ 完全 `ggplot2` 支持 |
+| 风险表（Risk Table） | ✅（内建）     | ✅（需 `add_risktable()`） |
+| 分面支持（Faceting） | ❌             | ✅（支持 `facet_wrap()`）  |
+| 科研级图形输出       | ❌ 需二次加工  | ✅✅✅ 高度推荐            |
+| 初学者友好           | ✅✅✅         | ❌ 需理解图层语法          |
+
+> ❗️推荐使用
+> `ggsurvfit()`，功能更强大、更灵活，更符合学术期刊绘图的风格。
+
+-------
+
+## 总结
+
+-   Kaplan-Meier分析可处理删失数据
+
+-   survfit() 计算生存概率
+
+-   ggsurvplot()/ggsurvfit() 绘制Kaplan-Meier曲线
+
+-    Log-rank 检验：比较组间生存概率的差异，P \< 0.05 表示显著

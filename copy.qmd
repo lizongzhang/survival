@@ -1,0 +1,296 @@
+---
+title:  "L4 Cox比例风险模型"
+date: today
+author: 
+  name: "Lzz"
+  url: https://space.bilibili.com/590872906/
+format: 
+  revealjs:
+    incremental: FALSE
+    theme: sky
+    slide-number: true
+    code-fold: true
+    chalkboard: 
+      buttons: true
+    preview-links: auto
+    css: styles.css
+    footer: |
+      <https://lizongzhang.github.io/survival><br>© 2025 2025 医咖会 Li Zongzhang 
+    include-before-body: 
+      - header.html
+      - fonts.html
+    title-slide-attributes: 
+      data-background-image: "img/yikahui_qcr.png"  
+      data-background-size: "100px"        
+      data-background-position: "center bottom 200px"  
+    plugins: [highlight, zoom, notes]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+#| echo: FALSE
+par(family  = 'STKaiti')
+library(showtext)
+showtext_auto()
+
+# install.packages("survival")
+# install.packages("ggsurvfit")
+# install.packages("gtsummary")
+# install.packages("tidyverse")
+
+library(survival)
+library(ggsurvfit)
+library(gtsummary)
+library(tidyverse)
+```
+
+
+---------
+
+## 大纲
+
+-   4.1 Cox模型简介
+
+-   4.2 Cox模型的数据结构
+
+-   4.3 Cox模型的估计
+
+-   4.4 Cox模型的检验
+
+-   4.5 Cox模型的可视化
+
+-   4.6 Cox模型的扩展
+
+--------
+
+## 4.1 Cox模型简介
+
+
+Cox 比例风险模型（Cox Proportional Hazards Model）
+
+- 英国统计学家 David Cox 于 1972 年提出的一种**半参数生存分析模型**
+
+
+$$
+h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
+$$
+
+其中：
+
+$h(t | X)$ 在时间t的**瞬时风险（hazard）**
+
+$h_0(t)$ **基线风险函数（baseline hazard）**
+
+
+---
+
+## 与其他生存模型比较
+
+| 模型       | 参数类型 | 是否建模 \( h_0(t) \) | 是否允许协变量 |
+|------------|----------|------------------------|----------------|
+| Kaplan-Meier | 非参数   | ❌                     | ❌             |
+| Cox 模型   | 半参数   | ❌                     | ✅             |
+| AFT 模型   | 参数     | ✅（如 Weibull）        | ✅             |
+
+---------
+
+## 4.2 Cox模型的数据结构
+
+-   生存时间（time）
+
+-   生存状态（status）
+
+    -   1 = 事件发生（event）
+
+    -   0 = 删失（censored）
+
+-   解释变量（covariates）
+
+    -   连续型（如年龄、血压）或分类型（如性别、治疗组）
+
+    -   二分类变量: 用二分类变量等于1的事件命名
+
+        -   female: female = 1, 女性， female = 0 , 男性
+
+        -   smoke: smoke = 1, 吸烟， smoke = 0 , 不吸烟
+
+        -   treatment: treatment = 1, 实验组， treatment = 0 , 对照组
+
+        -   diabetes: diabetes = 1, 患有糖尿病， diabetes = 0 ,
+            不患有糖尿病
+
+
+
+----------
+
+## 4.2 应用：晚期肺癌患者的生存分析
+
+-   **`inst`**：医疗机构编号
+
+-   **`time`**：生存时间（天）
+
+-   **`status`**：生存状态。1 = 删失（censored），2 =
+    死亡（event
+
+-   **`age`**：年龄（岁）
+
+-   **`sex`**：性别, 1 = 男，2 = 女
+
+-   **`ph.ecog`**：ECOG（医生评估的体能评分），评分从 0（无症状）到
+    4（卧床）
+
+-   **`ph.karno`**：医生评估Karnofsky评分, 0–100, 数值越高表示功能越好
+
+-   **`pat.karno`**：患者评估Karnofsky评分
+
+-   **`meal.cal`**：每餐摄入热量 (calories)
+
+-   **`wt.loss`**：最近 6个月内体重下降的数值(磅)
+
+::: {.reference-text-small}
+Loprinzi, Charles Lawrence, et al. "Prospective evaluation of prognostic
+variables from patient-completed questionnaires. North Central Cancer
+Treatment Group." *Journal of Clinical Oncology* 12.3 (1994): 601–607.
+:::
+
+--------------------
+
+------------------
+
+### 显示代码不运行代码
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-fold: false
+
+# 安装单个包
+install.packages("survival")
+install.packages("survminer")
+install.packages("flexsurv")
+install.packages("cmprsk")
+
+# 一次性安装全部
+install.packages(c("survival", "survminer", "flexsurv", "cmprsk"))
+
+
+```
+
+-----------
+
+## 4.2 Cox模型建模前对数据的检查
+
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+library(survival)
+library(tidyverse)
+
+data(lung, package = "survival")
+
+lung <- lung %>%
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1)
+  )
+
+vars <- c("female", "age", "wt.loss", "meal.cal", "ph.ecog", "ph.karno", "pat.karno")
+
+# 样本总数、事件数、删失数
+table(lung$status)
+
+# 缺失值统计
+sapply(lung[, vars], \(x) sum(is.na(x)))
+
+# Event per Variable 
+event_n <- sum(lung$status == 1)
+epv <- event_n / length(vars)
+epv
+
+```
+
+----------------------------------------------------
+
+## 4.2 Cox模型建模前对数据的检查
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+library(survival)
+
+# lung: status = 1 or 2, 对status重新编码：status: 0 = censored, 1 = dead
+# lung: sex = 1 or 2, 创建female
+data(cancer, package = "survival")
+
+lung <- 
+  lung %>% 
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1))
+
+```
+
+---------------
+
+## 4.3 Cox模型的估计
+
+- 语法结构
+
+- R代码
+
+- 系数解释
+
+- 表格化输出
+
+- 导出到 Word文档
+
+## 4.3 Cox模型的估计: 语法结构
+
+R语言中，Cox比例风险模型的核心函数是 `survival::coxph()`，它用于拟合 Cox 模型。
+
+-   `coxph(Surv(time, status) ~ covariates, data = dataset)`
+
+-   `Surv(time, status)` 创建生存对象，包含生存时间和生存状态。
+
+-   `covariates` 是一个或多个解释变量，可以是连续型或分类型。
+
+
+
+-----
+
+## 4.3 Cox模型的估计: 系数解读
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+data(cancer, package = "survival")
+
+lung <- 
+  lung %>% 
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1))
+
+coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
+
+```
+
+<div class="smaller-text">
+
+在控制其他变量后：
+
+女性比男性的死亡风险降低了约 41%. $\left( \exp(-0.521) - 1 \right) \times 100\% = (0.594 - 1) \times 100\% \approx -41\%$。
+
+年龄每增加1岁, 死亡风险增加2%. $\left( \exp(0.020) - 1 \right) \times 100\% = (1.020 - 1) \times 100\% \approx 2\%$。
+
+</div>
+
+----
+
+

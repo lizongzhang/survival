@@ -1,0 +1,40 @@
+---
+title:  "L3 Kaplan-Meier分析"
+---
+
+<div style="font-size: 25px; line-height: 1.6;">
+
+:::{#ppc style="color:#044875"}
+
+# 讲义
+
+<img src="img/teacher.png" style="width: 24px; height: 24px;margin-right: 10px">[L3 Kaplan-Meier分析](https://lizongzhang.github.io/survival/L3slide.html){target="_blank"}
+
+
+# R代码
+
+<a href="https://github.com/lizongzhang/survival/raw/main/L3.R" 
+   target="_blank" 
+   style="text-decoration: none; display: inline-flex; align-items: center;">
+  <img src="img/download.png" 
+       alt="Download icon" 
+       style="width: 24px; height: 24px; margin-right: 8px;">
+  点击下载代码文件: L4.R
+</a>
+
+# 数据文件
+
+<a href="https://github.com/lizongzhang/survival/raw/main/L3.R" 
+   target="_blank" 
+   style="text-decoration: none; display: inline-flex; align-items: center;">
+  <img src="img/download.png" 
+       alt="Download icon" 
+       style="width: 24px; height: 24px; margin-right: 8px;">
+  点击下载数据文件: L3.R
+</a>
+
+
+
+:::
+
+<div>

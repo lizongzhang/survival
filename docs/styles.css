@@ -5,7 +5,7 @@
   color: #044875; 
 }
 
-.reveal h1, .reveal h2, .reveal h3  {
+.reveal h1, .reveal h2, .reveal h3,  .reveal h4 {
   font-family: "STKaiti", "Noto Serif SC", "KaiTi", serif;
   font-weight: bold;
   color: #044875;
@@ -26,12 +26,12 @@
 }
 
 .reveal::before {
-  content: "医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP  医咖会";
+  content: "医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP 医咖会 MEDIECO GROUP";
   position: fixed;
-  top: 5vh;              /* 留出上边距 */
-  left: 5vw;             /* 留出左边距 */
-  width: 90vw;           /* 不铺满，留出右边距 */
-  height: 90vh;          /* 不铺满，留出下边距 */
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
   font-size: 2em;
   line-height: 1.5;
   color: #000;
@@ -40,11 +40,11 @@
   z-index: 0;
   pointer-events: none;
   white-space: pre-wrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
-
-
-
 
 /* 控制代码块字体大小和行距 */
 .reveal pre code,
@@ -55,7 +55,14 @@
   font-family: "Courier New", "Fira Code", monospace !important;
 }
 
-.smaller-text {
-  font-size: 60%;  /* 或者使用具体单位，如 12px */
-  line-height: 1.4;
+.rcode {
+  background-color: #f8f8ff;
+  font-family: "Courier New", monospace;
+  padding: 10px;
+  border-left: 4px solid #4a90e2;
+  white-space: pre-wrap;
+  color: #002244;
 }
+
+
+

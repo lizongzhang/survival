@@ -46,8 +46,7 @@ library(gtsummary)
 library(tidyverse)
 ```
 
-
----------
+------------------------------------------------------------------------
 
 ## 大纲
 
@@ -61,121 +60,191 @@ library(tidyverse)
 
 -   4.5 Cox模型的可视化
 
--   4.6 Cox模型的扩展
-
---------
+------------------------------------------------------------------------
 
 ## 4.1 Cox模型简介
 
+-   **Cox比例风险模型**（Cox Proportional Hazards Model,
+    简称CoxPH）是生存分析中最常用的统计方法之一。
 
-Cox 比例风险模型（Cox Proportional Hazards Model）
-
-- 英国统计学家 David Cox 于 1972 年提出的一种**半参数生存分析模型**
-
-
-$$
-h(t | X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)
-$$
-
-其中：
-
-$h(t | X)$ 在时间t的**瞬时风险（hazard）**
-
-$h_0(t)$ **基线风险函数（baseline hazard）**
-
----
-
-## 比例风险假设
-
-Cox 模型假设不同个体间的风险比在时间上是**恒定的**：
+    -   用于分析**生存时间**（或“事件发生时间”）与**影响因素（协变量）**之间的关系。
 
 $$
-\frac{h(t|X_1)}{h(t|X_2)} = \text{常数}, \quad \forall t
+h(t|X) = h_0(t) \exp(\beta^T X)
 $$
 
-这意味着协变量对风险的影响是**比例的**，即风险比不随时间变化。
----
+-   $h(t|X)$：个体在时刻 $t$ 的**风险率**（hazard rate）
+-   $h_0(t)$：**基线风险函数**，当所有协变量取0时的风险率，随时间变化
+-   $\beta$：**回归系数向量**，每个协变量对应一个系数
+-   $X$：**协变量向量**，如年龄、性别、分组等
 
-## 与其他生存模型比较
+------------------------------------------------------------------------
 
-| 模型       | 参数类型 | 是否建模 \( h_0(t) \) | 是否允许协变量 |
-|------------|----------|------------------------|----------------|
-| Kaplan-Meier | 非参数   | ❌                     | ❌             |
-| Cox 模型   | 半参数   | ❌                     | ✅             |
-| AFT 模型   | 参数     | ✅（如 Weibull）        | ✅             |
+### Cox模型的优势
 
----------
+-   **半参数模型**：不需要事先假定基线风险函数$h_0(t)$的具体分布形式。
+-   **关注风险率（hazard）**：关注个体在某一时刻发生事件的风险。
+-   支持**删失数据**（如随访未结束或中途失访的个体）。
 
-## 4.2 Cox模型的数据结构
+------------------------------------------------------------------------
 
--   生存时间（time）
+### Cox比例风险模型的设定
 
--   生存状态（status）
+$$
+  h(t|X) = h_0(t) \exp(\beta^T X)
+  $$ $$
+h(t | X) = h_0(t) \cdot \exp(\beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p)
+$$ $$
+\log h(t|X) = \log h_0(t) + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p
+$$
 
-    -   1 = 事件发生（event）
+-   $h(t|X)$：时刻 $t$ 的瞬时风险
 
-    -   0 = 删失（censored）
+-   $h_0(t)$：基线风险
 
--   解释变量（covariates）
+-   $x_1, x_2, \ldots, x_p$：协变量(解释变量)
 
-    -   连续型（如年龄、血压）或分类型（如性别、治疗组）
+-   $\beta$代表该变量每增加一个单位时，$\log$风险比的改变。
 
-    -   二分类变量: 用二分类变量等于1的事件命名
+-   对于预测变量，$\exp(\beta)$为“风险比”（Hazard Ratio）：
 
-        -   female: female = 1, 女性， female = 0 , 男性
+    -   $\beta > 0$：风险增加
+    -   $\beta < 0$：风险降低
 
-        -   smoke: smoke = 1, 吸烟， smoke = 0 , 不吸烟
+Cox模型围绕风险函数建模，是因为风险函数能自然处理删失数据、便于推导似然函数、模型解释直观、无需假定基线风险$h_0(t)$分布。
 
-        -   treatment: treatment = 1, 实验组， treatment = 0 , 对照组
+------------------------------------------------------------------------
 
-        -   diabetes: diabetes = 1, 患有糖尿病， diabetes = 0 ,
-            不患有糖尿病
+### 风险比例假设 Proportional Hazards Assumption
+
+-   不同协变量组之间的风险比（Hazard Ratio,
+    HR）在整个随访期间是恒定的，不随时间变化。
+
+### 风险比例的数学表达式
+
+Cox模型的风险函数公式： $$
+h(t|X) = h_0(t)\exp(\beta^T X)
+$$
+
+-   对于两个不同的协变量组$X_1$和$X_2$，它们的风险比为： $$
+    \frac{h(t|X_1)}{h(t|X_2)} = \frac{h_0(t)\exp(\beta^T X_1)}{h_0(t)\exp(\beta^T X_2)} = \exp\left(\beta^T(X_1 - X_2)\right)
+    $$
+-   这个比值**与时间**$t$无关，只与协变量差异有关。
+
+------------------------------------------------------------------------
+
+### 风险比例假设的直观理解
+
+-   **举例**：
+    -   假如男性和女性的风险比为2，无论研究到第1年还是第5年，男性的风险率始终是女性的2倍。
+-   换句话说，**不同组的风险曲线“始终相隔一条固定倍数的距离”**，不会随时间交叉或逐渐靠近/远离。
+
+### 风险比例假设成立的后果
+
+-   模型中的回归系数$\beta$可直接解释为风险比对数。
+-   计算出的风险比（HR）对所有时间点都适用。
+
+### 风险比例假设不成立的情况
+
+-   有些情况下，风险比随时间变化（如药物疗效消退、不同组风险曲线交叉），则不满足风险比例假设，CoxPH模型结果可能不可靠。
+-   这时可考虑使用**时间依赖协变量模型**或**分层Cox模型**等替代方法。
+
+------------------------------------------------------------------------
+
+### 检验风险比例假设的方法
+
+-   **Schoenfeld残差检验**（最常用）
+-   绘制对数(-log)生存曲线，观察是否平行
+-   引入时间交互项，检验交互项是否显著
+-   应在分析前后检验该假设，确保结果可靠！
+
+------------------------------------------------------------------------
+
+### Cox模型中如何计算生存函数？
+
+#### 第1步：生存函数与风险函数的关系(参见L1讲义)
+
+$$
+S(t|X) = \exp\left(-\int_0^t h(u|X) du\right)
+$$
+
+#### 第2步：带入Cox模型的风险函数
+
+将 $h(t|X) = h_0(t) \exp(\beta^T X)$ 代入上式：
+
+$$
+S(t|X) = \exp\left(-\int_0^t h_0(u) \exp(\beta^T X) du\right)
+$$
+
+#### 第3步：分离协变量与时间
+
+注意 $\exp(\beta^T X)$ 对于特定个体是常数，可以提到积分符号外：
+
+$$
+S(t|X) = \exp\left(-\exp(\beta^T X) \int_0^t h_0(u) du\right)
+$$
+
+------------------------------------------------------------------------
+
+#### 第4步：引入基线生存函数 $S_0(t)$
+
+定义基线生存函数（当 $X=0$）：
+
+$$
+S_0(t) = \exp\left(-\int_0^t h_0(u) du\right)
+$$
+
+#### 第5步：生存函数的最终表达式
+
+将基线生存函数带入，得到：
+
+$$ S(t|X) = [S_0(t)]^{\exp(\beta^T X)} = \exp\left( -\exp(\beta^T X) \int_0^t h_0(u) du \right) $$
 
 
---------------------------------------------------------------
 
-## 4.2 Cox模型的数据结构：样本容量
+-   **模型估计形式**：
 
-每个协变量（解释变量）至少需要约 10 个事件（即 status = 1 的个体）
+    -   使用**部分似然函数**（Partial Likelihood）估计回归系数 $\beta$
+    -   基线生存函数 $S_0(t)$ 用非参数法估计
 
+------------------------------------------------------------------------
 
-| 项目              | 推荐数量                      |
-| --------------- | ------------------------- |
-| 每个变量（predictor） | ≥ 10 个事件（status = 1）      |
-| 模型变量数为 `k`      | 至少 `10 × k` 个 status = 1  |
-| 示例：5 个变量        | 需要至少 50 个死亡（status = 1）事件 |
-| 样本删失比例不宜过高      | status=1 的比例最好 ≥ 30%      |
+### Cox模型与其他生存分析模型比较
 
-\
+| 模型         | 参数类型 | 是否建模 ( h_0(t) ) | 是否允许协变量 |
+|--------------|----------|---------------------|----------------|
+| Kaplan-Meier | 非参数   | ❌                  | ❌             |
+| Cox 模型     | 半参数   | ❌                  | ✅             |
+| AFT 模型     | 参数     | ✅（如 Weibull）    | ✅             |
 
-\
+------------------------------------------------------------------------
 
+## 4.3 Cox建模的数据要求
 
-::: {.reference-text-small}
-Vittinghoff, E., & McCulloch, C. E. (2007). Relaxing the rule of ten events per variable in logistic and Cox regression. American Journal of Epidemiology.
+| 检查点 | 推荐标准 |
+|----------------------|--------------------------------------------------|
+| 是否有足够事件？ | 每个解释变量 (predictor) 至少需要 10 个发生的事件（status = 1） |
+| 样本删失比例不宜过高 | status = 1 的比例 ≥ 30% 最佳 |
+| 变量是否有严重缺失？ | 不推荐变量缺失率 \> 15% |
+| 是否满足比例风险？ | 拟合后需检验（如 Schoenfeld 残差） |
+
+::: reference-text-small
+Vittinghoff, E., & McCulloch, C. E. (2007). Relaxing the rule of ten
+events per variable in logistic and Cox regression. American Journal of
+Epidemiology.
 :::
 
----------
+------------------------------------------------------------------------
 
-## 4.2 Cox模型建模前对数据的检查
+## 4.4 Cox模型在R中的实现
 
-| 检查点          | 推荐标准                      |
-| ------------ | ------------------------- |
-| 是否有足够事件？     | 每个变量 ≥ 10 个事件（status = 1） |
-| status=1 的比例 | ≥ 30% 最佳                  |
-| 是否有严重缺失？     | 不推荐变量缺失率 > 15%            |
-| 是否满足比例风险？    | 拟合后需检验（如 Schoenfeld 残差）   |
-
-----------
-
-## 4.2 应用：晚期肺癌患者的生存分析
+#### 4.4.1 数据集变量说明
 
 -   **`inst`**：医疗机构编号
 
 -   **`time`**：生存时间（天）
 
--   **`status`**：生存状态。1 = 删失（censored），2 =
-    死亡（event
+-   **`status`**：生存状态。1 = 删失（censored），2 = 死亡（event
 
 -   **`age`**：年龄（岁）
 
@@ -192,31 +261,38 @@ Vittinghoff, E., & McCulloch, C. E. (2007). Relaxing the rule of ten events per 
 
 -   **`wt.loss`**：最近 6个月内体重下降的数值(磅)
 
-::: {.reference-text-small}
+::: reference-text-small
 Loprinzi, Charles Lawrence, et al. "Prospective evaluation of prognostic
 variables from patient-completed questionnaires. North Central Cancer
 Treatment Group." *Journal of Clinical Oncology* 12.3 (1994): 601–607.
 :::
 
---------------------
+------------------------------------------------------------------------
 
-## 4.2 Cox模型建模前对数据的检查
-
+#### 4.4.2 变量赋值
 
 ```{r}
 #| echo: true
 #| code-fold: true
 
-library(survival)
-library(tidyverse)
-
-data(lung, package = "survival")
+## 加载示例数据, cancer列表中的lung数据框
+data(cancer, package="survival")
 
 lung <- lung %>%
   mutate(
-    status = recode(status, `1` = 0, `2` = 1),
-    female = recode(sex, `1` = 0, `2` = 1)
+    status = recode(status, `1` = 0, `2` = 1),   # 事件状态重编码：1=生存(0), 2=死亡(1)
+    female = recode(sex, `1` = 0, `2` = 1),      # 性别重编码：1=男(0), 2=女(1)
   )
+
+```
+
+------------------------------------------------------------------------
+
+#### 4.4.3 数据建模前的合规性检查
+
+```{r}
+#| echo: true
+#| code-fold: false
 
 vars <- c("female", "age", "wt.loss", "meal.cal", "ph.ecog", "ph.karno", "pat.karno")
 
@@ -233,45 +309,14 @@ epv
 
 ```
 
-----------------------------------------------------
+------------------------------------------------------------------------
 
-## 4.2 Cox模型建模前对数据的检查
+#### 4.4.4 Cox模型的估计
 
-```{r}
-#| echo: true
-#| code-fold: false
+##### 语法结构
 
-library(survival)
-
-# lung: status = 1 or 2, 对status重新编码：status: 0 = censored, 1 = dead
-# lung: sex = 1 or 2, 创建female
-data(cancer, package = "survival")
-
-lung <- 
-  lung %>% 
-  mutate(
-    status = recode(status, `1` = 0, `2` = 1),
-    female = recode(sex, `1` = 0, `2` = 1))
-
-```
-
----------------
-
-## 4.3 Cox模型的估计
-
-- 语法结构
-
-- R代码
-
-- 系数解释
-
-- 表格化输出
-
-- 导出到 Word文档
-
-## 4.3 Cox模型的估计: 语法结构
-
-R语言中，Cox比例风险模型的核心函数是 `survival::coxph()`，它用于拟合 Cox 模型。
+R语言中，Cox比例风险模型的核心函数是 `survival::coxph()`，它用于拟合 Cox
+模型。
 
 -   `coxph(Surv(time, status) ~ covariates, data = dataset)`
 
@@ -279,173 +324,163 @@ R语言中，Cox比例风险模型的核心函数是 `survival::coxph()`，它�
 
 -   `covariates` 是一个或多个解释变量，可以是连续型或分类型。
 
+------------------------------------------------------------------------
 
----------
+##### Cox模型系数的解读
 
-## 4.3 Cox模型的估计: R代码
-
-
-```{r}
-#| echo: true
-#| code-fold: true
-
-library(survival)
-data(cancer)
-lung <- 
-  lung %>% 
-  mutate(
-    status = recode(status, `1` = 0, `2` = 1),
-    female = recode(sex, `1` = 0, `2` = 1)
-  )
-
-
-coxph(Surv(time, status) ~ female, data = lung)
-
-```
-
----------
-
-## 4.3 Cox模型的估计: R代码2
-
-```{r}
-#| echo: true
-#| code-fold: true
-
-data(cancer, package = "survival")
-
-lung <- 
-  lung %>% 
-  mutate(
-    status = recode(status, `1` = 0, `2` = 1),
-    female = recode(sex, `1` = 0, `2` = 1))
-
-coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
-
-```
-
------
-
-## 4.3 Cox模型系数的解读
-
-
-Cox 模型的数学形式如下：
+Cox模型的数学形式如下：
 
 $$
 \log h(t|x) = \log h_0(t) + \beta_1 x_1 + \beta_2 x_2 + \cdots + \beta_p x_p
 $$
 
-- `coef`：模型估计的回归系数 $\beta$，表示对数风险的线性影响；
-- `exp(coef)`：即 $\exp(\beta)$，为风险比（Hazard Ratio, HR），表示死亡风险的变化倍数。
+-   **`coef`**
 
+    -   $\beta$，表示每个解释变量 $x_p$ 对对数风险函数 $\log h(t|x)$
+        的线性影响。即 $x_p$ 增加1个单位，$\log h(t|x)$ 增加 $\beta_p$。
 
-----
+$$
+h(t | X) = h_0(t) \cdot \exp(\beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p)
+$$
 
-## 4.3 Cox模型的估计系: 数解读
+-   **`exp(coef)`**
 
-- **线性回归**：  
-  $$
-  y = \beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p
-  $$
+    \-$\exp(\beta)$，表示 $x_p$
+    增加1个单位时，事件发生的风险(即刻发生该事件的瞬时速率) $h(t|x)$
+    的相对变化倍数。 \exp(\beta\_p) 表示风险增加, \exp(\beta\_p) \< 1\$
+    表示风险降低。
 
-- **Cox 模型**：  
-  $$
-  \log h(t \mid x) = \log h_0(t) + \beta_1 x_1 + \cdots + \beta_p x_p
-  $$
+    $$
+    Hazard \space Ratio = \exp(\beta_p)
+    $$
 
+-   正系数 → 风险增加
 
-**区别**
+-   负系数 → 风险降低
 
-- 线性回归：$x_j$ 对Y的影响
+------------------------------------------------------------------------
 
-- Cox 回归：$x_j$ 对$\log(\text{hazard})$ 的影响
+```{r}
+#| echo: true
 
+data(cancer, package = "survival")
 
----------
-
-## 4.3 Cox模型的估计: 系数解读
-
--   正系数 → 风险增加，生存时间变短
-
--   负系数 → 风险降低，生存时间变长
-
-
-- $\beta_j$ ($coef$)：
-  - $x_j$ **每增加一个单位**，$\log(\text{hazard})$ 增加 $\beta_j$
-  - 抽象
-
-- $exp(\beta_j)$ ($exp(coef)$)：
-  - $x_j$ **每增加一个单位**，hazard（风险）会乘上一个因子 $\exp(\beta_j)$
-  - hazard（风险）会增加 $\exp(\beta_j) - 1$ 倍
-  - 直观，容易理解
+lung <- lung %>%
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),   
+    female = recode(sex, `1` = 0, `2` = 1)) 
   
-在控制其他变量后，$x_j$ 每增加1个单位 ，死亡风险(上升/下降）$(\exp(\beta_j) - 1) \times 100\%$
- 
------
 
-## 4.3 Cox模型的估计: 系数解读
+coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno, data = lung)
+
+```
+
+::: smaller-text
+主要变量详细解读
+
+female：女性与男性相比，死亡风险约为男性的0.53（降低47%），且差异高度显著（p
+\< 0.001）。
+
+age：年龄对风险影响不显著（p \> 0.05）。
+
+wt.loss：体重下降对风险影响不显著。
+
+ph.ecog（体能评分）：评分每增加1分，风险增加约2倍（HR=2.10），且高度显著（p
+\< 0.001），说明体能状况差的人死亡风险更高。
+
+ph.karno（Karnofsky评分）：ph.karno对风险影响不显著。
+
+------------------------------------------------------------------------
+
+Likelihood ratio
+test（似然比检验）：用于判断整个模型是否显著优于无解释变量（空模型）。
+统计量=33.53，自由度（df）=5（模型中有5个自变量）。
+p=2.951e-06（约0.000003）极小，远小于0.05。
+解释：至少有一个变量对生存时间有显著影响，模型整体是有统计学意义的。
+:::
+
+------------------------------------------------------------------------
+
+##### 模型整体显著性检验
+
+```{r}
+coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno, data = lung) %>% 
+  summary()
+```
+
+  - Concordance（一致性指数，也叫C-index）是衡量模型区分能力的指标，范围0~1。0.5 表示模型无辨别力（和随机一样），1 表示预测完全正确。
+
+  - Likelihood ratio test似然比检验，p-value < 0.05, 模型整体显著。
+
+  - Wald检验，p-value < 0.05, 模型整体显著。
+
+  - Score test（也叫logrank检验），p-value < 0.05, 模型整体显著。
+
+
+---
+
+#### 4.4.5 检验风险比例假定
+
+```{r}
+#| echo: true
+
+library(survival)
+data(cancer, package = "survival")
+
+lung <- lung %>%
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),   
+    female = recode(sex, `1` = 0, `2` = 1)
+  )
+
+fit <- coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno, data = lung) 
+
+# 检验风险比例假定--Schoenfeld残差检验
+fit %>% cox.zph()
+
+```
+
+Schoenfeld残差检验的结果
+
+-   chisq：Schoenfeld残差检验的卡方统计量, df：自由度
+
+-   对于每个变量及全局（GLOBAL），p值越大于0.05，说明风险比例假定越成立；若p值小于0.05，说明该变量（或整体）可能不满足风险比例假定。
+
+-   GLOBAL表示对整个Cox模型的风险比例假定整体检验，也叫“全局检验”。它的p值反映了所有协变量加在一起时，模型整体是否违反了风险比例假定。
+
+-   如果GLOBAL的p值较大（通常\>0.05），说明整体上Cox模型的风险比例假定是成立的。
+
+------
 
 ```{r}
 #| echo: true
 #| code-fold: true
 
-data(cancer, package = "survival")
-
-lung <- 
-  lung %>% 
-  mutate(
-    status = recode(status, `1` = 0, `2` = 1),
-    female = recode(sex, `1` = 0, `2` = 1))
-
-coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
+# Schoenfeld残差检验的可视化
+fit %>% 
+  cox.zph() %>% 
+  plot(var = "female")
 
 ```
 
-<div class="smaller-text">
+-   Schoenfeld残差图若平滑曲线接近水平，说明风险比随时间不变，PH假定成立；若明显有趋势，则PH假定可能不成立。
 
-在控制其他变量后：
-
-女性比男性的死亡风险降低了约 41%. $\left( \exp(-0.521) - 1 \right) \times 100\% = (0.594 - 1) \times 100\% \approx -41\%$。
-
-年龄每增加1岁, 死亡风险增加2%. $\left( \exp(0.020) - 1 \right) \times 100\% = (1.020 - 1) \times 100\% \approx 2\%$。
-
-</div>
-
-
-----
-
-## 4.3 Cox模型的估计: 系数解读
+------------------------------------------------------------------------
 
 ```{r}
 #| echo: true
 #| code-fold: true
 
-data(cancer, package = "survival")
-
-lung <- 
-  lung %>% 
-  mutate(
-    status = recode(status, `1` = 0, `2` = 1),
-    female = recode(sex, `1` = 0, `2` = 1))
-
-coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + 
-                  pat.karno, data = lung)
+# Schoenfeld残差检验的可视化
+fit %>% 
+  cox.zph() %>% 
+  plot(var = "ph.ecog")
 
 ```
 
-<div class="smaller-text">
+------
 
-在控制其他变量后:
-
-女性比男性的死亡风险降低了约 46%. $\left( \exp(-0.625) - 1 \right) \times 100\% = (0.535 - 1) \times 100\% \approx -46\%$
-
-ph.ecog每增加1分(机能恶化), 死亡风险增加96%. $\left( \exp(0.675) - 1 \right) \times 100\% = (1.964 - 1) \times 100\% \approx 96\%$
-
-</div>
-
-----
-
-## 4.3 Cox模型的表格化输出
-
+#### 4.4.6 Cox模型的表格化输出
 
 ```{r}
 #| echo: true
@@ -460,10 +495,10 @@ lung <-
   mutate(
     status = recode(status, `1` = 0, `2` = 1),
     female = recode(sex, `1` = 0, `2` = 1))
+
 # 拟合模型
 model1 <- coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
-model2 <- coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno + 
-                  pat.karno, data = lung)
+model2 <- coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno, data = lung)
 
 tbl1 <- tbl_regression(
   model1,
@@ -484,10 +519,9 @@ tbl_merge(
 
 ```
 
------
+------
 
-## 4.3 Cox模型的估计: 导出到 Word文档
-
+### 4.4.7 Cox模型的估计: 导出到 Word文档
 
 ```{r}
 #| echo: true
@@ -509,19 +543,196 @@ read_docx() %>%
 
 ```
 
+--------
 
-------------------------------------------------------------------------
+## 4.5 Cox模型的可视化工具
 
-## 4.4 Cox模型的检验
+### 4.5.1 基线生存曲线
 
-------------
+基线生存曲线: 在所有协变量（自变量）取基线值时（通常是0，或者参考组），个体在各时间点的生存概率。
 
-## 4.5 Cox模型的可视化
+$$
+S_0(t) = \exp\left(-\int_0^t h_0(u) du\right)
+$$
 
-------------
 
-## 4.6 Cox模型的扩展
+基线生存曲线是所有预测型生存曲线的“原型”或“起点”，其它所有人的生存曲线都是在它的基础上根据风险因子调整得到的。
 
-------------
+描述“标准人群”（参考组）或“平均水平”个体的生存情况。，在现实中确实可能并不存在（比如所有变量都取0或参考组值，这个人其实不在你的样本里）。但它依然有重要的统计与实际意义，参考组本质是“数学基准”，不是现实个体,
+即使现实中没有这样的人，所有其他个体的生存概率都必须以它为基准来调整。
+
+---
+
+绘制基线生存曲线
+
+```{r}
+#|echo: true
+
+
+library(survminer)
+sf <- survfit(fit)
+ggsurvplot(sf, conf.int = TRUE, data = lung, xlab = "时间 (days)", ylab = "基线生存概率", 
+           title = "Cox模型基线生存曲线")
+```
+
+
+---
+
+### 4.5.2 不同人群特征组合下的预测生存曲线
+
+```{r}
+#| echo: true
+
+newdata <- data.frame(
+  female   = c(0, 1, 1),
+  age      = c(60, 60, 70),
+  wt.loss  = c(0, 0, 5),
+  ph.ecog  = c(1, 1, 2),
+  ph.karno = c(80, 80, 60)
+)
+
+sf <- survfit(fit, newdata = newdata)
+
+library(survminer)
+ggsurvplot(
+  sf,
+  data = lung,
+  conf.int = FALSE,
+  legend.labs = c("男性, 60岁, wt.loss =0, ph.ecog=1, ph.karno=80",
+                  "女性, 60岁, wt.loss =0, ph.ecog=1, ph.karno=80",
+                  "女性, 70岁, wt.loss =5, ECOG=2,ph.ecog=2,ph.karno=80" ),
+  palette = "Set2", # 使用RColorBrewer的 Set2 调色板
+  title = "不同变量组合下的预测生存曲线",
+  xlab = "时间（天）",
+  ylab = "生存概率"
+)
+```
+
+
+
+---
+
+### 4.5.3 Cox回归系数森林图
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+library(survminer)
+
+coxph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno, data = lung) %>% 
+  ggforest(main = "Cox回归系数森林图", fontsize = 1.2,
+         cpositions = c(0.1, 0.22, 0.4), refLabel = "对照", noDigits = 3, data = lung)
+```
+
+---
+
+### 4.5.4 列线图
+
+**列线图（Nomogram）**是将回归模型（如Cox、Logistic回归）转化为可视化评分表的工具，用于临床个体化预测。它把每个变量的取值转换为分数，然后通过总分推算某一结局（如1年生存率）。
+
+把模型变成“分数表”，你只需查分、加分、对照即可得到个体预测概率。
+
+一张列线图的结构一般包括：
+  - 最上方一行：Points（得分）
+
+  - 这是一把“定标尺”，用于查每个变量取值对应的分数。
+
+  - 中间多行：各个变量
+
+  - 每个变量一行，旁边有对应取值的刻度线。
+
+  - 把所有变量的分数加起来，落在这一行的某个位置。
+
+  - 底部：预测概率（如1年生存率）
+
+  - 总分可以对应到一个概率，比如“1年生存率”
+
+
+---
+
+```{r}
+#| echo: true
+
+#install.packages("rms")
+library(rms)
+dd <- datadist(lung)
+options(datadist="dd")
+
+# 用cph拟合
+fit <- cph(Surv(time, status) ~ female + age + wt.loss + ph.ecog + ph.karno, data = lung, x = TRUE, y = TRUE, surv = TRUE)
+
+surv <- Survival(fit)
+
+
+nom <- nomogram(fit, fun=list(function(x) surv(365, x)), funlabel="1年生存概率")
+
+plot(nom)
+```
+
+
+---
+
+### 4.5.5 高低风险组生存曲线
+
+使用 Cox 比例风险模型对病人进行风险分层后，高低风险组的Kaplan-Meier 生存曲线。你使用了 predict(fit, type = "lp") 计算每位患者的风险评分（线性预测值），然后基于中位数将样本分为高风险组与低风险组。
+
+在Cox回归生存分析中，高风险组（High risk group）是指：
+对每个患者（样本），根据Cox回归模型计算出其风险评分（risk score，通常就是线性预测得分：risk_score = β1×X1 + β2×X2 + ... + βn×Xn）。
+然后，通常以风险评分的中位数为阈值，大于中位数的分为“高风险组”，小于等于中位数的分为“低风险组”。
+
+显著生存差异：红色曲线（高风险组）与蓝色曲线（低风险组）之间差距明显，p 值远小于 0.05，说明模型能有效区分不同风险个体的生存预后。
+
+模型有较好判别力：高低风险组的生存曲线没有交叉，且间距较大，说明 Cox 模型捕捉到了关键影响因素。
+
+删失信息充分：小“+”符号分布均匀，说明删失数据处理得当，未引起偏倚。
+
+---
+
+```{r}
+#| echo: true
+
+# 步骤1: 计算风险评分
+risk_score <- predict(fit, type = "lp")  # "lp" = linear predictor
+
+# 步骤2: 分组（以中位数为界）
+lung$risk_group <- ifelse(risk_score > median(risk_score, na.rm = TRUE), 
+                          "High risk", "Low risk")
+
+# 步骤3: 拟合分组生存曲线
+fit_group <- survfit(Surv(time, status) ~ risk_group, 
+                     data = lung)
+
+# 步骤4: 绘制生存曲线
+ggsurvplot(
+  fit_group,
+  data = lung,
+  pval = TRUE,                  # 显示log-rank检验p值
+  legend.title = "Risk Group",
+  legend.labs = c("High risk", "Low risk"),
+  palette = c("#E41A1C", "#377EB8"),  # 红、蓝
+  xlab = "时间（天）",
+  ylab = "生存概率",
+  title = "高低风险组生存曲线"
+)
+
+```
+
+
+
+
+
+--------
+
+## 总结
+
+- **CoxPH模型**：生存分析最常用方法，探究时间与多因素关系，无需指定基线风险分布。
+- **模型公式**：$h(t|X) = h_0(t) \exp(\beta^T X)$，$\exp(\beta)$为风险比（HR），直观反映协变量影响。
+- **核心假设**：风险比随时间恒定（比例风险假设），分析前后须检验（如Schoenfeld残差）。
+- **建模流程**：保证事件数充足、缺失少，`coxph()`建模，配合森林图、风险分层生存曲线、列线图等可视化。
+- **模型解读**：正系数变量风险升高，负系数降低风险；整体显著性依赖似然比检验、C-index等指标。
+- **临床应用**：支持删失数据，便于个体化风险预测和人群风险分层，广泛用于医学科研和决策。
+
+**推荐R包**：`survival`、`ggsurvfit`、`gtsummary`、`survminer`、`rms`
 
 

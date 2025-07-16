@@ -1,0 +1,234 @@
+---
+title:  "L2 R数据与环境准备"
+date: today
+author: 
+  name: "Lzz"
+  url: https://space.bilibili.com/590872906/
+format: 
+  revealjs:
+    incremental: FALSE
+    theme: sky
+    slide-number: true
+    code-fold: true
+    chalkboard: 
+      buttons: true
+    preview-links: auto
+    css: styles.css
+    footer: |
+      <https://lizongzhang.github.io/survival><br>© 2025 2025 医咖会 Li Zongzhang 
+    include-before-body: 
+      - header.html
+      - fonts.html
+    title-slide-attributes: 
+      data-background-image: "img/yikahui_qcr.png"  
+      data-background-size: "100px"        
+      data-background-position: "center bottom 200px"  
+    plugins: [highlight, zoom, notes]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+#| echo: FALSE
+par(family  = 'STKaiti')
+library(showtext)
+showtext_auto()
+
+# install.packages("survival")
+# install.packages("ggsurvfit")
+# install.packages("gtsummary")
+# install.packages("tidyverse")
+
+library(survival)
+library(ggsurvfit)
+library(gtsummary)
+library(tidyverse)
+```
+
+------------------------------------------------------------------------
+
+## 大纲
+
+-   2.1 R和R Studio的更新
+
+-   2.2 安装包
+
+-   2.3 项目的创建与管理
+
+-   2.4 数据准备：数据框与变量赋值
+
+------------------------------------------------------------------------
+
+## 2.1 R和R Studio的更新
+
+-   安装 R（CRAN）
+
+    -   👉 <https://cran.r-project.org/>
+
+    -   R \> Check for R updates
+
+-   安装R Studio（Posit 官网）
+
+    -   👉 <https://posit.co/download/rstudio-desktop/>
+
+    -   RStudio \> help \> Check for updates
+
+```{r}
+#| echo: true
+#| code-fold: false
+#| eval: false
+
+
+# 查看R的版本
+R.version.string
+
+# 查看RStudio的版本
+RStudio.Version()$version
+
+
+```
+
+------------------------------------------------------------------------
+
+## 2.2 安装包
+
+-   生存分析的核心包
+
+    -   **`survival`**：构建生存对象（`Surv()`）、Cox模型、Kaplan-Meier、参数模型等
+    -   **`survminer`**：生存曲线的可视化
+    -   **`ggsurvfit`**：生存曲线的可视化
+    -   **`flexsurv`**：参数模型（如 Weibull, Gompertz, Lognormal等），适合拟合AFT模型和进行预测
+    -   **`cmprsk`**：竞争风险分析，如死亡与复发并存的临床研究
+
+-   tidyverse
+
+    -   一系列用于数据导入、清洗、转换、可视化与建模的 R 包
+
+------------------------------------------------------------------------
+
+### R代码: 安装包
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-fold: false
+
+# 安装单个包
+install.packages("survival")
+install.packages("survminer")
+install.packages("flexsurv")
+install.packages("cmprsk")
+install.packages("tidyverse")
+
+# 一次性安装全部
+install.packages(c("survival", "survminer", "flexsurv", "cmprsk"))
+
+
+```
+
+------------------------------------------------------------------------
+
+### R代码: 查看包是否需要更新
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+options(repos = c(CRAN = "https://cloud.r-project.org")) #使用主镜像
+available.packages()["survminer", "Version"]
+```
+
+------------------------------------------------------------------------
+
+### 安装包的常见问题
+
+-   安装包的速度太慢，切换到国内镜像
+
+-   安装了包后，还需要加载包，方可调用包中的函数
+
+-   Error in Surv(time, event) : could not find function "Surv"
+
+------------------------------------------------------------------------
+
+## 2.3 项目的创建与管理
+
+-   创建项目的好处
+
+    -   项目创建后，所有相对路径都以项目文件夹为根目录
+
+    -   不再需要使用 setwd() 指定工作目录，减少路径错误
+
+    -   便于协作与再现
+
+    -   团队成员只需克隆项目文件夹，即可重现整个分析过程
+
+--------
+
+## 2.3 项目的创建与管理
+
+-   数据文件及其导入
+
+-   代码
+
+-   导出的文件：图片, Word, PDF等
+
+----------
+
+## 2.4 数据结构与变量赋值
+
+-   **数据框（data frame）**：列: 变量，行:个案
+
+-   **变量赋值**
+
+-   生存时间（time）
+
+-   生存状态（status）
+
+    -   1 = 事件发生（event）
+
+    -   0 = 删失（censored）
+
+-   解释变量（covariates）
+
+    -   连续型（如年龄、血压）或分类型（如性别、治疗组）
+
+    -   二分类变量: 用二分类变量等于1的事件命名
+
+        -   female: female = 1, 女性， female = 0 , 男性
+
+        -   smoke: smoke = 1, 吸烟， smoke = 0 , 不吸烟
+
+        -   treatment: treatment = 1, 实验组， treatment = 0 , 对照组
+
+        -   diabetes: diabetes = 1, 患有糖尿病， diabetes = 0 ,
+            不患有糖尿病
+
+---
+
+## 2.5 学习方法建议
+
+            
+----
+
+## 总结
+
+- **2.1 R 和 R Studio 的更新**
+  - 安装 R：CRAN (<https://cran.r-project.org/>)，检查更新。
+  - 安装 RStudio：Posit (<https://posit.co/download/rstudio-desktop/>)，检查更新。
+  - 代码：`R.version.string`、`RStudio.Version()$version`。
+
+- **2.2 安装包**
+  - 核心包：`survival` (模型)、`survminer`/`ggsurvfit` (可视化)、`flexsurv` (参数模型)、`cmprsk` (竞争风险)、`tidyverse` (数据处理)。
+  - 安装：`install.packages()`，加载后使用，切换镜像提速。
+
+- **2.3 项目的创建与管理**
+  - 好处：统一路径、便于协作。
+  - 包含：数据、代码、导出文件 (图片/Word/PDF)。
+
+- **2.4 数据结构与变量赋值**
+  - 数据框：列=变量，行=个案。
+  - 变量：生存时间 (time)、状态 (1=事件, 0=删失)、解释变量 (如年龄/性别)。
+  - 二分类：`female` (1=女, 0=男)、`smoke` (1=吸烟, 0=不吸)。
+
+---

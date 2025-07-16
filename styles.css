@@ -5,7 +5,7 @@
   color: #044875; 
 }
 
-.reveal h1, .reveal h2, .reveal h3  {
+.reveal h1, .reveal h2, .reveal h3,  .reveal h4 {
   font-family: "STKaiti", "Noto Serif SC", "KaiTi", serif;
   font-weight: bold;
   color: #044875;
@@ -54,4 +54,15 @@
   line-height: 1.6 !important;
   font-family: "Courier New", "Fira Code", monospace !important;
 }
+
+.rcode {
+  background-color: #f8f8ff;
+  font-family: "Courier New", monospace;
+  padding: 10px;
+  border-left: 4px solid #4a90e2;
+  white-space: pre-wrap;
+  color: #002244;
+}
+
+
 

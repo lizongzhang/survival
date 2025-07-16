@@ -1,0 +1,383 @@
+---
+title:  "L5 AFT模型"
+date: today
+author: 
+  name: "Lzz"
+  url: https://space.bilibili.com/590872906/
+format: 
+  revealjs:
+    incremental: FALSE
+    theme: sky
+    slide-number: true
+    code-fold: true
+    chalkboard: 
+      buttons: true
+    preview-links: auto
+    css: styles.css
+    footer: |
+      <https://lizongzhang.github.io/survival><br>© 2025 2025 医咖会 Li Zongzhang 
+    include-before-body: 
+      - header.html
+      - fonts.html
+    title-slide-attributes: 
+      data-background-image: "img/yikahui_qcr.png"  
+      data-background-size: "100px"        
+      data-background-position: "center bottom 200px"  
+    plugins: [highlight, zoom, notes]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+#| echo: FALSE
+par(family  = 'STKaiti')
+library(showtext)
+showtext_auto()
+
+# install.packages("survival")
+# install.packages("ggsurvfit")
+# install.packages("gtsummary")
+# install.packages("tidyverse")
+
+library(survival)
+library(ggsurvfit)
+library(gtsummary)
+library(tidyverse)
+```
+
+
+---------
+
+## 大纲
+
+-   5.1  AFT模型简介
+
+-   5.2 Weibull生存曲线
+
+-   5.3 Weibull模型的估计
+
+-   4.4 Cox模型的检验
+
+-   4.5 Cox模型的可视化
+
+-   4.6 Cox模型的扩展
+
+---
+
+## 5.1 AFT模型
+
+AFT模型（Accelerated Failure Time Model）假设：  
+> 协变量通过加速或减缓“时间流逝”的方式影响个体的生存时间。
+
+
+
+### 5.1 AFT模型：基本思想
+
+数学形式为：
+
+$$
+\log(T) = \mu + X^\top \beta + \sigma \epsilon
+$$
+
+- $$ T $$：生存时间
+- $$ X $$：协变量向量
+- $$ \beta $$：回归系数
+- $$ \epsilon $$：随机误差项，服从某种分布（决定模型类型）
+- $$ \mu $$：截距项
+- $$ \sigma $$：尺度参数
+
+这是一个**对数-线性回归模型**，对数生存时间服从线性模型。
+
+----
+
+### 5.1 AFT模型： 常见的分布类型
+
+| 模型类型        | $$ \epsilon $$ 分布     | 生存时间分布     |
+|------------------|------------------------|------------------|
+| Exponential      | Gumbel (固定 scale)   | 指数分布         |
+| Weibull          | Extreme value (EV)    | Weibull分布      |
+| Log-normal       | 正态分布              | 对数正态分布     |
+| Log-logistic     | Logistic分布          | 对数逻辑分布     |
+
+你可以使用 `survreg()` 拟合这些模型。
+
+### 5.1 AFT模型： 与Cox比例风险模型的比较
+
+| 维度           | AFT模型                        | PH模型（Cox）                |
+|----------------|----------------------------------|-------------------------------|
+| 作用方式       | 建模 $$ \log(T) $$              | 建模风险函数 $$ h(t|X) $$     |
+| 参数解释       | 加速或减缓生存时间的倍数        | 改变风险函数的比例            |
+| 分布设定       | 需要指定误差分布                | 无需指定（半参数）            |
+| 拟合方法       | 极大似然                         | 局部偏似然                    |
+| 可预测生存时间 | ✅ 是                            | ❌ 否（只能估风险）           |
+
+---
+
+## 5.1 R语法结构：AFT模型
+
+```r
+library(survival)
+fit_aft <- survreg(Surv(time, status) ~ age + sex, data = lung, dist = "weibull")
+summary(fit_aft)
+```
+
+- `dist` 参数指定分布类型：`"weibull"`, `"lognormal"`, `"loglogistic"` 等。
+
+----
+
+## 5.2 Weibull模型
+
+- 当 $$ \beta_j > 0 $$：协变量 $$ x_j $$ 延长生存时间
+- 当 $$ \beta_j < 0 $$：协变量 $$ x_j $$ 缩短生存时间
+
+AFT模型回答的问题：
+> “某治疗是否能延长生存时间？”
+
+> “某风险因素是否让病人更快死亡？”
+
+---
+
+### 5.2 平滑生存曲线
+
+虽然 Kaplan-Meier 方法功能强大，使用广泛，但它主要用于**描述性分析**。
+
+🟧 局限性：
+
+- KM 曲线是**阶梯状**，类似直方图
+- 难以进行协变量调整与推论分析
+
+🟩 Weibull 模型的优势：
+
+- 提供连续、**光滑的生存曲线**
+- 类似于用**线性模型替代直方图**
+- 假设生存时间服从 Weibull 分布，这个假设在许多应用中效果良好
+
+---
+
+### 5.2 R代码： 拟合 Weibull 模型及绘制平滑生存曲线
+
+使用 `survreg()` 函数（来自 `survival` 包）即可拟合 Weibull 模型：
+
+```r
+survreg(Surv(time, status) ~ 1, dist = "weibull")
+```
+
+----
+
+
+### 5.2 计算 Weibull 模型的生存曲线（回归模型）
+
+🎯 关键函数：`survreg()`  
+Weibull 模型由 `survreg()` 函数拟合，其语法与 `survfit()` 相似：
+
+```r
+survreg(Surv(time, status) ~ 1, dist = "weibull")
+```
+
+📌 注意：
+
+survfit() 是 Kaplan-Meier 的非参数估计方法；
+
+survreg() 是 AFT 框架下的参数回归方法，要求指定分布（如 "weibull"）；
+
+“fit” 用于描述性分析；“reg” 用于推论和建模。
+
+
+
+----
+
+### 5.2 从 Weibull 模型中计算生存时间指标
+
+我们通常希望从拟合的模型中得到某些关键的生存时间点。例如，计算 90% 患者仍然生存时所对应的时间。
+
+>预测 90% 的患者仍存活的时间
+
+predict(model, type = "quantile", p = 1 - 0.9)
+type = "quantile"：要求返回分位数；
+
+p = 1 - 0.9 = 0.1 表示死亡概率为 10%，即生存概率为 90%；
+
+返回值即为生存概率为 90% 时的时间点。
+
+此时模型输出的时间约为 384 天，表示 90% 的患者在 384 天之前仍存活。
+
+注意：若模型中有协变量，则可通过 newdata = 指定不同个体，得出个性化预测。
+
+
+----
+
+### 5.2 绘制 Weibull 模型预测的生存曲线
+
+为了获得一条平滑的生存曲线，我们可以预测多个分位数，并计算其对应的生存概率。
+
+>构造一组分位数（从 99% 到 1%）
+
+p_seq <- seq(0.99, 0.01, by = -0.01)
+
+>利用模型预测这些分位数对应的时间点
+
+t_pred <- predict(model, type = "quantile", p = p_seq)
+
+>构建用于可视化的生存数据框
+
+surv_plot_data <- data.frame(
+  time = t_pred,
+  surv = 1 - p_seq  # 分位数转换为生存概率 S(t)
+)
+
+这个数据框 surv_plot_data 包含一系列 (time, S(t)) 点，可用于 ggplot2 绘制平滑生存曲线。
+
+绘图示例（将在下一讲中详解）：
+
+
+library(ggplot2)
+
+
+
+ggplot(surv_plot_data, aes(x = time, y = surv)) +
+  geom_line(size = 1.2) +
+  labs(title = "Weibull 模型预测的生存曲线",
+       x = "时间（天）", y = "生存概率 S(t)") +
+  theme_minimal()
+  
+---  
+
+## 📌 总结
+------------------
+
+### 显示代码不运行代码
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-fold: false
+
+# 安装单个包
+install.packages("survival")
+install.packages("survminer")
+install.packages("flexsurv")
+install.packages("cmprsk")
+
+# 一次性安装全部
+install.packages(c("survival", "survminer", "flexsurv", "cmprsk"))
+
+
+```
+
+-----------
+
+## 4.2 Cox模型建模前对数据的检查
+
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+library(survival)
+library(tidyverse)
+
+data(lung, package = "survival")
+
+lung <- lung %>%
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1)
+  )
+
+vars <- c("female", "age", "wt.loss", "meal.cal", "ph.ecog", "ph.karno", "pat.karno")
+
+# 样本总数、事件数、删失数
+table(lung$status)
+
+# 缺失值统计
+sapply(lung[, vars], \(x) sum(is.na(x)))
+
+# Event per Variable 
+event_n <- sum(lung$status == 1)
+epv <- event_n / length(vars)
+epv
+
+```
+
+----------------------------------------------------
+
+## 4.2 Cox模型建模前对数据的检查
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+library(survival)
+
+# lung: status = 1 or 2, 对status重新编码：status: 0 = censored, 1 = dead
+# lung: sex = 1 or 2, 创建female
+data(cancer, package = "survival")
+
+lung <- 
+  lung %>% 
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1))
+
+```
+
+---------------
+
+## 4.3 Cox模型的估计
+
+- 语法结构
+
+- R代码
+
+- 系数解释
+
+- 表格化输出
+
+- 导出到 Word文档
+
+## 4.3 Cox模型的估计: 语法结构
+
+R语言中，Cox比例风险模型的核心函数是 `survival::coxph()`，它用于拟合 Cox 模型。
+
+-   `coxph(Surv(time, status) ~ covariates, data = dataset)`
+
+-   `Surv(time, status)` 创建生存对象，包含生存时间和生存状态。
+
+-   `covariates` 是一个或多个解释变量，可以是连续型或分类型。
+
+
+
+-----
+
+## 4.3 Cox模型的估计: 系数解读
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+data(cancer, package = "survival")
+
+lung <- 
+  lung %>% 
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),
+    female = recode(sex, `1` = 0, `2` = 1))
+
+coxph(Surv(time, status) ~ female + age + wt.loss, data = lung)
+
+```
+
+<div class="smaller-text">
+
+在控制其他变量后：
+
+女性比男性的死亡风险降低了约 41%. $\left( \exp(-0.521) - 1 \right) \times 100\% = (0.594 - 1) \times 100\% \approx -41\%$。
+
+年龄每增加1岁, 死亡风险增加2%. $\left( \exp(0.020) - 1 \right) \times 100\% = (1.020 - 1) \times 100\% \approx 2\%$。
+
+</div>
+
+----
+
+
