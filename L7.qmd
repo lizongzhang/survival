@@ -1,0 +1,40 @@
+---
+title:  "L7 机器学习"
+---
+
+<div style="font-size: 25px; line-height: 1.6;">
+
+:::{#ppc style="color:#044875"}
+
+# 讲义
+
+<img src="img/teacher.png" style="width: 24px; height: 24px;margin-right: 10px">[L7 机器学习](https://lizongzhang.github.io/survival/L7slide.html){target="_blank"}
+
+
+# R代码
+
+<a href="https://github.com/lizongzhang/survival/raw/main/L7.R" 
+   target="_blank" 
+   style="text-decoration: none; display: inline-flex; align-items: center;">
+  <img src="img/download.png" 
+       alt="Download icon" 
+       style="width: 24px; height: 24px; margin-right: 8px;">
+  点击下载代码文件: L4.R
+</a>
+
+# 数据文件
+
+<a href="https://github.com/lizongzhang/survival/raw/main/L7.R" 
+   target="_blank" 
+   style="text-decoration: none; display: inline-flex; align-items: center;">
+  <img src="img/download.png" 
+       alt="Download icon" 
+       style="width: 24px; height: 24px; margin-right: 8px;">
+  点击下载数据文件: L7.R
+</a>
+
+
+
+:::
+
+<div>

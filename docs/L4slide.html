@@ -1,0 +1,2176 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lzz">
+<meta name="dcterms.date" content="2025-07-18">
+
+<title>L4 Cox比例风险模型 – R生存分析</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-c73e22a146e553504ccbb400724ccee0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+  document.querySelectorAll('a').forEach(function(link) {
+    link.setAttribute('target', '_blank');
+  });
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">R生存分析</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./L1.html"> 
+<span class="menu-text">L1 生存分析简介</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./L2.html"> 
+<span class="menu-text">L2 R环境准备</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./L3.html"> 
+<span class="menu-text">L3 Kaplan-Meier分析</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./L4.html"> 
+<span class="menu-text">L4 Cox模型</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./L5.html"> 
+<span class="menu-text">L5 AFT模型</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./L6.html"> 
+<span class="menu-text">L6 竞争风险模型</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./L7.html"> 
+<span class="menu-text">L7 机器学习</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+    <a href="./lizongzhang9@qq.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-envelope"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#大纲" id="toc-大纲" class="nav-link active" data-scroll-target="#大纲">大纲</a></li>
+  <li><a href="#cox模型简介" id="toc-cox模型简介" class="nav-link" data-scroll-target="#cox模型简介">4.1 Cox模型简介</a>
+  <ul class="collapse">
+  <li><a href="#cox模型的优势" id="toc-cox模型的优势" class="nav-link" data-scroll-target="#cox模型的优势">Cox模型的优势</a></li>
+  <li><a href="#cox比例风险模型的设定" id="toc-cox比例风险模型的设定" class="nav-link" data-scroll-target="#cox比例风险模型的设定">Cox比例风险模型的设定</a></li>
+  <li><a href="#风险比例假设-proportional-hazards-assumption" id="toc-风险比例假设-proportional-hazards-assumption" class="nav-link" data-scroll-target="#风险比例假设-proportional-hazards-assumption">风险比例假设 Proportional Hazards Assumption</a></li>
+  <li><a href="#风险比例的数学表达式" id="toc-风险比例的数学表达式" class="nav-link" data-scroll-target="#风险比例的数学表达式">风险比例的数学表达式</a></li>
+  <li><a href="#风险比例假设的直观理解" id="toc-风险比例假设的直观理解" class="nav-link" data-scroll-target="#风险比例假设的直观理解">风险比例假设的直观理解</a></li>
+  <li><a href="#风险比例假设成立的后果" id="toc-风险比例假设成立的后果" class="nav-link" data-scroll-target="#风险比例假设成立的后果">风险比例假设成立的后果</a></li>
+  <li><a href="#风险比例假设不成立的情况" id="toc-风险比例假设不成立的情况" class="nav-link" data-scroll-target="#风险比例假设不成立的情况">风险比例假设不成立的情况</a></li>
+  <li><a href="#检验风险比例假设的方法" id="toc-检验风险比例假设的方法" class="nav-link" data-scroll-target="#检验风险比例假设的方法">检验风险比例假设的方法</a></li>
+  <li><a href="#cox模型中如何计算生存函数" id="toc-cox模型中如何计算生存函数" class="nav-link" data-scroll-target="#cox模型中如何计算生存函数">Cox模型中如何计算生存函数？</a></li>
+  <li><a href="#cox模型与其他生存分析模型比较" id="toc-cox模型与其他生存分析模型比较" class="nav-link" data-scroll-target="#cox模型与其他生存分析模型比较">Cox模型与其他生存分析模型比较</a></li>
+  </ul></li>
+  <li><a href="#cox建模的数据要求" id="toc-cox建模的数据要求" class="nav-link" data-scroll-target="#cox建模的数据要求">4.3 Cox建模的数据要求</a></li>
+  <li><a href="#cox模型在r中的实现" id="toc-cox模型在r中的实现" class="nav-link" data-scroll-target="#cox模型在r中的实现">4.4 Cox模型在R中的实现</a>
+  <ul class="collapse">
+  <li><a href="#cox模型的估计-导出到-word文档" id="toc-cox模型的估计-导出到-word文档" class="nav-link" data-scroll-target="#cox模型的估计-导出到-word文档">4.4.7 Cox模型的估计: 导出到 Word文档</a></li>
+  </ul></li>
+  <li><a href="#cox模型的可视化工具" id="toc-cox模型的可视化工具" class="nav-link" data-scroll-target="#cox模型的可视化工具">4.5 Cox模型的可视化工具</a>
+  <ul class="collapse">
+  <li><a href="#基线生存曲线" id="toc-基线生存曲线" class="nav-link" data-scroll-target="#基线生存曲线">4.5.1 基线生存曲线</a></li>
+  <li><a href="#不同人群特征组合下的预测生存曲线" id="toc-不同人群特征组合下的预测生存曲线" class="nav-link" data-scroll-target="#不同人群特征组合下的预测生存曲线">4.5.2 不同人群特征组合下的预测生存曲线</a></li>
+  <li><a href="#cox回归系数森林图" id="toc-cox回归系数森林图" class="nav-link" data-scroll-target="#cox回归系数森林图">4.5.3 Cox回归系数森林图</a></li>
+  <li><a href="#列线图" id="toc-列线图" class="nav-link" data-scroll-target="#列线图">4.5.4 列线图</a></li>
+  <li><a href="#高低风险组生存曲线" id="toc-高低风险组生存曲线" class="nav-link" data-scroll-target="#高低风险组生存曲线">4.5.5 高低风险组生存曲线</a></li>
+  </ul></li>
+  <li><a href="#modeling-time-varying-coefficients" id="toc-modeling-time-varying-coefficients" class="nav-link" data-scroll-target="#modeling-time-varying-coefficients">4.6 Modeling time-varying coefficients</a></li>
+  <li><a href="#time-varying-covariates" id="toc-time-varying-covariates" class="nav-link" data-scroll-target="#time-varying-covariates">4.7 Time-varying covariates</a></li>
+  <li><a href="#总结" id="toc-总结" class="nav-link" data-scroll-target="#总结">总结</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="L4slide.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">L4 Cox比例风险模型</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p><a href="https://space.bilibili.com/590872906/">Lzz</a> </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 18, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: sysfonts</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: showtextdb</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: ggplot2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ lubridate 1.9.4     ✔ tibble    3.3.0
+✔ purrr     1.1.0     ✔ tidyr     1.3.1
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+</div>
+<hr>
+<section id="大纲" class="level2">
+<h2 class="anchored" data-anchor-id="大纲">大纲</h2>
+<ul>
+<li><p>4.1 Cox模型简介</p></li>
+<li><p>4.2 Cox模型的数据结构</p></li>
+<li><p>4.3 Cox模型的估计</p></li>
+<li><p>4.4 Cox模型的检验</p></li>
+<li><p>4.5 Cox模型的可视化</p></li>
+</ul>
+<hr>
+</section>
+<section id="cox模型简介" class="level2">
+<h2 class="anchored" data-anchor-id="cox模型简介">4.1 Cox模型简介</h2>
+<ul>
+<li><p><strong>Cox比例风险模型</strong>（Cox Proportional Hazards Model, 简称CoxPH）是生存分析中最常用的统计方法之一。</p>
+<ul>
+<li>用于分析<strong>生存时间</strong>（或“事件发生时间”）与<strong>影响因素（协变量）</strong>之间的关系。</li>
+</ul></li>
+</ul>
+<p><span class="math display">\[
+h(t|X) = h_0(t) \exp(\beta^T X)
+\]</span></p>
+<ul>
+<li><span class="math inline">\(h(t|X)\)</span>：个体在时刻 <span class="math inline">\(t\)</span> 的<strong>风险率</strong>（hazard rate）</li>
+<li><span class="math inline">\(h_0(t)\)</span>：<strong>基线风险函数</strong>，当所有协变量取0时的风险率，随时间变化</li>
+<li><span class="math inline">\(\beta\)</span>：<strong>回归系数向量</strong>，每个协变量对应一个系数</li>
+<li><span class="math inline">\(X\)</span>：<strong>协变量向量</strong>，如年龄、性别、分组等</li>
+</ul>
+<hr>
+<section id="cox模型的优势" class="level3">
+<h3 class="anchored" data-anchor-id="cox模型的优势">Cox模型的优势</h3>
+<ul>
+<li><strong>半参数模型</strong>：不需要事先假定基线风险函数<span class="math inline">\(h_0(t)\)</span>的具体分布形式。</li>
+<li><strong>关注风险率（hazard）</strong>：关注个体在某一时刻发生事件的风险。</li>
+<li>支持<strong>删失数据</strong>（如随访未结束或中途失访的个体）。</li>
+</ul>
+<hr>
+</section>
+<section id="cox比例风险模型的设定" class="level3">
+<h3 class="anchored" data-anchor-id="cox比例风险模型的设定">Cox比例风险模型的设定</h3>
+<p><span class="math display">\[
+  h(t|X) = h_0(t) \exp(\beta^T X)
+  \]</span> <span class="math display">\[
+h(t | X) = h_0(t) \cdot \exp(\beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p)
+\]</span> <span class="math display">\[
+\log h(t|X) = \log h_0(t) + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p
+\]</span></p>
+<ul>
+<li><p><span class="math inline">\(h(t|X)\)</span>：时刻 <span class="math inline">\(t\)</span> 的瞬时风险</p></li>
+<li><p><span class="math inline">\(h_0(t)\)</span>：基线风险</p></li>
+<li><p><span class="math inline">\(x_1, x_2, \ldots, x_p\)</span>：协变量(解释变量)</p></li>
+<li><p><span class="math inline">\(\beta\)</span>代表该变量每增加一个单位时，<span class="math inline">\(\log\)</span>风险比的改变。</p></li>
+<li><p>对于预测变量，<span class="math inline">\(\exp(\beta)\)</span>为“风险比”（Hazard Ratio）：</p>
+<ul>
+<li><span class="math inline">\(\beta &gt; 0\)</span>：风险增加</li>
+<li><span class="math inline">\(\beta &lt; 0\)</span>：风险降低</li>
+</ul></li>
+</ul>
+<p>Cox模型围绕风险函数建模，是因为风险函数能自然处理删失数据、便于推导似然函数、模型解释直观、无需假定基线风险<span class="math inline">\(h_0(t)\)</span>分布。</p>
+<hr>
+</section>
+<section id="风险比例假设-proportional-hazards-assumption" class="level3">
+<h3 class="anchored" data-anchor-id="风险比例假设-proportional-hazards-assumption">风险比例假设 Proportional Hazards Assumption</h3>
+<ul>
+<li>不同协变量组之间的风险比（Hazard Ratio, HR）在整个随访期间是恒定的，不随时间变化。</li>
+</ul>
+</section>
+<section id="风险比例的数学表达式" class="level3">
+<h3 class="anchored" data-anchor-id="风险比例的数学表达式">风险比例的数学表达式</h3>
+<p>Cox模型的风险函数公式： <span class="math display">\[
+h(t|X) = h_0(t)\exp(\beta^T X)
+\]</span></p>
+<ul>
+<li>对于两个不同的协变量组<span class="math inline">\(X_1\)</span>和<span class="math inline">\(X_2\)</span>，它们的风险比为： <span class="math display">\[
+\frac{h(t|X_1)}{h(t|X_2)} = \frac{h_0(t)\exp(\beta^T X_1)}{h_0(t)\exp(\beta^T X_2)} = \exp\left(\beta^T(X_1 - X_2)\right)
+\]</span></li>
+<li>这个比值<strong>与时间</strong><span class="math inline">\(t\)</span>无关，只与协变量差异有关。</li>
+</ul>
+<hr>
+</section>
+<section id="风险比例假设的直观理解" class="level3">
+<h3 class="anchored" data-anchor-id="风险比例假设的直观理解">风险比例假设的直观理解</h3>
+<ul>
+<li><strong>举例</strong>：
+<ul>
+<li>假如男性和女性的风险比为2，无论研究到第1年还是第5年，男性的风险率始终是女性的2倍。</li>
+</ul></li>
+<li>换句话说，<strong>不同组的风险曲线“始终相隔一条固定倍数的距离”</strong>，不会随时间交叉或逐渐靠近/远离。</li>
+</ul>
+</section>
+<section id="风险比例假设成立的后果" class="level3">
+<h3 class="anchored" data-anchor-id="风险比例假设成立的后果">风险比例假设成立的后果</h3>
+<ul>
+<li>模型中的回归系数<span class="math inline">\(\beta\)</span>可直接解释为风险比对数。</li>
+<li>计算出的风险比（HR）对所有时间点都适用。</li>
+</ul>
+</section>
+<section id="风险比例假设不成立的情况" class="level3">
+<h3 class="anchored" data-anchor-id="风险比例假设不成立的情况">风险比例假设不成立的情况</h3>
+<ul>
+<li>有些情况下，风险比随时间变化（如药物疗效消退、不同组风险曲线交叉），则不满足风险比例假设，CoxPH模型结果可能不可靠。</li>
+<li>这时可考虑使用<strong>时间依赖协变量模型</strong>或<strong>分层Cox模型</strong>等替代方法。</li>
+</ul>
+<hr>
+</section>
+<section id="检验风险比例假设的方法" class="level3">
+<h3 class="anchored" data-anchor-id="检验风险比例假设的方法">检验风险比例假设的方法</h3>
+<ul>
+<li><strong>Schoenfeld残差检验</strong>（最常用）</li>
+<li>绘制对数(-log)生存曲线，观察是否平行</li>
+<li>引入时间交互项，检验交互项是否显著</li>
+<li>应在分析前后检验该假设，确保结果可靠！</li>
+</ul>
+<hr>
+</section>
+<section id="cox模型中如何计算生存函数" class="level3">
+<h3 class="anchored" data-anchor-id="cox模型中如何计算生存函数">Cox模型中如何计算生存函数？</h3>
+<section id="第1步生存函数与风险函数的关系参见l1讲义" class="level4">
+<h4 class="anchored" data-anchor-id="第1步生存函数与风险函数的关系参见l1讲义">第1步：生存函数与风险函数的关系(参见L1讲义)</h4>
+<p><span class="math display">\[
+S(t|X) = \exp\left(-\int_0^t h(u|X) du\right)
+\]</span></p>
+</section>
+<section id="第2步带入cox模型的风险函数" class="level4">
+<h4 class="anchored" data-anchor-id="第2步带入cox模型的风险函数">第2步：带入Cox模型的风险函数</h4>
+<p>将 <span class="math inline">\(h(t|X) = h_0(t) \exp(\beta^T X)\)</span> 代入上式：</p>
+<p><span class="math display">\[
+S(t|X) = \exp\left(-\int_0^t h_0(u) \exp(\beta^T X) du\right)
+\]</span></p>
+</section>
+<section id="第3步分离协变量与时间" class="level4">
+<h4 class="anchored" data-anchor-id="第3步分离协变量与时间">第3步：分离协变量与时间</h4>
+<p>注意 <span class="math inline">\(\exp(\beta^T X)\)</span> 对于特定个体是常数，可以提到积分符号外：</p>
+<p><span class="math display">\[
+S(t|X) = \exp\left(-\exp(\beta^T X) \int_0^t h_0(u) du\right)
+\]</span></p>
+<hr>
+</section>
+<section id="第4步引入基线生存函数-s_0t" class="level4">
+<h4 class="anchored" data-anchor-id="第4步引入基线生存函数-s_0t">第4步：引入基线生存函数 <span class="math inline">\(S_0(t)\)</span></h4>
+<p>定义基线生存函数（当 <span class="math inline">\(X=0\)</span>）：</p>
+<p><span class="math display">\[
+S_0(t) = \exp\left(-\int_0^t h_0(u) du\right)
+\]</span></p>
+</section>
+<section id="第5步生存函数的最终表达式" class="level4">
+<h4 class="anchored" data-anchor-id="第5步生存函数的最终表达式">第5步：生存函数的最终表达式</h4>
+<p>将基线生存函数带入，得到：</p>
+<p><span class="math display">\[ S(t|X) = [S_0(t)]^{\exp(\beta^T X)} = \exp\left( -\exp(\beta^T X) \int_0^t h_0(u) du \right) \]</span></p>
+<ul>
+<li><p><strong>模型估计形式</strong>：</p>
+<ul>
+<li>使用<strong>部分似然函数</strong>（Partial Likelihood）估计回归系数 <span class="math inline">\(\beta\)</span></li>
+<li>基线生存函数 <span class="math inline">\(S_0(t)\)</span> 用非参数法估计</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="cox模型与其他生存分析模型比较" class="level3">
+<h3 class="anchored" data-anchor-id="cox模型与其他生存分析模型比较">Cox模型与其他生存分析模型比较</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>模型</th>
+<th>参数类型</th>
+<th>是否建模 ( h_0(t) )</th>
+<th>是否允许协变量</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kaplan-Meier</td>
+<td>非参数</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr class="even">
+<td>Cox 模型</td>
+<td>半参数</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr class="odd">
+<td>AFT 模型</td>
+<td>参数</td>
+<td>✅（如 Weibull）</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="cox建模的数据要求" class="level2">
+<h2 class="anchored" data-anchor-id="cox建模的数据要求">4.3 Cox建模的数据要求</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 69%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>检查点</th>
+<th>推荐标准</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>是否有足够事件？</td>
+<td>每个解释变量 (predictor) 至少需要 10 个发生的事件（status = 1）</td>
+</tr>
+<tr class="even">
+<td>样本删失比例不宜过高</td>
+<td>status = 1 的比例 ≥ 30% 最佳</td>
+</tr>
+<tr class="odd">
+<td>变量是否有严重缺失？</td>
+<td>不推荐变量缺失率 &gt; 15%</td>
+</tr>
+<tr class="even">
+<td>是否满足比例风险？</td>
+<td>拟合后需检验（如 Schoenfeld 残差）</td>
+</tr>
+</tbody>
+</table>
+<div class="reference-text-small">
+<p>Vittinghoff, E., &amp; McCulloch, C. E. (2007). Relaxing the rule of ten events per variable in logistic and Cox regression. American Journal of Epidemiology.</p>
+</div>
+<hr>
+</section>
+<section id="cox模型在r中的实现" class="level2">
+<h2 class="anchored" data-anchor-id="cox模型在r中的实现">4.4 Cox模型在R中的实现</h2>
+<section id="数据集变量说明" class="level4">
+<h4 class="anchored" data-anchor-id="数据集变量说明">4.4.1 数据集变量说明</h4>
+<ul>
+<li><p><strong><code>inst</code></strong>：医疗机构编号</p></li>
+<li><p><strong><code>time</code></strong>：生存时间（天）</p></li>
+<li><p><strong><code>status</code></strong>：生存状态。1 = 删失（censored），2 = 死亡（event</p></li>
+<li><p><strong><code>age</code></strong>：年龄（岁）</p></li>
+<li><p><strong><code>sex</code></strong>：性别, 1 = 男，2 = 女</p></li>
+<li><p><strong><code>ph.ecog</code></strong>：ECOG（医生评估的体能评分），评分从 0（无症状）到 4（卧床）</p></li>
+<li><p><strong><code>ph.karno</code></strong>：医生评估Karnofsky评分, 0–100, 数值越高表示功能越好</p></li>
+<li><p><strong><code>pat.karno</code></strong>：患者评估Karnofsky评分</p></li>
+<li><p><strong><code>meal.cal</code></strong>：每餐摄入热量 (calories)</p></li>
+<li><p><strong><code>wt.loss</code></strong>：最近 6个月内体重下降的数值(磅)</p></li>
+</ul>
+<div class="reference-text-small">
+<p>Loprinzi, Charles Lawrence, et al.&nbsp;“Prospective evaluation of prognostic variables from patient-completed questionnaires. North Central Cancer Treatment Group.” <em>Journal of Clinical Oncology</em> 12.3 (1994): 601–607.</p>
+</div>
+<hr>
+</section>
+<section id="变量赋值" class="level4">
+<h4 class="anchored" data-anchor-id="变量赋值">4.4.2 变量赋值</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 加载示例数据, cancer列表中的lung数据框</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(cancer, <span class="at">package=</span><span class="st">"survival"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),   <span class="co"># 事件状态重编码：1=生存(0), 2=死亡(1)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),      <span class="co"># 性别重编码：1=男(0), 2=女(1)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<hr>
+</section>
+<section id="数据建模前的合规性检查" class="level4">
+<h4 class="anchored" data-anchor-id="数据建模前的合规性检查">4.4.3 数据建模前的合规性检查</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"female"</span>, <span class="st">"age"</span>, <span class="st">"wt.loss"</span>, <span class="st">"meal.cal"</span>, <span class="st">"ph.ecog"</span>, <span class="st">"ph.karno"</span>, <span class="st">"pat.karno"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 样本总数、事件数、删失数</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(lung<span class="sc">$</span>status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  0   1 
+ 63 165 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 缺失值统计</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(lung[, vars], \(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   female       age   wt.loss  meal.cal   ph.ecog  ph.karno pat.karno 
+        0         0        14        47         1         1         3 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Event per Variable </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>event_n <span class="ot">&lt;-</span> <span class="fu">sum</span>(lung<span class="sc">$</span>status <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>epv <span class="ot">&lt;-</span> event_n <span class="sc">/</span> <span class="fu">length</span>(vars)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>epv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 23.57143</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="cox模型的估计" class="level4">
+<h4 class="anchored" data-anchor-id="cox模型的估计">4.4.4 Cox模型的估计</h4>
+<section id="语法结构" class="level5">
+<h5 class="anchored" data-anchor-id="语法结构">语法结构</h5>
+<p>R语言中，Cox比例风险模型的核心函数是 <code>survival::coxph()</code>，它用于拟合 Cox 模型。</p>
+<ul>
+<li><p><code>coxph(Surv(time, status) ~ covariates, data = dataset)</code></p></li>
+<li><p><code>Surv(time, status)</code> 创建生存对象，包含生存时间和生存状态。</p></li>
+<li><p><code>covariates</code> 是一个或多个解释变量，可以是连续型或分类型。</p></li>
+</ul>
+<hr>
+</section>
+<section id="cox模型系数的解读" class="level5">
+<h5 class="anchored" data-anchor-id="cox模型系数的解读">Cox模型系数的解读</h5>
+<p>Cox模型的数学形式如下：</p>
+<p><span class="math display">\[
+\log h(t|x) = \log h_0(t) + \beta_1 x_1 + \beta_2 x_2 + \cdots + \beta_p x_p
+\]</span></p>
+<ul>
+<li><p><strong><code>coef</code></strong></p>
+<ul>
+<li><span class="math inline">\(\beta\)</span>，表示每个解释变量 <span class="math inline">\(x_p\)</span> 对对数风险函数 <span class="math inline">\(\log h(t|x)\)</span> 的线性影响。即 <span class="math inline">\(x_p\)</span> 增加1个单位，<span class="math inline">\(\log h(t|x)\)</span> 增加 <span class="math inline">\(\beta_p\)</span>。</li>
+</ul></li>
+</ul>
+<p><span class="math display">\[
+h(t | X) = h_0(t) \cdot \exp(\beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p)
+\]</span></p>
+<ul>
+<li><p><strong><code>exp(coef)</code></strong></p>
+<p>-<span class="math inline">\(\exp(\beta)\)</span>，表示 <span class="math inline">\(x_p\)</span> 增加1个单位时，事件发生的风险(即刻发生该事件的瞬时速率) <span class="math inline">\(h(t|x)\)</span> 的相对变化倍数。 (_p) 表示风险增加, (_p) &lt; 1$ 表示风险降低。</p>
+<p><span class="math display">\[
+Hazard \space Ratio = \exp(\beta_p)
+\]</span></p></li>
+<li><p>正系数 → 风险增加</p></li>
+<li><p>负系数 → 风险降低</p></li>
+</ul>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),   </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)) </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ female + age + wt.loss + 
+    ph.ecog + ph.karno, data = lung)
+
+              coef exp(coef)  se(coef)      z        p
+female   -0.631422  0.531835  0.177134 -3.565 0.000364
+age       0.015157  1.015273  0.009763  1.553 0.120538
+wt.loss  -0.009298  0.990745  0.006699 -1.388 0.165168
+ph.ecog   0.740204  2.096364  0.191332  3.869 0.000109
+ph.karno  0.015251  1.015368  0.009797  1.557 0.119553
+
+Likelihood ratio test=33.53  on 5 df, p=2.951e-06
+n= 213, number of events= 151 
+   (15 observations deleted due to missingness)</code></pre>
+</div>
+</div>
+<div class="smaller-text">
+<p>主要变量详细解读</p>
+<p>female：女性与男性相比，死亡风险约为男性的0.53（降低47%），且差异高度显著（p &lt; 0.001）。</p>
+<p>age：年龄对风险影响不显著（p &gt; 0.05）。</p>
+<p>wt.loss：体重下降对风险影响不显著。</p>
+<p>ph.ecog（体能评分）：评分每增加1分，风险增加约2倍（HR=2.10），且高度显著（p &lt; 0.001），说明体能状况差的人死亡风险更高。</p>
+<p>ph.karno（Karnofsky评分）：ph.karno对风险影响不显著。</p>
+<hr>
+<p>Likelihood ratio test（似然比检验）：用于判断整个模型是否显著优于无解释变量（空模型）。 统计量=33.53，自由度（df）=5（模型中有5个自变量）。 p=2.951e-06（约0.000003）极小，远小于0.05。 解释：至少有一个变量对生存时间有显著影响，模型整体是有统计学意义的。</p>
+</div>
+<hr>
+</section>
+<section id="模型整体显著性检验" class="level5">
+<h5 class="anchored" data-anchor-id="模型整体显著性检验">模型整体显著性检验</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ female + age + wt.loss + 
+    ph.ecog + ph.karno, data = lung)
+
+  n= 213, number of events= 151 
+   (15 observations deleted due to missingness)
+
+              coef exp(coef)  se(coef)      z Pr(&gt;|z|)    
+female   -0.631422  0.531835  0.177134 -3.565 0.000364 ***
+age       0.015157  1.015273  0.009763  1.553 0.120538    
+wt.loss  -0.009298  0.990745  0.006699 -1.388 0.165168    
+ph.ecog   0.740204  2.096364  0.191332  3.869 0.000109 ***
+ph.karno  0.015251  1.015368  0.009797  1.557 0.119553    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+         exp(coef) exp(-coef) lower .95 upper .95
+female      0.5318     1.8803    0.3758    0.7526
+age         1.0153     0.9850    0.9960    1.0349
+wt.loss     0.9907     1.0093    0.9778    1.0038
+ph.ecog     2.0964     0.4770    1.4408    3.0502
+ph.karno    1.0154     0.9849    0.9961    1.0351
+
+Concordance= 0.64  (se = 0.026 )
+Likelihood ratio test= 33.53  on 5 df,   p=3e-06
+Wald test            = 32.27  on 5 df,   p=5e-06
+Score (logrank) test = 32.83  on 5 df,   p=4e-06</code></pre>
+</div>
+</div>
+<ul>
+<li><p>Concordance（一致性指数，也叫C-index）是衡量模型区分能力的指标，范围0~1。0.5 表示模型无辨别力（和随机一样），1 表示预测完全正确。</p></li>
+<li><p>Likelihood ratio test似然比检验，p-value &lt; 0.05, 模型整体显著。</p></li>
+<li><p>Wald检验，p-value &lt; 0.05, 模型整体显著。</p></li>
+<li><p>Score test（也叫logrank检验），p-value &lt; 0.05, 模型整体显著。</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="检验风险比例假定" class="level4">
+<h4 class="anchored" data-anchor-id="检验风险比例假定">4.4.5 检验风险比例假定</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),   </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung) </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 检验风险比例假定--Schoenfeld残差检验</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>fit <span class="sc">%&gt;%</span> <span class="fu">cox.zph</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         chisq df     p
+female   2.059  1 0.151
+age      0.186  1 0.666
+wt.loss  0.110  1 0.740
+ph.ecog  1.359  1 0.244
+ph.karno 4.916  1 0.027
+GLOBAL   7.174  5 0.208</code></pre>
+</div>
+</div>
+<p>Schoenfeld残差检验的结果</p>
+<ul>
+<li><p>chisq：Schoenfeld残差检验的卡方统计量, df：自由度</p></li>
+<li><p>对于每个变量及全局（GLOBAL），p值越大于0.05，说明风险比例假定越成立；若p值小于0.05，说明该变量（或整体）可能不满足风险比例假定。</p></li>
+<li><p>GLOBAL表示对整个Cox模型的风险比例假定整体检验，也叫“全局检验”。它的p值反映了所有协变量加在一起时，模型整体是否违反了风险比例假定。</p></li>
+<li><p>如果GLOBAL的p值较大（通常&gt;0.05），说明整体上Cox模型的风险比例假定是成立的。</p></li>
+</ul>
+<hr>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Schoenfeld残差检验的可视化</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>fit <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cox.zph</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="at">var =</span> <span class="st">"female"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="L4slide_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Schoenfeld残差图若平滑曲线接近水平，说明风险比随时间不变，PH假定成立；若明显有趋势，则PH假定可能不成立。</li>
+</ul>
+<hr>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Schoenfeld残差检验的可视化</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>fit <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cox.zph</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="at">var =</span> <span class="st">"ph.ecog"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="L4slide_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="cox模型的表格化输出" class="level4">
+<h4 class="anchored" data-anchor-id="cox模型的表格化输出">4.4.6 Cox模型的表格化输出</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>lung <span class="ot">&lt;-</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  lung <span class="sc">%&gt;%</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 拟合模型</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss, <span class="at">data =</span> lung)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>tbl1 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  model1,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_number</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>tbl2 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  model2,</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_number</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="fu">tbl_merge</span>(</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2),</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>)</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="bxaayubrny" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bxaayubrny table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bxaayubrny thead, #bxaayubrny tbody, #bxaayubrny tfoot, #bxaayubrny tr, #bxaayubrny td, #bxaayubrny th {
+  border-style: none;
+}
+
+#bxaayubrny p {
+  margin: 0;
+  padding: 0;
+}
+
+#bxaayubrny .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#bxaayubrny .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#bxaayubrny .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#bxaayubrny .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#bxaayubrny .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#bxaayubrny .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#bxaayubrny .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#bxaayubrny .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#bxaayubrny .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#bxaayubrny .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#bxaayubrny .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#bxaayubrny .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#bxaayubrny .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#bxaayubrny .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#bxaayubrny .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxaayubrny .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#bxaayubrny .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#bxaayubrny .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#bxaayubrny .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxaayubrny .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#bxaayubrny .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxaayubrny .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#bxaayubrny .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxaayubrny .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bxaayubrny .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bxaayubrny .gt_left {
+  text-align: left;
+}
+
+#bxaayubrny .gt_center {
+  text-align: center;
+}
+
+#bxaayubrny .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#bxaayubrny .gt_font_normal {
+  font-weight: normal;
+}
+
+#bxaayubrny .gt_font_bold {
+  font-weight: bold;
+}
+
+#bxaayubrny .gt_font_italic {
+  font-style: italic;
+}
+
+#bxaayubrny .gt_super {
+  font-size: 65%;
+}
+
+#bxaayubrny .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#bxaayubrny .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#bxaayubrny .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#bxaayubrny .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#bxaayubrny .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#bxaayubrny .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#bxaayubrny .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#bxaayubrny .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#bxaayubrny div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="gt_col_headings gt_spanner_row header">
+<th rowspan="2" id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th colspan="3" id="level 1; estimate_1" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+<strong>Model 1</strong>
+</div></th>
+<th colspan="3" id="level 1; estimate_2" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+<strong>Model 2</strong>
+</div></th>
+</tr>
+<tr class="gt_col_headings even">
+<th id="estimate_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>HR</strong></th>
+<th id="conf.low_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+<th id="estimate_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>HR</strong></th>
+<th id="conf.low_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">female</td>
+<td class="gt_row gt_center" headers="estimate_1">0.594</td>
+<td class="gt_row gt_center" headers="conf.low_1">0.422, 0.836</td>
+<td class="gt_row gt_center" headers="p.value_1">0.003</td>
+<td class="gt_row gt_center" headers="estimate_2">0.532</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.376, 0.753</td>
+<td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">age</td>
+<td class="gt_row gt_center" headers="estimate_1">1.020</td>
+<td class="gt_row gt_center" headers="conf.low_1">1.001, 1.040</td>
+<td class="gt_row gt_center" headers="p.value_1">0.038</td>
+<td class="gt_row gt_center" headers="estimate_2">1.015</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.996, 1.035</td>
+<td class="gt_row gt_center" headers="p.value_2">0.12</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">wt.loss</td>
+<td class="gt_row gt_center" headers="estimate_1">1.001</td>
+<td class="gt_row gt_center" headers="conf.low_1">0.989, 1.013</td>
+<td class="gt_row gt_center" headers="p.value_1">&gt;0.9</td>
+<td class="gt_row gt_center" headers="estimate_2">0.991</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.978, 1.004</td>
+<td class="gt_row gt_center" headers="p.value_2">0.2</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">ph.ecog</td>
+<td class="gt_row gt_center" headers="estimate_1"><br>
+</td>
+<td class="gt_row gt_center" headers="conf.low_1"><br>
+</td>
+<td class="gt_row gt_center" headers="p.value_1"><br>
+</td>
+<td class="gt_row gt_center" headers="estimate_2">2.096</td>
+<td class="gt_row gt_center" headers="conf.low_2">1.441, 3.050</td>
+<td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">ph.karno</td>
+<td class="gt_row gt_center" headers="estimate_1"><br>
+</td>
+<td class="gt_row gt_center" headers="conf.low_1"><br>
+</td>
+<td class="gt_row gt_center" headers="p.value_1"><br>
+</td>
+<td class="gt_row gt_center" headers="estimate_2">1.015</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.996, 1.035</td>
+<td class="gt_row gt_center" headers="p.value_2">0.12</td>
+</tr>
+</tbody><tfoot class="gt_sourcenotes">
+<tr class="odd">
+<td colspan="7" class="gt_sourcenote">Abbreviations: CI = Confidence Interval, HR = Hazard Ratio</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="cox模型的估计-导出到-word文档" class="level3">
+<h3 class="anchored" data-anchor-id="cox模型的估计-导出到-word文档">4.4.7 Cox模型的估计: 导出到 Word文档</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>tbl_combined <span class="ot">&lt;-</span> <span class="fu">tbl_merge</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2),</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(flextable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'flextable'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    compose</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:gtsummary':
+
+    continuous_summary</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(officer)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">read_docx</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">body_add_par</span>(<span class="st">"Table 2. Results of Cox Proportional Hazards Regression Models"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">body_add_flextable</span>(<span class="fu">as_flex_table</span>(tbl_combined)) <span class="sc">%&gt;%</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">target =</span> <span class="st">"cox_results.docx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="cox模型的可视化工具" class="level2">
+<h2 class="anchored" data-anchor-id="cox模型的可视化工具">4.5 Cox模型的可视化工具</h2>
+<section id="基线生存曲线" class="level3">
+<h3 class="anchored" data-anchor-id="基线生存曲线">4.5.1 基线生存曲线</h3>
+<p>基线生存曲线: 在所有协变量（自变量）取基线值时（通常是0，或者参考组），个体在各时间点的生存概率。</p>
+<p><span class="math display">\[
+S_0(t) = \exp\left(-\int_0^t h_0(u) du\right)
+\]</span></p>
+<p>基线生存曲线是所有预测型生存曲线的“原型”或“起点”，其它所有人的生存曲线都是在它的基础上根据风险因子调整得到的。</p>
+<p>描述“标准人群”（参考组）或“平均水平”个体的生存情况。，在现实中确实可能并不存在（比如所有变量都取0或参考组值，这个人其实不在你的样本里）。但它依然有重要的统计与实际意义，参考组本质是“数学基准”，不是现实个体, 即使现实中没有这样的人，所有其他个体的生存概率都必须以它为基准来调整。</p>
+<hr>
+<p>绘制基线生存曲线</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|echo: true</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survminer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: ggpubr</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'ggpubr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:flextable':
+
+    border, font, rotate</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'survminer'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked _by_ '.GlobalEnv':
+
+    myeloma</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:survival':
+
+    myeloma</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>sf <span class="ot">&lt;-</span> <span class="fu">survfit</span>(fit)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(sf, <span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">data =</span> lung, <span class="at">xlab =</span> <span class="st">"时间 (days)"</span>, <span class="at">ylab =</span> <span class="st">"基线生存概率"</span>, </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Cox模型基线生存曲线"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="L4slide_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="不同人群特征组合下的预测生存曲线" class="level3">
+<h3 class="anchored" data-anchor-id="不同人群特征组合下的预测生存曲线">4.5.2 不同人群特征组合下的预测生存曲线</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">female   =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">age      =</span> <span class="fu">c</span>(<span class="dv">60</span>, <span class="dv">60</span>, <span class="dv">70</span>),</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">wt.loss  =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ph.ecog  =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ph.karno =</span> <span class="fu">c</span>(<span class="dv">80</span>, <span class="dv">80</span>, <span class="dv">60</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>sf <span class="ot">&lt;-</span> <span class="fu">survfit</span>(fit, <span class="at">newdata =</span> newdata)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survminer)</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  sf,</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> lung,</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">conf.int =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"男性, 60岁, wt.loss =0, ph.ecog=1, ph.karno=80"</span>,</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"女性, 60岁, wt.loss =0, ph.ecog=1, ph.karno=80"</span>,</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"女性, 70岁, wt.loss =5, ECOG=2,ph.ecog=2,ph.karno=80"</span> ),</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">palette =</span> <span class="st">"Set2"</span>, <span class="co"># 使用RColorBrewer的 Set2 调色板</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"不同变量组合下的预测生存曲线"</span>,</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"时间（天）"</span>,</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"生存概率"</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="L4slide_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="cox回归系数森林图" class="level3">
+<h3 class="anchored" data-anchor-id="cox回归系数森林图">4.5.3 Cox回归系数森林图</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survminer)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggforest</span>(<span class="at">main =</span> <span class="st">"Cox回归系数森林图"</span>, <span class="at">fontsize =</span> <span class="fl">1.2</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">cpositions =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.22</span>, <span class="fl">0.4</span>), <span class="at">refLabel =</span> <span class="st">"对照"</span>, <span class="at">noDigits =</span> <span class="dv">3</span>, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="L4slide_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="列线图" class="level3">
+<h3 class="anchored" data-anchor-id="列线图">4.5.4 列线图</h3>
+<p><strong>列线图（Nomogram）</strong>是将回归模型（如Cox、Logistic回归）转化为可视化评分表的工具，用于临床个体化预测。它把每个变量的取值转换为分数，然后通过总分推算某一结局（如1年生存率）。</p>
+<p>把模型变成“分数表”，你只需查分、加分、对照即可得到个体预测概率。</p>
+<p>一张列线图的结构一般包括： - 最上方一行：Points（得分）</p>
+<ul>
+<li><p>这是一把“定标尺”，用于查每个变量取值对应的分数。</p></li>
+<li><p>中间多行：各个变量</p></li>
+<li><p>每个变量一行，旁边有对应取值的刻度线。</p></li>
+<li><p>把所有变量的分数加起来，落在这一行的某个位置。</p></li>
+<li><p>底部：预测概率（如1年生存率）</p></li>
+<li><p>总分可以对应到一个概率，比如“1年生存率”</p></li>
+</ul>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("rms")</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rms)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: Hmisc</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'Hmisc'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    src, summarize</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    format.pval, units</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>dd <span class="ot">&lt;-</span> <span class="fu">datadist</span>(lung)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">datadist=</span><span class="st">"dd"</span>)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 用cph拟合</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">cph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> ph.ecog <span class="sc">+</span> ph.karno, <span class="at">data =</span> lung, <span class="at">x =</span> <span class="cn">TRUE</span>, <span class="at">y =</span> <span class="cn">TRUE</span>, <span class="at">surv =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>surv <span class="ot">&lt;-</span> <span class="fu">Survival</span>(fit)</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>nom <span class="ot">&lt;-</span> <span class="fu">nomogram</span>(fit, <span class="at">fun=</span><span class="fu">list</span>(<span class="cf">function</span>(x) <span class="fu">surv</span>(<span class="dv">365</span>, x)), <span class="at">funlabel=</span><span class="st">"1年生存概率"</span>)</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(nom)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="L4slide_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="高低风险组生存曲线" class="level3">
+<h3 class="anchored" data-anchor-id="高低风险组生存曲线">4.5.5 高低风险组生存曲线</h3>
+<p>使用 Cox 比例风险模型对病人进行风险分层后，高低风险组的Kaplan-Meier 生存曲线。你使用了 predict(fit, type = “lp”) 计算每位患者的风险评分（线性预测值），然后基于中位数将样本分为高风险组与低风险组。</p>
+<p>在Cox回归生存分析中，高风险组（High risk group）是指： 对每个患者（样本），根据Cox回归模型计算出其风险评分（risk score，通常就是线性预测得分：risk_score = β1×X1 + β2×X2 + … + βn×Xn）。 然后，通常以风险评分的中位数为阈值，大于中位数的分为“高风险组”，小于等于中位数的分为“低风险组”。</p>
+<p>显著生存差异：红色曲线（高风险组）与蓝色曲线（低风险组）之间差距明显，p 值远小于 0.05，说明模型能有效区分不同风险个体的生存预后。</p>
+<p>模型有较好判别力：高低风险组的生存曲线没有交叉，且间距较大，说明 Cox 模型捕捉到了关键影响因素。</p>
+<p>删失信息充分：小“+”符号分布均匀，说明删失数据处理得当，未引起偏倚。</p>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 步骤1: 计算风险评分</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>risk_score <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"lp"</span>)  <span class="co"># "lp" = linear predictor</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 步骤2: 分组（以中位数为界）</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>lung<span class="sc">$</span>risk_group <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(risk_score <span class="sc">&gt;</span> <span class="fu">median</span>(risk_score, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"High risk"</span>, <span class="st">"Low risk"</span>)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 步骤3: 拟合分组生存曲线</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>fit_group <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> risk_group, </span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">data =</span> lung)</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 步骤4: 绘制生存曲线</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>  fit_group,</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> lung,</span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">pval =</span> <span class="cn">TRUE</span>,                  <span class="co"># 显示log-rank检验p值</span></span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.title =</span> <span class="st">"Risk Group"</span>,</span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"High risk"</span>, <span class="st">"Low risk"</span>),</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"#E41A1C"</span>, <span class="st">"#377EB8"</span>),  <span class="co"># 红、蓝</span></span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"时间（天）"</span>,</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"生存概率"</span>,</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">"高低风险组生存曲线"</span></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="L4slide_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="modeling-time-varying-coefficients" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-time-varying-coefficients">4.6 Modeling time-varying coefficients</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 加载示例数据, cancer列表中的lung数据框</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(cancer, <span class="at">package=</span><span class="st">"survival"</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),   <span class="co"># 事件状态重编码：1=生存(0), 2=死亡(1)</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),      <span class="co"># 性别重编码：1=男(0), 2=女(1)</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a><span class="co"># notice sex and tt(sex) in model formula</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>lung.female.by.time <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> age <span class="sc">+</span> wt.loss <span class="sc">+</span> female <span class="sc">+</span> <span class="fu">tt</span>(female), <span class="co"># sex and tt(sex) in formula</span></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>                          <span class="at">data=</span>lung,</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>                          <span class="at">tt=</span><span class="cf">function</span>(x,t,...) x<span class="sc">*</span>t) <span class="co"># linear change in effect of sex</span></span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lung.female.by.time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ age + wt.loss + female + 
+    tt(female), data = lung, tt = function(x, t, ...) x * t)
+
+  n= 214, number of events= 152 
+   (14 observations deleted due to missingness)
+
+                 coef  exp(coef)   se(coef)      z Pr(&gt;|z|)   
+age         0.0194343  1.0196244  0.0096522  2.013   0.0441 * 
+wt.loss     0.0001260  1.0001261  0.0062502  0.020   0.9839   
+female     -0.9417444  0.3899470  0.3224791 -2.920   0.0035 **
+tt(female)  0.0013778  1.0013787  0.0008581  1.606   0.1084   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+           exp(coef) exp(-coef) lower .95 upper .95
+age           1.0196     0.9808    1.0005    1.0391
+wt.loss       1.0001     0.9999    0.9879    1.0125
+female        0.3899     2.5645    0.2073    0.7337
+tt(female)    1.0014     0.9986    0.9997    1.0031
+
+Concordance= 0.613  (se = 0.027 )
+Likelihood ratio test= 17.23  on 4 df,   p=0.002
+Wald test            = 15.86  on 4 df,   p=0.003
+Score (logrank) test = 16.44  on 4 df,   p=0.002</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="time-varying-covariates" class="level2">
+<h2 class="anchored" data-anchor-id="time-varying-covariates">4.7 Time-varying covariates</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(jasa1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    id start stop event transplant        age      year surgery
+1    1     0   49     1          0 -17.155373 0.1232033       0
+2    2     0    5     1          0   3.835729 0.2546201       0
+102  3     0   15     1          1   6.297057 0.2655715       0
+3    4     0   35     0          0  -7.737166 0.4900753       0
+103  4    35   38     1          1  -7.737166 0.4900753       0
+4    5     0   17     1          0 -27.214237 0.6078029       0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>jasa1.cox <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(start, stop, event) <span class="sc">~</span> transplant <span class="sc">+</span> age <span class="sc">+</span> surgery, <span class="at">data=</span>jasa1)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(jasa1.cox)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(start, stop, event) ~ transplant + age + 
+    surgery, data = jasa1)
+
+  n= 170, number of events= 75 
+
+               coef exp(coef) se(coef)      z Pr(&gt;|z|)  
+transplant  0.01405   1.01415  0.30822  0.046   0.9636  
+age         0.03055   1.03103  0.01389  2.199   0.0279 *
+surgery    -0.77326   0.46150  0.35966 -2.150   0.0316 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+           exp(coef) exp(-coef) lower .95 upper .95
+transplant    1.0142     0.9860    0.5543    1.8555
+age           1.0310     0.9699    1.0033    1.0595
+surgery       0.4615     2.1668    0.2280    0.9339
+
+Concordance= 0.599  (se = 0.036 )
+Likelihood ratio test= 10.72  on 3 df,   p=0.01
+Wald test            = 9.68  on 3 df,   p=0.02
+Score (logrank) test = 10  on 3 df,   p=0.02</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check PH assumptions</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cox.zph</span>(jasa1.cox)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           chisq df    p
+transplant 0.118  1 0.73
+age        0.897  1 0.34
+surgery    0.097  1 0.76
+GLOBAL     1.363  3 0.71</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot predicted survival by transplant group at mean age and surgery=0</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>plotdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">transplant=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">age=</span><span class="sc">-</span><span class="fl">2.48</span>, <span class="at">surgery=</span><span class="dv">0</span>)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>surv.by.transplant <span class="ot">&lt;-</span> <span class="fu">survfit</span>(jasa1.cox, <span class="at">newdata=</span>plotdata)</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsurvplot</span>(surv.by.transplant, <span class="at">data=</span>plotdata) <span class="co"># remember to supply data to ggsurvplot() for predicted survival after coxph()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="L4slide_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="总结" class="level2">
+<h2 class="anchored" data-anchor-id="总结">总结</h2>
+<ul>
+<li><strong>CoxPH模型</strong>：生存分析最常用方法，探究时间与多因素关系，无需指定基线风险分布。</li>
+<li><strong>模型公式</strong>：<span class="math inline">\(h(t|X) = h_0(t) \exp(\beta^T X)\)</span>，<span class="math inline">\(\exp(\beta)\)</span>为风险比（HR），直观反映协变量影响。</li>
+<li><strong>核心假设</strong>：风险比随时间恒定（比例风险假设），分析前后须检验（如Schoenfeld残差）。</li>
+<li><strong>建模流程</strong>：保证事件数充足、缺失少，<code>coxph()</code>建模，配合森林图、风险分层生存曲线、列线图等可视化。</li>
+<li><strong>模型解读</strong>：正系数变量风险升高，负系数降低风险；整体显著性依赖似然比检验、C-index等指标。</li>
+<li><strong>临床应用</strong>：支持删失数据，便于个体化风险预测和人群风险分层，广泛用于医学科研和决策。</li>
+</ul>
+<p><strong>推荐R包</strong>：<code>survival</code>、<code>ggsurvfit</code>、<code>gtsummary</code>、<code>survminer</code>、<code>rms</code></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© Copyright 2025, 医咖会 &amp; Li Zongzhang</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>Statistics: turning data into insights.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
