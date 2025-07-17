@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.6.42">
 
   <meta name="author" content="Lzz">
-  <meta name="dcterms.date" content="2025-07-16">
+  <meta name="dcterms.date" content="2025-07-17">
   <title>R生存分析 – L5 AFT模型</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -248,24 +248,41 @@ z-index: 1000;">
 </div>
 </div>
 
-  <p class="date">2025-07-16</p>
+  <p class="date">2025-07-17</p>
 </section>
 <section id="大纲" class="slide level2">
 <h2>大纲</h2>
 <ul>
 <li><p>5.1 AFT模型简介</p></li>
-<li><p>5.2 Weibull生存曲线</p></li>
+<li><p>5.2 Weibull基线生存曲线</p></li>
 <li><p>5.3 Weibull模型的估计</p></li>
-<li><p>4.4 Cox模型的检验</p></li>
-<li><p>4.5 Cox模型的可视化</p></li>
-<li><p>4.6 Cox模型的扩展</p></li>
+<li><p>5.4 Weibull模型的预测</p></li>
 </ul>
 </section>
 <section id="aft模型" class="slide level2">
 <h2>5.1 AFT模型</h2>
-<p>AFT模型（Accelerated Failure Time Model）假设：<br>
-&gt; 协变量通过加速或减缓“时间流逝”的方式影响个体的生存时间。</p>
-<h3 id="aft模型基本思想">5.1 AFT模型：基本思想</h3>
+<h3 id="aft模型核心思想">5.1.1 AFT模型核心思想</h3>
+<p>加速失效时间模型（Accelerated Failure Time Model，简称AFT模型）是生存分析中的一种统计工具，用于研究某个事件发生所需的时间，例如患者存活时间或设备使用寿命。AFT模型假设外部因素（称为协变量，如治疗、年龄或环境）会“加速”或“减缓”事件发生的时间，类似于给时间轴按下“快进”或“慢放”键。</p>
+</section>
+<section class="slide level2">
+
+<h3 id="aft模型的优势">AFT模型的优势</h3>
+<p>AFT模型不依赖比例风险假设，而是假设协变量对生存时间的对数具有线性影响，直接建模生存时间的加速或减速效应。因此，AFT模型适用于风险比随时间变化的数据集。</p>
+<p>AFT模型是参数模型，允许用户指定生存时间的分布（如Weibull、指数、对数正态、对数逻辑等）。</p>
+<p>AFT模型通过完全似然（full likelihood）方法，利用生存时间的分布信息，结合删失数据的特性进行建模。在某些数据集（特别是删失比例不高或分布假设明确时），AFT模型可能提供更精确的参数估计。</p>
+</section>
+<section class="slide level2">
+
+<h3 id="应用场景">应用场景</h3>
+<p>医疗领域：如果研究某种治疗对患者生存时间的直接延长效果（如延长中位生存时间），AFT模型比CoxPH模型更适合，因为它直接建模生存时间。</p>
+<p>工程可靠性：在分析设备失效时间时，如果失效时间的分布已知（如Weibull分布），AFT模型可以通过明确分布假设提供更精确的预测。</p>
+<p>非比例风险数据：当数据中存在交互效应或时间依赖的协变量效应时（如某药物的效果随时间减弱），AFT模型比CoxPH模型更灵活。</p>
+<p>局限性与权衡 虽然AFT模型在上述场景中有优势，但它也有局限性：</p>
+<p>AFT模型需要指定生存时间的分布，如果分布假设错误，可能导致模型拟合不佳。 AFT模型的计算复杂度通常高于CoxPH模型，尤其在大数据集或复杂分布下。 CoxPH模型在处理高维协变量或不需要明确分布假设的场景中可能更稳健。</p>
+</section>
+<section class="slide level2">
+
+<h3 id="aft模型的设定">5.1.2 AFT模型的设定</h3>
 <p>数学形式为：</p>
 <p><span class="math display">\[
 \log(T) = \mu + X^\top \beta + \sigma \epsilon
@@ -273,7 +290,11 @@ z-index: 1000;">
 <ul>
 <li><span class="math display">\[ T \]</span>：生存时间</li>
 <li><span class="math display">\[ X \]</span>：协变量向量</li>
-<li><span class="math display">\[ \beta \]</span>：回归系数</li>
+<li><span class="math display">\[ \beta \]</span>：回归系数，<span class="math inline">\(\beta_j\)</span>代表<span class="math inline">\(\x_j\)</span>每增加一个单位，log(T)增加<span class="math inline">\(\beta_j\)</span>个单位
+<ul>
+<li>当 <span class="math display">\[ \beta_j &gt; 0 \]</span>：协变量 <span class="math display">\[ x_j \]</span> 延长生存时间</li>
+<li>当 <span class="math display">\[ \beta_j &lt; 0 \]</span>：协变量 <span class="math display">\[ x_j \]</span> 缩短生存时间</li>
+</ul></li>
 <li><span class="math display">\[ \epsilon \]</span>：随机误差项，服从某种分布（决定模型类型）</li>
 <li><span class="math display">\[ \mu \]</span>：截距项</li>
 <li><span class="math display">\[ \sigma \]</span>：尺度参数</li>
@@ -282,7 +303,7 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-<h3 id="aft模型-常见的分布类型">5.1 AFT模型： 常见的分布类型</h3>
+<h3 id="aft模型常见的分布类型">5.1.3 AFT模型：常见的分布类型</h3>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -293,14 +314,14 @@ z-index: 1000;">
 </thead>
 <tbody>
 <tr class="odd">
-<td>Exponential</td>
-<td>Gumbel (固定 scale)</td>
-<td>指数分布</td>
-</tr>
-<tr class="even">
 <td>Weibull</td>
 <td>Extreme value (EV)</td>
 <td>Weibull分布</td>
+</tr>
+<tr class="even">
+<td>Exponential</td>
+<td>Gumbel (固定 scale)</td>
+<td>指数分布</td>
 </tr>
 <tr class="odd">
 <td>Log-normal</td>
@@ -315,7 +336,10 @@ z-index: 1000;">
 </tbody>
 </table>
 <p>你可以使用 <code>survreg()</code> 拟合这些模型。</p>
-<h3 id="aft模型-与cox比例风险模型的比较">5.1 AFT模型： 与Cox比例风险模型的比较</h3>
+</section>
+<section class="slide level2">
+
+<h3 id="aft模型-与cox比例风险模型的比较">5.1.4 AFT模型： 与Cox比例风险模型的比较</h3>
 <table class="caption-top">
 <colgroup>
 <col style="width: 19%">
@@ -358,8 +382,8 @@ z-index: 1000;">
 </tbody>
 </table>
 </section>
-<section id="r语法结构aft模型" class="slide level2">
-<h2>5.1 R语法结构：AFT模型</h2>
+<section id="aft模型语法结构" class="slide level2">
+<h2>5.2 AFT模型语法结构</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">library</span>(survival)</span>
 <span id="cb1-2"><a></a>fit_aft <span class="ot">&lt;-</span> <span class="fu">survreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> lung, <span class="at">dist =</span> <span class="st">"weibull"</span>)</span>
 <span id="cb1-3"><a></a><span class="fu">summary</span>(fit_aft)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -367,20 +391,8 @@ z-index: 1000;">
 <li><code>dist</code> 参数指定分布类型：<code>"weibull"</code>, <code>"lognormal"</code>, <code>"loglogistic"</code> 等。</li>
 </ul>
 </section>
-<section id="weibull模型" class="slide level2">
-<h2>5.2 Weibull模型</h2>
-<ul>
-<li>当 <span class="math display">\[ \beta_j &gt; 0 \]</span>：协变量 <span class="math display">\[ x_j \]</span> 延长生存时间</li>
-<li>当 <span class="math display">\[ \beta_j &lt; 0 \]</span>：协变量 <span class="math display">\[ x_j \]</span> 缩短生存时间</li>
-</ul>
-<p>AFT模型回答的问题： &gt; “某治疗是否能延长生存时间？”</p>
-<blockquote>
-<p>“某风险因素是否让病人更快死亡？”</p>
-</blockquote>
-</section>
-<section class="slide level2">
-
-<h3 id="平滑生存曲线">5.2 平滑生存曲线</h3>
+<section id="应用举例-weibull模型" class="slide level2">
+<h2>5.3 应用举例: Weibull模型</h2>
 <p>虽然 Kaplan-Meier 方法功能强大，使用广泛，但它主要用于<strong>描述性分析</strong>。</p>
 <p>🟧 局限性：</p>
 <ul>
@@ -396,189 +408,354 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-<h3 id="r代码-拟合-weibull-模型及绘制平滑生存曲线">5.2 R代码： 拟合 Weibull 模型及绘制平滑生存曲线</h3>
-<p>使用 <code>survreg()</code> 函数（来自 <code>survival</code> 包）即可拟合 Weibull 模型：</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">survreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">dist =</span> <span class="st">"weibull"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section class="slide level2">
-
-<h3 id="计算-weibull-模型的生存曲线回归模型">5.2 计算 Weibull 模型的生存曲线（回归模型）</h3>
-<p>🎯 关键函数：<code>survreg()</code><br>
-Weibull 模型由 <code>survreg()</code> 函数拟合，其语法与 <code>survfit()</code> 相似：</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">survreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">dist =</span> <span class="st">"weibull"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>📌 注意：</p>
-<p>survfit() 是 Kaplan-Meier 的非参数估计方法；</p>
-<p>survreg() 是 AFT 框架下的参数回归方法，要求指定分布（如 “weibull”）；</p>
-<p>“fit” 用于描述性分析；“reg” 用于推论和建模。</p>
-</section>
-<section class="slide level2">
-
-<h3 id="从-weibull-模型中计算生存时间指标">5.2 从 Weibull 模型中计算生存时间指标</h3>
-<p>我们通常希望从拟合的模型中得到某些关键的生存时间点。例如，计算 90% 患者仍然生存时所对应的时间。</p>
-<blockquote>
-<p>预测 90% 的患者仍存活的时间</p>
-</blockquote>
-<p>predict(model, type = “quantile”, p = 1 - 0.9) type = “quantile”：要求返回分位数；</p>
-<p>p = 1 - 0.9 = 0.1 表示死亡概率为 10%，即生存概率为 90%；</p>
-<p>返回值即为生存概率为 90% 时的时间点。</p>
-<p>此时模型输出的时间约为 384 天，表示 90% 的患者在 384 天之前仍存活。</p>
-<p>注意：若模型中有协变量，则可通过 newdata = 指定不同个体，得出个性化预测。</p>
-</section>
-<section class="slide level2">
-
-<h3 id="绘制-weibull-模型预测的生存曲线">5.2 绘制 Weibull 模型预测的生存曲线</h3>
-<p>为了获得一条平滑的生存曲线，我们可以预测多个分位数，并计算其对应的生存概率。</p>
-<blockquote>
-<p>构造一组分位数（从 99% 到 1%）</p>
-</blockquote>
-<p>p_seq &lt;- seq(0.99, 0.01, by = -0.01)</p>
-<blockquote>
-<p>利用模型预测这些分位数对应的时间点</p>
-</blockquote>
-<p>t_pred &lt;- predict(model, type = “quantile”, p = p_seq)</p>
-<blockquote>
-<p>构建用于可视化的生存数据框</p>
-</blockquote>
-<p>surv_plot_data &lt;- data.frame( time = t_pred, surv = 1 - p_seq # 分位数转换为生存概率 S(t) )</p>
-<p>这个数据框 surv_plot_data 包含一系列 (time, S(t)) 点，可用于 ggplot2 绘制平滑生存曲线。</p>
-<p>绘图示例（将在下一讲中详解）：</p>
-<p>library(ggplot2)</p>
-<p>ggplot(surv_plot_data, aes(x = time, y = surv)) + geom_line(size = 1.2) + labs(title = “Weibull 模型预测的生存曲线”, x = “时间（天）”, y = “生存概率 S(t)”) + theme_minimal()</p>
-</section>
-<section id="总结" class="slide level2">
-<h2>## 📌 总结</h2>
-<h3 id="显示代码不运行代码">显示代码不运行代码</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="co"># 安装单个包</span></span>
-<span id="cb4-2"><a></a><span class="fu">install.packages</span>(<span class="st">"survival"</span>)</span>
-<span id="cb4-3"><a></a><span class="fu">install.packages</span>(<span class="st">"survminer"</span>)</span>
-<span id="cb4-4"><a></a><span class="fu">install.packages</span>(<span class="st">"flexsurv"</span>)</span>
-<span id="cb4-5"><a></a><span class="fu">install.packages</span>(<span class="st">"cmprsk"</span>)</span>
-<span id="cb4-6"><a></a></span>
-<span id="cb4-7"><a></a><span class="co"># 一次性安装全部</span></span>
-<span id="cb4-8"><a></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"survival"</span>, <span class="st">"survminer"</span>, <span class="st">"flexsurv"</span>, <span class="st">"cmprsk"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="cox模型建模前对数据的检查" class="slide level2">
-<h2>4.2 Cox模型建模前对数据的检查</h2>
+<h3 id="绘制weibull基线生存曲线">5.3.1 绘制Weibull基线生存曲线</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">library</span>(survival)</span>
-<span id="cb5-2"><a></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb5-3"><a></a></span>
-<span id="cb5-4"><a></a><span class="fu">data</span>(lung, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb5-5"><a></a></span>
-<span id="cb5-6"><a></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
-<span id="cb5-7"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-8"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb5-9"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
-<span id="cb5-10"><a></a>  )</span>
-<span id="cb5-11"><a></a></span>
-<span id="cb5-12"><a></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"female"</span>, <span class="st">"age"</span>, <span class="st">"wt.loss"</span>, <span class="st">"meal.cal"</span>, <span class="st">"ph.ecog"</span>, <span class="st">"ph.karno"</span>, <span class="st">"pat.karno"</span>)</span>
-<span id="cb5-13"><a></a></span>
-<span id="cb5-14"><a></a><span class="co"># 样本总数、事件数、删失数</span></span>
-<span id="cb5-15"><a></a><span class="fu">table</span>(lung<span class="sc">$</span>status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">library</span>(TH.data)</span>
+<span id="cb2-2"><a></a><span class="fu">data</span>(<span class="st">"GBSG2"</span>)</span>
+<span id="cb2-3"><a></a></span>
+<span id="cb2-4"><a></a><span class="co"># 拟合Weibull分布生存模型（无协变量）</span></span>
+<span id="cb2-5"><a></a>wb <span class="ot">&lt;-</span> <span class="fu">survreg</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> GBSG2)</span>
+<span id="cb2-6"><a></a></span>
+<span id="cb2-7"><a></a><span class="co"># 设置一系列生存概率</span></span>
+<span id="cb2-8"><a></a>surv <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.99</span>, <span class="fl">0.01</span>, <span class="at">by =</span> <span class="sc">-</span><span class="fl">0.01</span>)</span>
+<span id="cb2-9"><a></a></span>
+<span id="cb2-10"><a></a><span class="co"># 计算每个生存概率对应的生存时间</span></span>
+<span id="cb2-11"><a></a>t <span class="ot">&lt;-</span> <span class="fu">predict</span>(wb, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="dv">1</span><span class="sc">-</span>surv, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="dv">1</span>))</span>
+<span id="cb2-12"><a></a></span>
+<span id="cb2-13"><a></a><span class="co"># 整理结果为数据框</span></span>
+<span id="cb2-14"><a></a>surv_wb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">time =</span> t, <span class="at">surv =</span> surv)</span>
+<span id="cb2-15"><a></a></span>
+<span id="cb2-16"><a></a><span class="co"># 查看前几行结果</span></span>
+<span id="cb2-17"><a></a><span class="fu">head</span>(surv_wb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      time surv
+1  60.6560 0.99
+2 105.0392 0.98
+3 145.0723 0.97
+4 182.6430 0.96
+5 218.5715 0.95
+6 253.3125 0.94</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="co"># 为可视化准备（添加上下界和标准误占位列，便于ggsurvplot_df绘图）</span></span>
+<span id="cb4-2"><a></a>surv_wb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">time =</span> t, <span class="at">surv =</span> surv, </span>
+<span id="cb4-3"><a></a>                      <span class="at">upper =</span> <span class="cn">NA</span>, <span class="at">lower =</span> <span class="cn">NA</span>, <span class="at">std.err =</span> <span class="cn">NA</span>)</span>
+<span id="cb4-4"><a></a></span>
+<span id="cb4-5"><a></a><span class="fu">library</span>(survminer)</span>
+<span id="cb4-6"><a></a><span class="co"># 绘制基线生存曲线</span></span>
+<span id="cb4-7"><a></a><span class="fu">ggsurvplot_df</span>(<span class="at">fit =</span> surv_wb, <span class="at">surv.geom =</span> geom_line)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L5slide_files/figure-revealjs/unnamed-chunk-2-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="估计weibull-模型">5.3.2 估计Weibull 模型</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>wbmod <span class="ot">&lt;-</span> <span class="fu">survreg</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> horTh <span class="sc">+</span> tsize, <span class="at">data =</span> GBSG2)</span>
+<span id="cb5-2"><a></a></span>
+<span id="cb5-3"><a></a><span class="fu">summary</span>(wbmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-  0   1 
- 63 165 </code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># 缺失值统计</span></span>
-<span id="cb7-2"><a></a><span class="fu">sapply</span>(lung[, vars], \(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>   female       age   wt.loss  meal.cal   ph.ecog  ph.karno pat.karno 
-        0         0        14        47         1         1         3 </code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="co"># Event per Variable </span></span>
-<span id="cb9-2"><a></a>event_n <span class="ot">&lt;-</span> <span class="fu">sum</span>(lung<span class="sc">$</span>status <span class="sc">==</span> <span class="dv">1</span>)</span>
-<span id="cb9-3"><a></a>epv <span class="ot">&lt;-</span> event_n <span class="sc">/</span> <span class="fu">length</span>(vars)</span>
-<span id="cb9-4"><a></a>epv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 23.57143</code></pre>
-</div>
-</div>
-</section>
-<section id="cox模型建模前对数据的检查-1" class="slide level2">
-<h2>4.2 Cox模型建模前对数据的检查</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">library</span>(survival)</span>
-<span id="cb11-2"><a></a></span>
-<span id="cb11-3"><a></a><span class="co"># lung: status = 1 or 2, 对status重新编码：status: 0 = censored, 1 = dead</span></span>
-<span id="cb11-4"><a></a><span class="co"># lung: sex = 1 or 2, 创建female</span></span>
-<span id="cb11-5"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb11-6"><a></a></span>
-<span id="cb11-7"><a></a>lung <span class="ot">&lt;-</span> </span>
-<span id="cb11-8"><a></a>  lung <span class="sc">%&gt;%</span> </span>
-<span id="cb11-9"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb11-10"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb11-11"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="cox模型的估计" class="slide level2">
-<h2>4.3 Cox模型的估计</h2>
-<ul>
-<li><p>语法结构</p></li>
-<li><p>R代码</p></li>
-<li><p>系数解释</p></li>
-<li><p>表格化输出</p></li>
-<li><p>导出到 Word文档</p></li>
-</ul>
-</section>
-<section id="cox模型的估计-语法结构" class="slide level2">
-<h2>4.3 Cox模型的估计: 语法结构</h2>
-<p>R语言中，Cox比例风险模型的核心函数是 <code>survival::coxph()</code>，它用于拟合 Cox 模型。</p>
-<ul>
-<li><p><code>coxph(Surv(time, status) ~ covariates, data = dataset)</code></p></li>
-<li><p><code>Surv(time, status)</code> 创建生存对象，包含生存时间和生存状态。</p></li>
-<li><p><code>covariates</code> 是一个或多个解释变量，可以是连续型或分类型。</p></li>
-</ul>
-</section>
-<section id="cox模型的估计-系数解读" class="slide level2">
-<h2>4.3 Cox模型的估计: 系数解读</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">data</span>(cancer, <span class="at">package =</span> <span class="st">"survival"</span>)</span>
-<span id="cb12-2"><a></a></span>
-<span id="cb12-3"><a></a>lung <span class="ot">&lt;-</span> </span>
-<span id="cb12-4"><a></a>  lung <span class="sc">%&gt;%</span> </span>
-<span id="cb12-5"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb12-6"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>),</span>
-<span id="cb12-7"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>))</span>
-<span id="cb12-8"><a></a></span>
-<span id="cb12-9"><a></a><span class="fu">coxph</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female <span class="sc">+</span> age <span class="sc">+</span> wt.loss, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Call:
-coxph(formula = Surv(time, status) ~ female + age + wt.loss, 
-    data = lung)
+Call:
+survreg(formula = Surv(time, cens) ~ horTh + tsize, data = GBSG2)
+               Value Std. Error     z       p
+(Intercept)  7.96070    0.10413 76.45 &lt; 2e-16
+horThyes     0.31176    0.09602  3.25  0.0012
+tsize       -0.01218    0.00272 -4.47 7.8e-06
+Log(scale)  -0.26494    0.04952 -5.35 8.8e-08
 
-              coef  exp(coef)   se(coef)      z      p
-female  -0.5210319  0.5939074  0.1743541 -2.988 0.0028
-age      0.0200882  1.0202913  0.0096644  2.079 0.0377
-wt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024
+Scale= 0.767 
 
-Likelihood ratio test=14.67  on 3 df, p=0.002122
-n= 214, number of events= 152 
-   (14 observations deleted due to missingness)</code></pre>
+Weibull distribution
+Loglik(model)= -2623.2   Loglik(intercept only)= -2637.3
+    Chisq= 28.17 on 2 degrees of freedom, p= 7.6e-07 
+Number of Newton-Raphson Iterations: 5 
+n= 686 </code></pre>
 </div>
-</div>
-<div class="smaller-text">
-<p>在控制其他变量后：</p>
-<p>女性比男性的死亡风险降低了约 41%. <span class="math inline">\(\left( \exp(-0.521) - 1 \right) \times 100\% = (0.594 - 1) \times 100\% \approx -41\%\)</span>。</p>
-<p>年龄每增加1岁, 死亡风险增加2%. <span class="math inline">\(\left( \exp(0.020) - 1 \right) \times 100\% = (1.020 - 1) \times 100\% \approx 2\%\)</span>。</p>
 </div>
 </section>
 <section class="slide level2">
 
+<h4 id="weibull模型估计结果解读">Weibull模型估计结果解读</h4>
+<p><span class="math display">\[
+\log(T) = 7.96070 + 0.31176 \times \mathrm{horTh(yes)} - 0.01218 \times \mathrm{tsize} + 0.767 \epsilon
+\]</span></p>
+<p>其中 <span class="math inline">\(T\)</span> 为生存时间，<span class="math inline">\(W\)</span> 服从标准极值型（Gumbel）分布。</p>
+<p>激素治疗（horThyes）：</p>
+<p>系数 $ _1 = 0.31176 $，加速因子为 $ e^{-_1} = e^{-0.31176} $。 含义：接受激素治疗（horThyes=1）使生存时间延长至未接受治疗（horThyes=0）的 $ e^{0.31176} $ 倍（即延长约36.6%）。</p>
+<p>肿瘤大小（tsize）：</p>
+<p>系数 $ _2 = -0.01218 $，加速因子为 $ e^{-_2} = e^{0.01218} $。 含义：肿瘤大小每增加 1 毫米，生存时间缩短至原来的 $ e^{-0.01218} $ 倍（即缩短约1.2%）。</p>
+<p>Scale=0.767：Weibull分布的形状参数，&lt;1时说明风险随时间增加。</p>
+<p>Weibull分布的形状参数shape = 1/scale scale &lt; 1, shape &gt; 1，风险随时间递增 scale &gt; 1, shape &lt; 1，风险随时间递减</p>
+</section>
+<section class="slide level2">
+
+<h3 id="从-weibull-模型中计算生存时间指标">5.3.3 从 Weibull 模型中计算生存时间指标</h3>
+<h4 id="计算中位生存时间p0.5">计算中位生存时间（p=0.5）</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># 计算tsize的中位数</span></span>
+<span id="cb7-2"><a></a>med_tsize <span class="ot">&lt;-</span> <span class="fu">median</span>(GBSG2<span class="sc">$</span>tsize, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-3"><a></a></span>
+<span id="cb7-4"><a></a><span class="co"># 取激素治疗变量的常见取值，例如 "yes" 或 "no"</span></span>
+<span id="cb7-5"><a></a><span class="co"># 如果你想只看一组（如“yes”），可以写成：</span></span>
+<span id="cb7-6"><a></a>your_newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">horTh =</span> <span class="st">"yes"</span>, <span class="at">tsize =</span> med_tsize)</span>
+<span id="cb7-7"><a></a></span>
+<span id="cb7-8"><a></a><span class="co"># 如果想看两组（激素治疗和未治疗）都展示：</span></span>
+<span id="cb7-9"><a></a>your_newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-10"><a></a>  <span class="at">horTh =</span> <span class="fu">levels</span>(GBSG2<span class="sc">$</span>horTh),</span>
+<span id="cb7-11"><a></a>  <span class="at">tsize =</span> med_tsize</span>
+<span id="cb7-12"><a></a>)</span>
+<span id="cb7-13"><a></a></span>
+<span id="cb7-14"><a></a>your_newdata</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  horTh tsize
+1    no    25
+2   yes    25</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="co"># 计算中位生存时间（p=0.5）</span></span>
+<span id="cb9-2"><a></a><span class="fu">predict</span>(wbmod, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">newdata =</span> your_newdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1        2 
+1595.547 2179.232 </code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="计算分位生存时间">计算分位生存时间</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="co">#第25、50、75百分位生存时间</span></span>
+<span id="cb11-2"><a></a></span>
+<span id="cb11-3"><a></a>probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>)</span>
+<span id="cb11-4"><a></a><span class="fu">predict</span>(wbmod, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> probs, <span class="at">newdata =</span> your_newdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>         [,1]     [,2]     [,3]
+[1,]  812.618 1595.547 2715.660
+[2,] 1109.891 2179.232 3709.106</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="计算特定生存概率下的生存时间">计算特定生存概率下的生存时间</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="fu">predict</span>(wbmod, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fl">0.8</span>, <span class="at">newdata =</span> your_newdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1        2 
+3045.143 4159.121 </code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="绘制不同组别的生存曲线">5.3.4 绘制不同组别的生存曲线</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="co"># 构造不同激素治疗和肿瘤大小组合的虚拟患者数据</span></span>
+<span id="cb15-2"><a></a>newdat <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb15-3"><a></a>  <span class="at">horTh =</span> <span class="fu">levels</span>(GBSG2<span class="sc">$</span>horTh),</span>
+<span id="cb15-4"><a></a>  <span class="at">tsize =</span> <span class="fu">quantile</span>(GBSG2<span class="sc">$</span>tsize, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>)))</span>
+<span id="cb15-5"><a></a>newdat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  horTh tsize
+1    no    20
+2   yes    20
+3    no    25
+4   yes    25
+5    no    35
+6   yes    35</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a><span class="co"># 生成一组生存概率序列</span></span>
+<span id="cb17-2"><a></a>surv <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.99</span>, <span class="fl">0.01</span>, <span class="at">by =</span> <span class="sc">-</span><span class="fl">0.01</span>)</span>
+<span id="cb17-3"><a></a></span>
+<span id="cb17-4"><a></a><span class="co"># 计算每组组合下的生存时间分位数</span></span>
+<span id="cb17-5"><a></a>t <span class="ot">&lt;-</span> <span class="fu">predict</span>(wbmod, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="dv">1</span> <span class="sc">-</span> surv,</span>
+<span id="cb17-6"><a></a>             <span class="at">newdata =</span> newdat)</span>
+<span id="cb17-7"><a></a></span>
+<span id="cb17-8"><a></a><span class="co"># 查看t的行列数（组合数 × 生存概率数）</span></span>
+<span id="cb17-9"><a></a><span class="fu">dim</span>(t)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  6 99</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="co"># 合并虚拟患者信息和生存时间</span></span>
+<span id="cb19-2"><a></a>surv_wbmod_wide <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdat, t)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="co"># 转换为长格式，便于绘图</span></span>
+<span id="cb20-2"><a></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb20-3"><a></a>surv_wbmod <span class="ot">&lt;-</span> <span class="fu">melt</span>(surv_wbmod_wide, <span class="at">id.vars =</span> <span class="fu">c</span>(<span class="st">"horTh"</span>, <span class="st">"tsize"</span>), </span>
+<span id="cb20-4"><a></a>                   <span class="at">variable.name =</span> <span class="st">"surv_id"</span>, <span class="at">value.name =</span> <span class="st">"time"</span>)</span>
+<span id="cb20-5"><a></a></span>
+<span id="cb20-6"><a></a><span class="co"># 根据surv_id添加对应的生存概率</span></span>
+<span id="cb20-7"><a></a>surv_wbmod<span class="sc">$</span>surv <span class="ot">&lt;-</span> surv[<span class="fu">as.numeric</span>(surv_wbmod<span class="sc">$</span>surv_id)]</span>
+<span id="cb20-8"><a></a></span>
+<span id="cb20-9"><a></a><span class="co"># 增加绘图所需的占位列</span></span>
+<span id="cb20-10"><a></a>surv_wbmod[, <span class="fu">c</span>(<span class="st">"upper"</span>, <span class="st">"lower"</span>, <span class="st">"std.err"</span>, <span class="st">"strata"</span>)] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb20-11"><a></a></span>
+<span id="cb20-12"><a></a><span class="co"># 查看数据结构</span></span>
+<span id="cb20-13"><a></a><span class="fu">str</span>(surv_wbmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   594 obs. of  9 variables:
+ $ horTh  : Factor w/ 2 levels "no","yes": 1 2 1 2 1 2 1 2 1 2 ...
+ $ tsize  : num  20 20 25 25 35 35 20 20 25 25 ...
+ $ surv_id: Factor w/ 99 levels "1","2","3","4",..: 1 1 1 1 1 1 2 2 2 2 ...
+ $ time   : num  65.9 90 62 84.6 54.9 ...
+ $ surv   : num  0.99 0.99 0.99 0.99 0.99 0.99 0.98 0.98 0.98 0.98 ...
+ $ upper  : logi  NA NA NA NA NA NA ...
+ $ lower  : logi  NA NA NA NA NA NA ...
+ $ std.err: logi  NA NA NA NA NA NA ...
+ $ strata : logi  NA NA NA NA NA NA ...</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="co"># 绘制不同激素治疗和肿瘤大小下的Weibull生存曲线</span></span>
+<span id="cb22-2"><a></a><span class="fu">ggsurvplot_df</span>(surv_wbmod, <span class="at">surv.geom =</span> geom_line,</span>
+<span id="cb22-3"><a></a>              <span class="at">linetype =</span> <span class="st">"horTh"</span>, <span class="at">color =</span> <span class="st">"tsize"</span>, </span>
+<span id="cb22-4"><a></a>              <span class="at">legend.title =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L5slide_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
+<section id="其他aft模型" class="slide level2">
+<h2>5.4 其他AFT模型</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="co"># 指数模型（Exponential）</span></span>
+<span id="cb23-2"><a></a>fit_exp <span class="ot">&lt;-</span> <span class="fu">survreg</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> horTh <span class="sc">+</span> tsize, <span class="at">data =</span> GBSG2, <span class="at">dist =</span> <span class="st">"exponential"</span>)</span>
+<span id="cb23-3"><a></a><span class="fu">summary</span>(fit_exp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+survreg(formula = Surv(time, cens) ~ horTh + tsize, data = GBSG2, 
+    dist = "exponential")
+               Value Std. Error     z       p
+(Intercept)  8.16414    0.13052 62.55 &lt; 2e-16
+horThyes     0.36130    0.12461  2.90  0.0037
+tsize       -0.01468    0.00354 -4.15 3.4e-05
+
+Scale fixed at 1 
+
+Exponential distribution
+Loglik(model)= -2636   Loglik(intercept only)= -2647.8
+    Chisq= 23.66 on 2 degrees of freedom, p= 7.3e-06 
+Number of Newton-Raphson Iterations: 4 
+n= 686 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="co"># 对数正态模型（Lognormal）</span></span>
+<span id="cb25-2"><a></a>fit_lnorm <span class="ot">&lt;-</span> <span class="fu">survreg</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> horTh <span class="sc">+</span> tsize, <span class="at">data =</span> GBSG2, <span class="at">dist =</span> <span class="st">"lognormal"</span>)</span>
+<span id="cb25-3"><a></a><span class="fu">summary</span>(fit_lnorm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+survreg(formula = Surv(time, cens) ~ horTh + tsize, data = GBSG2, 
+    dist = "lognormal")
+               Value Std. Error     z       p
+(Intercept)  7.70632    0.11862 64.97 &lt; 2e-16
+horThyes     0.31527    0.10144  3.11  0.0019
+tsize       -0.01370    0.00324 -4.23 2.3e-05
+Log(scale)   0.07697    0.04472  1.72  0.0852
+
+Scale= 1.08 
+
+Log Normal distribution
+Loglik(model)= -2605.2   Loglik(intercept only)= -2618.9
+    Chisq= 27.34 on 2 degrees of freedom, p= 1.2e-06 
+Number of Newton-Raphson Iterations: 3 
+n= 686 </code></pre>
+</div>
+</div>
+</section>
+<section id="如何选择" class="slide level2">
+<h2>如何选择？</h2>
+<p>Exponential（指数模型）</p>
+<p>假设风险率（hazard）是恒定的，即事件发生的速率不随时间变化。适合于“记忆无关”的寿命过程，如某些电子零件的寿命。</p>
+<p>Weibull（韦布尔模型）</p>
+<p>适合于大多数工程、医学寿命数据。</p>
+<p>Lognormal（对数正态模型） 事件发生时间的对数服从正态分布。 当生存时间分布右偏、风险率呈现先增后减（非单调）时适用。适合于某些生物学和社会学过程。</p>
+<table class="caption-top" style="width:6%;">
+<colgroup>
+<col style="width: 5%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>检查 $ (T) $ 的分布：</td>
+</tr>
+<tr class="even">
+<td>指数分布：$ (T) $ 偏斜，符合极值分布。 Weibull 分布：$ (T) $ 符合极值分布，形状由 $ k = 1/$ 决定。 对数正态分布：$ (T) $ 近似正态分布（对称、钟形）。</td>
+</tr>
+</tbody>
+</table>
+<p>拟合三种分布，比较 AIC 或 BIC，选择值最低的模型。</p>
+</section>
+<section class="slide level2">
+
+<p>Weibull 分布</p>
+<p>风险函数：灵活，可单调递增（$ k &gt; 1 <span class="math inline">\(）、恒定（\)</span> k = 1 <span class="math inline">\(，等价于指数分布）或递减（\)</span> k &lt; 1 $），其中 $ k = 1/$ 是形状参数。 数学形式：$ (T) = _0 + _1 X_1 + + _p X_p + $，其中 $ $。 适用场景：风险随时间单调变化，例如老化系统（风险随时间增加）或早期失效较多的系统（风险随时间减少）。 特点：比指数分布更灵活，可通过形状参数 $ k $ 适应多种风险模式。</p>
+</section>
+<section class="slide level2">
+
+<p>指数分布 (Exponential)</p>
+<p>风险函数：恒定风险（hazard rate），即 $ h(t) = $，事件发生概率不随时间变化。</p>
+<p>数学形式：在 AFT 框架下， $ (T) = _0 + _1 X_1 + + _p X_p + $，其中 $ $，尺度参数 $ = 1 $</p>
+<p>适用场景：事件发生率随时间保持稳定，例如某些机械系统的随机故障，或某些短期随访研究中事件发生概率不随时间变化的情况</p>
+<p>特点：最简单的分布，假设“无记忆性”（memoryless property），即过去的时间不影响未来事件概率。</p>
+</section>
+<section class="slide level2">
+
+<p>对数正态分布 (Lognormal)</p>
+<p>风险函数：非单调，通常先上升后下降（类似倒 U 形）。 数学形式：$ (T) N(, ^2) $，其中 $ = _0 + _1 X_1 + + _p X_p $，误差项 $ N(0, ^2) $。 适用场景：生存时间呈现偏态分布，事件风险在某一时间段内较高后逐渐下降，例如某些疾病的复发风险或生物学过程（如细胞分裂时间）。 特点：适合生存时间对数呈正态分布的数据，模型结果易于解释为时间的中位数变化。</p>
+</section>
+<section class="slide level2">
+
+<p>模型拟合与比较 方法：分别拟合 Exponential、Lognormal 和 Weibull 模型，比较模型拟合优度： 使用 AIC（赤池信息准则） 或 BIC（贝叶斯信息准则）：值越小的模型拟合更优。</p>
+<p>选择AIC最低的模型，若差异不大，再结合理论和解释性选择。</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>            df      AIC
+fit_weibull  4 5254.381
+fit_exp      3 5277.940
+fit_lnorm    4 5218.431</code></pre>
+</div>
+</div>
 
 
 </section>

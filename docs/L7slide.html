@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-html/tabby.min.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.42">
+
+  <meta name="author" content="Lzz">
+  <meta name="dcterms.date" content="2025-07-17">
+  <title>R生存分析 – L7 随机生存森林</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="site_libs/revealjs/dist/theme/quarto-0c22b6e252e162282a19289aa8a4686d.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href="site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <script>
+    document.querySelectorAll('a').forEach(function(link) {
+      link.setAttribute('target', '_blank');
+    });
+  </script>
+</head>
+<body class="quarto-light">
+<div style="
+  position: fixed;
+  bottom: 50px;
+  right: 20px;
+  z-index: 1000;
+">
+  <a href="https://lizongzhang.github.io/survival" style="
+       display: inline-block;
+       padding: 10px 20px;  /* 增加内边距，按钮更大 */
+       background-color: #007ACC;
+       color: white;
+       text-decoration: none;
+       border-radius: 8px;  /* 圆角稍微增大 */
+       font-size: 18px;  /* 增加字体大小 */
+       font-family: Arial, sans-serif;
+       box-shadow: 0 4px 8px rgba(0,0,0,0.2);  /* 增大阴影 */
+     ">
+    🏠 Home
+  </a>
+</div>
+
+
+
+<!-- header.html -->
+<div style="
+position: absolute; 
+top: 20px; 
+right: 20px; 
+z-index: 1000;">
+  <img src="img/yikahui_logo.png" style="
+  width: 200px; 
+  height: auto;" alt="logo
+  ">
+</div>
+
+<!-- 加载楷体风格字体 Noto Serif SC（中国镜像） -->
+<link href="https://fonts.googleapis.cn/css2?family=Noto+Serif+SC:wght@500&amp;display=swap" rel="stylesheet">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" data-background-image="img/yikahui_qcr.png" data-background-position="center bottom 200px" data-background-size="100px" class="quarto-title-block center">
+  <h1 class="title">L7 随机生存森林</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+<a href="https://space.bilibili.com/590872906/">Lzz</a> 
+</div>
+</div>
+</div>
+
+  <p class="date">2025-07-17</p>
+</section>
+<section id="大纲" class="slide level2">
+<h2>大纲</h2>
+<ul>
+<li><p>7.1 Cox模型简介</p></li>
+<li><p>7.2 Cox模型的数据结构</p></li>
+<li><p>7.3 Cox模型的估计</p></li>
+<li><p>7.4 Cox模型的检验</p></li>
+</ul>
+</section>
+<section id="随机生存森林-rsf-简介" class="slide level2">
+<h2>7.1 随机生存森林 (RSF) 简介</h2>
+<p>随机生存森林 (Random Survival Forest) 是随机森林 (Random Forest) 在生存分析中的扩展，结合了决策树和集成学习的思想，适用于处理生存时间数据。</p>
+<p>传统生存分析方法（如 Cox 模型、AFT 模型和竞争风险模型）在许多场景下表现良好，但对数据分布或比例风险假设有一定限制。机器学习方法通过构建非参数模型，适应非线性关系、高维数据和交互效应，扩展了生存分析的应用。</p>
+<p>RSF 是一种基于随机森林的扩展，结合多棵生存树预测生存时间或风险。每个树基于随机样本和特征子集构建，输出累积风险函数（CHF）或生存概率。</p>
+<p>优点：</p>
+<p>无需假设比例风险或特定分布。</p>
+<p>处理高维数据和非线性关系。</p>
+<p>提供变量重要性分析和可视化。</p>
+<p>R 实现：使用 randomForestSRC包，代码简洁，可视化工具丰富（如生存曲线、风险分布）。 适合人群：初学者，易于理解和调试。</p>
+</section>
+<section class="slide level2">
+
+<h3 id="核心建模思想">核心建模思想</h3>
+<p>基于生存树的集成：RSF 通过构建多棵生存决策树（Survival Tree），每棵树基于随机采样的数据子集和特征子集训练。生存树不同于传统分类树，它的目标是预测生存时间或累积风险函数 (Cumulative Hazard Function, CHF)，而不是简单的分类或回归。</p>
+<p>Bootstrap 采样与随机特征选择：使用 Bootstrap 方法从原始数据中随机抽样（有放回），并在每次分裂节点时随机选择特征子集（控制参数 mtry），增加模型的多样性和鲁棒性。</p>
+<p>预测输出：每个树输出个体的生存概率或风险分数，RSF 通过所有树的平均或加权组合生成最终预测。输出包括生存函数 $ S(t) $ 或累积风险 $ H(t) $。</p>
+<p>袋外数据 (Out-of-Bag, OOB)：未被抽样到的数据用于验证模型，计算 OOB 误差，评估预测性能。</p>
+<p>RSF 的建模过程避免了强分布假设（如指数或 Weibull 分布），通过非参数方式适应复杂数据模式。</p>
+</section>
+<section class="slide level2">
+
+<h3 id="rsf-在生存分析中的优势">RSF 在生存分析中的优势：</h3>
+<p>无强假设：不要求比例风险假设（Cox 模型）或特定时间分布（AFT 模型），适合非线性关系和复杂交互效应。</p>
+<p>鲁棒性：通过随机性和集成学习，RSF 对异常值、缺失值和噪声数据具有较强容忍度。</p>
+<p>变量选择与重要性：自动评估变量重要性（Variable Importance, VIMP），帮助识别关键预测因子，无需手动筛选。</p>
+<p>高维数据处理：适合包含大量协变量的数据集，自动处理特征冗余。</p>
+<p>丰富的可视化：提供生存曲线、风险分布、部分依赖图等，直观展示结果。</p>
+<p>灵活性：通过调整参数（如 ntree, mtry, nodesize），可平衡偏差和方差。</p>
+</section>
+<section class="slide level2">
+
+<h4 id="局限性">局限性</h4>
+<p>计算复杂度：随着树的数量 (ntree) 和数据规模增加，计算成本较高，适合中型数据集，不如线性模型高效。</p>
+<p>解释性有限：相比 Cox 模型的系数解释，RSF 的输出（如风险分数或生存概率）更难直观解读，尤其是交互效应的贡献。</p>
+<p>超参数敏感：参数 mtry, nodesize, 和 ntree 需要调优，设置不当可能导致过拟合或欠拟合。</p>
+<p>数据稀疏性问题：在事件发生稀少或时间点分布不均的数据中，RSF 的性能可能下降，树的分裂效率降低。</p>
+<p>非参数性质：缺乏概率分布假设，可能无法提供统计推断（如置信区间），更适合预测而非因果分析。</p>
+</section>
+<section class="slide level2">
+
+<h4 id="适用场景">适用场景</h4>
+<p>RSF 适用于以下场景：</p>
+<p>复杂非线性关系：当协变量与生存时间存在非线性或高阶交互效应时（如基因数据或影像特征）。</p>
+<p>高维数据：当变量数量远超样本量（如基因组学研究），RSF 可自动降维。</p>
+<p>异质性数据：当患者群体异质性高，传统模型（如 Cox）假设不成立时。</p>
+<p>探索性分析：用于发现重要变量或生成预测模型，特别适合初始研究阶段。</p>
+<p>竞争风险存在：尽管 RSF 不是专为竞争风险设计，但可通过扩展（如多状态模型）处理。</p>
+</section>
+<section class="slide level2">
+
+<h4 id="样本容量">样本容量</h4>
+<p>最小要求：建议样本量至少为 100-200 个观测值，以确保 Bootstrap 采样的有效性。事件数（非删失样本）应至少为 50-100，以提供足够的信号。</p>
+<p>理想范围：500-1000 个样本可获得较稳定的结果，大样本（&gt;1000）进一步提升性能。</p>
+<p>限制：样本量过小（如 &lt;50）会导致树分裂不足，模型性能下降；事件稀少可能加剧此问题。</p>
+</section>
+<section class="slide level2">
+
+<h4 id="变量个数">变量个数：</h4>
+<p>最小要求：至少 5-10 个协变量，足以构建有意义的树。</p>
+<p>理想范围：10-100 个变量，RSF 在高维场景中表现最佳（例如基因组数据可能有数千变量）。</p>
+<p>限制：变量过多（&gt;1000）可能导致计算负担增加，需调整 mtry 减少特征选择范围；无关变量过多可能降低效率，建议预处理去除噪声。</p>
+<p>事件-变量比：</p>
+<p>建议事件数至少是变量数的 5-10 倍，以避免过拟合。たとえば，100 个变量时，事件数应 &gt;500。</p>
+</section>
+<section class="slide level2">
+
+<h4 id="调参建议">调参建议：</h4>
+<p>nodesize（终端节点最小样本数）：通常设为 5-15，样本量大时可适当增加。 mtry（每次分裂选择的特征数）：默认值为 <span class="math inline">\(\sqrt{\text{变量总数}}\)</span>，可根据变量数量调整。</p>
+</section>
+<section id="随机生存森林-rsf-应用举例-gbsg2" class="slide level2">
+<h2>7.2 随机生存森林 (RSF) 应用举例: GBSG2</h2>
+<p>{TH.data}GBSG2: 686 名乳腺癌患者</p>
+<p>time：生存时间（天）。</p>
+<p>cens：删失状态（1=事件发生，0=删失）</p>
+<p>horTh：激素治疗（yes/no）</p>
+<p>age：年龄</p>
+<p>menostat：绝经状态（Pre/Post）</p>
+<p>tsize：肿瘤大小（毫米）</p>
+<p>tgrade：肿瘤分级（I/II/III）</p>
+<p>pnodes：淋巴结数量</p>
+<p>progrec：孕激素受体</p>
+<p>estrec：雌激素受体</p>
+<p>目标：预测生存时间，评估协变量对生存的影响</p>
+</section>
+<section class="slide level2">
+
+<p>样本容量：686，事件数 299，满足最小要求。 变量个数：9 个协变量，事件-变量比约 33，适合 RSF。 变量重要性：pnodes 和 tsize 通常排名靠前，反映临床意义。</p>
+</section>
+<section class="slide level2">
+
+<h3 id="加载必要的包">加载必要的包</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="co"># 加载必要的包</span></span>
+<span id="cb1-2"><a></a><span class="fu">library</span>(randomForestSRC)  <span class="co"># 随机生存森林</span></span>
+<span id="cb1-3"><a></a><span class="fu">library</span>(TH.data)         <span class="co"># GBSG2 数据集</span></span>
+<span id="cb1-4"><a></a><span class="fu">library</span>(tidyverse)       <span class="co"># 数据处理和可视化</span></span>
+<span id="cb1-5"><a></a><span class="fu">library</span>(survival)        <span class="co"># 生存分析工具</span></span>
+<span id="cb1-6"><a></a><span class="fu">library</span>(pec)             <span class="co"># 生存概率预测</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="数据预处理">数据预处理</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="co"># 加载数据</span></span>
+<span id="cb2-2"><a></a><span class="fu">data</span>(GBSG2, <span class="at">package =</span> <span class="st">"TH.data"</span>)</span>
+<span id="cb2-3"><a></a></span>
+<span id="cb2-4"><a></a><span class="co"># 数据预处理</span></span>
+<span id="cb2-5"><a></a>gbsg2 <span class="ot">&lt;-</span> GBSG2 <span class="sc">%&gt;%</span></span>
+<span id="cb2-6"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-7"><a></a>    <span class="at">horTh =</span> <span class="fu">as.factor</span>(horTh),</span>
+<span id="cb2-8"><a></a>    <span class="at">menostat =</span> <span class="fu">as.factor</span>(menostat),</span>
+<span id="cb2-9"><a></a>    <span class="at">tgrade =</span> <span class="fu">as.factor</span>(tgrade)</span>
+<span id="cb2-10"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="拟合-rsf-模型">拟合 RSF 模型</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="co"># 拟合 RSF 模型</span></span>
+<span id="cb3-2"><a></a>rsf_model <span class="ot">&lt;-</span> <span class="fu">rfsrc</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> horTh <span class="sc">+</span> age <span class="sc">+</span> menostat <span class="sc">+</span> tsize <span class="sc">+</span> tgrade <span class="sc">+</span> pnodes <span class="sc">+</span> progrec <span class="sc">+</span> estrec,</span>
+<span id="cb3-3"><a></a>                   <span class="at">data =</span> gbsg2,</span>
+<span id="cb3-4"><a></a>                   <span class="at">ntree =</span> <span class="dv">500</span>,            <span class="co"># 树的数量</span></span>
+<span id="cb3-5"><a></a>                   <span class="at">mtry =</span> <span class="dv">3</span>,               <span class="co"># 每次分裂选择的特征数</span></span>
+<span id="cb3-6"><a></a>                   <span class="at">nodesize =</span> <span class="dv">15</span>,          <span class="co"># 终端节点最小样本数</span></span>
+<span id="cb3-7"><a></a>                   <span class="at">importance =</span> <span class="cn">TRUE</span>)      <span class="co"># 计算变量重要性</span></span>
+<span id="cb3-8"><a></a></span>
+<span id="cb3-9"><a></a><span class="co"># 查看模型摘要</span></span>
+<span id="cb3-10"><a></a><span class="fu">print</span>(rsf_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                         Sample size: 686
+                    Number of deaths: 299
+                     Number of trees: 500
+           Forest terminal node size: 15
+       Average no. of terminal nodes: 33.28
+No. of variables tried at each split: 3
+              Total no. of variables: 8
+       Resampling used to grow trees: swor
+    Resample size used to grow trees: 434
+                            Analysis: RSF
+                              Family: surv
+                      Splitting rule: logrank *random*
+       Number of random split points: 10
+                          (OOB) CRPS: 394.17324469
+                   (OOB) stand. CRPS: 0.16049399
+   (OOB) Requested performance error: 0.30624925</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>输出解读</p>
+<p>Sample size: 686 总样本量为 686，表示模型训练时使用的观察总数。 Number of deaths: 299 发生事件（死亡或目标结局）的数量为 299，剩余样本为审查（censored）数据。 Number of trees: 500 模型构建了 500 棵决策树，这是随机森林的核心参数，控制模型的稳定性和泛化能力。树数较多通常提高精度但增加计算成本。 Forest terminal node size: 15 每棵树的终端节点（leaf node）最小样本数为 15。这是树的复杂度控制参数，防止过拟合。 Average no. of terminal nodes: 33.166 平均每棵树有约 33.166 个终端节点，反映树的平均深度和复杂度。</p>
+</section>
+<section class="slide level2">
+
+<p>No.&nbsp;of variables tried at each split: 3 每次分裂时随机选择的变量数为 3。这是随机森林的关键特征，通过限制变量数量引入随机性，减少相关性。 Total no. of variables: 8 模型总共使用了 8 个预测变量，可能是如 sex, age, ulcer 等特征（具体取决于数据）。 Resampling used to grow trees: swor 使用了“sampling without replacement”（无放回抽样）方法生长树。这确保每个树基于不同的子样本，提高模型多样性。 Resample size used to grow trees: 434 每棵树生长时使用的子样本大小为 434（约占总样本 686 的 63%），这是无放回抽样的结果。 Analysis: RSF 分析类型为随机生存森林（Random Survival Forest），专门用于生存数据。</p>
+</section>
+<section class="slide level2">
+
+<p>Family: surv 模型家族为“surv”（生存分析），表示处理时间到事件数据。 Splitting rule: logrank random 分裂规则基于 log-rank 统计量，带随机性（random），用于优化节点分裂以最大化生存差异。 Number of random split points: 10 每次分裂尝试 10 个随机切分点，增加随机性并提高计算效率。 (OOB) CRPS: 395.67263386 外部样本（Out-Of-Bag, OOB）累积预测误差 (Cumulative Rank Probability Score, CRPS) 为 395.67。CRPS 衡量预测分布与实际观测的匹配程度，值越小越好。 (OOB) stand. CRPS: 0.16110449 标准化 OOB CRPS 为 0.161，标准化后值在 0 到 1 之间，0.161 表示中等预测精度。 (OOB) Requested performance error: 0.30879613 请求的 OOB 性能误差为 0.309，通常与交叉验证或特定指标（如 Brier 分数）相关，反映模型预测误差的基准。</p>
+</section>
+<section class="slide level2">
+
+<h3 id="提取变量重要性">提取变量重要性</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="co"># 提取变量重要性</span></span>
+<span id="cb5-2"><a></a>var_importance <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-3"><a></a>  <span class="at">Variable =</span> <span class="fu">names</span>(rsf_model<span class="sc">$</span>importance),</span>
+<span id="cb5-4"><a></a>  <span class="at">Importance =</span> rsf_model<span class="sc">$</span>importance</span>
+<span id="cb5-5"><a></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Importance))</span>
+<span id="cb5-7"><a></a>var_importance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Variable  Importance
+pnodes     pnodes 0.160362724
+age           age 0.113848765
+progrec   progrec 0.088237608
+estrec     estrec 0.031227281
+tsize       tsize 0.023276155
+tgrade     tgrade 0.014751465
+horTh       horTh 0.014041600
+menostat menostat 0.000777329</code></pre>
+</div>
+</div>
+<p>Importance：变量重要性得分，数值越大表示该变量对预测生存时间或事件发生的贡献越大。</p>
+</section>
+<section class="slide level2">
+
+<p>总体解读 排名：pnodes 是最重要变量，贡献约占 16.2%，远高于其他变量。age 和 progrec 也显著，贡献分别约 11.3% 和 8.5%。menostat 几乎无影响 (0.05%)。</p>
+<p>分布：重要性得分差异较大，前三变量 (pnodes, age, progrec) 占主导，其余变量影响较弱。</p>
+<p>含义：这些得分反映变量在 RSF 分裂过程中的累积影响，通常通过 OOB 误差的减少量计算。</p>
+<p>得分高表示该变量在区分生存时间或事件发生方面更有效。</p>
+</section>
+<section class="slide level2">
+
+<h3 id="可视化变量重要性">可视化变量重要性</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># 可视化变量重要性</span></span>
+<span id="cb7-2"><a></a><span class="fu">ggplot</span>(var_importance, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, Importance), <span class="at">y =</span> Importance)) <span class="sc">+</span></span>
+<span id="cb7-3"><a></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>) <span class="sc">+</span></span>
+<span id="cb7-4"><a></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb7-5"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"变量重要性（RSF）"</span>, <span class="at">x =</span> <span class="st">"变量"</span>, <span class="at">y =</span> <span class="st">"重要性"</span>) <span class="sc">+</span></span>
+<span id="cb7-6"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="预测风险分数">预测风险分数</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="co"># 预测风险分数</span></span>
+<span id="cb8-2"><a></a>risk_scores <span class="ot">&lt;-</span> <span class="fu">predict</span>(rsf_model, <span class="at">newdata =</span> gbsg2)<span class="sc">$</span>predicted</span>
+<span id="cb8-3"><a></a></span>
+<span id="cb8-4"><a></a><span class="fu">head</span>(risk_scores)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  41.94989  36.93888  57.86573  31.09395  48.55887 171.06513</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>风险分数（Risk Score）: RSF 模型预测的个体生存风险指标，通常表示个体发生目标事件（如死亡）的相对风险或预期生存时间。</p>
+<p>在生存分析中，风险分数通常是基于累积危险函数（Cumulative Hazard Function, CHF）或类似度量计算的数值。</p>
+<p>风险分数值越高，表示该个体发生事件的概率越大或生存时间越短。</p>
+<p>对于 rsf_model，风险分数可能是每个样本的预期累积危险值（或其转化形式），反映了基于输入特征（如 age, pnodes 等）预测的死亡风险。</p>
+<h3 id="可视化风险分数的分布">可视化风险分数的分布</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="co"># 可视化风险分数的分布</span></span>
+<span id="cb10-2"><a></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">risk =</span> risk_scores), <span class="fu">aes</span>(<span class="at">x =</span> risk)) <span class="sc">+</span></span>
+<span id="cb10-3"><a></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">"lightgreen"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb10-4"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"RSF 风险分数的分布"</span>, <span class="at">x =</span> <span class="st">"风险分数"</span>, <span class="at">y =</span> <span class="st">"频数"</span>) <span class="sc">+</span></span>
+<span id="cb10-5"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="风险分数分层">风险分数分层</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="co"># 风险分数分层</span></span>
+<span id="cb11-2"><a></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb11-3"><a></a>gbsg2<span class="sc">$</span>risk_group <span class="ot">&lt;-</span> <span class="fu">cut</span>(risk_scores, </span>
+<span id="cb11-4"><a></a>                        <span class="at">breaks =</span> <span class="fu">quantile</span>(risk_scores, </span>
+<span id="cb11-5"><a></a>                                          <span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.33</span>, <span class="fl">0.66</span>, <span class="dv">1</span>)), </span>
+<span id="cb11-6"><a></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span>))</span>
+<span id="cb11-7"><a></a>gbsg2<span class="sc">$</span>risk_scores <span class="ot">&lt;-</span> risk_scores</span>
+<span id="cb11-8"><a></a></span>
+<span id="cb11-9"><a></a><span class="fu">table</span>(gbsg2<span class="sc">$</span>risk_group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+   Low Medium   High 
+   226    226    233 </code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="低中高风险组分组箱线图">低中高风险组分组箱线图</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co"># 低中高风险组分组箱线图</span></span>
+<span id="cb13-2"><a></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb13-3"><a></a>gbsg2 <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(risk_group)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> risk_group, <span class="at">y =</span> risk_scores, <span class="at">color =</span> risk_group)) <span class="sc">+</span></span>
+<span id="cb13-6"><a></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
+<span id="cb13-7"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Risk Group"</span>, <span class="at">y =</span> <span class="st">"Risk Score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="低中高风险组分组km曲线">低中高风险组分组KM曲线</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="co"># 低中高风险组分组KM曲线</span></span>
+<span id="cb14-2"><a></a></span>
+<span id="cb14-3"><a></a><span class="co"># 拟合 Kaplan-Meier 模型</span></span>
+<span id="cb14-4"><a></a>surv_fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> risk_group, <span class="at">data =</span> gbsg2)</span>
+<span id="cb14-5"><a></a></span>
+<span id="cb14-6"><a></a><span class="co"># 绘制 Kaplan-Meier 曲线</span></span>
+<span id="cb14-7"><a></a><span class="fu">library</span>(survminer)</span>
+<span id="cb14-8"><a></a><span class="fu">ggsurvplot</span>(surv_fit, </span>
+<span id="cb14-9"><a></a>           <span class="at">data =</span> gbsg2,</span>
+<span id="cb14-10"><a></a>           <span class="at">palette =</span> <span class="st">"set1"</span>,  <span class="co"># 低、中、高风险颜色</span></span>
+<span id="cb14-11"><a></a>           <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(),</span>
+<span id="cb14-12"><a></a>           <span class="at">legend.title =</span> <span class="st">"Risk Group"</span>,</span>
+<span id="cb14-13"><a></a>           <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span>),</span>
+<span id="cb14-14"><a></a>           <span class="at">xlab =</span> <span class="st">"Time (Days)"</span>,</span>
+<span id="cb14-15"><a></a>           <span class="at">ylab =</span> <span class="st">"Survival Probability"</span>,</span>
+<span id="cb14-16"><a></a>           <span class="at">conf.int =</span> <span class="cn">TRUE</span>)  <span class="co"># 添加置信区间</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="co">#添加 p 值（log-rank 检验）</span></span>
+<span id="cb15-2"><a></a><span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> risk_group, <span class="at">data =</span> gbsg2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+survdiff(formula = Surv(time, cens) ~ risk_group, data = gbsg2)
+
+n=685, 1 observation deleted due to missingness.
+
+                    N Observed Expected (O-E)^2/E (O-E)^2/V
+risk_group=Low    226       24    130.0   86.4694  157.0729
+risk_group=Medium 226      102    103.4    0.0193    0.0295
+risk_group=High   233      173     65.5  176.1450  232.5130
+
+ Chisq= 273  on 2 degrees of freedom, p= &lt;2e-16 </code></pre>
+</div>
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="计算5个新患者的生存概率">计算5个新患者的生存概率</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb17-2"><a></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb17-3"><a></a></span>
+<span id="cb17-4"><a></a><span class="co"># 假设 rsf_model 已经训练好，gbsg2[1:5, ] 是5个新样本</span></span>
+<span id="cb17-5"><a></a><span class="fu">library</span>(pec)</span>
+<span id="cb17-6"><a></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="dv">100</span>)</span>
+<span id="cb17-7"><a></a>surv_pred <span class="ot">&lt;-</span> <span class="fu">predictSurvProb</span>(rsf_model, </span>
+<span id="cb17-8"><a></a>                             <span class="at">newdata =</span> gbsg2[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], </span>
+<span id="cb17-9"><a></a>                             <span class="at">times =</span> times)</span>
+<span id="cb17-10"><a></a><span class="co"># 转成长数据框</span></span>
+<span id="cb17-11"><a></a>df_long <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb17-12"><a></a>  <span class="at">time =</span> <span class="fu">rep</span>(times, <span class="dv">5</span>),</span>
+<span id="cb17-13"><a></a>  <span class="at">surv =</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(surv_pred)),</span>
+<span id="cb17-14"><a></a>  <span class="at">patient =</span> <span class="fu">rep</span>(<span class="fu">paste0</span>(<span class="st">"患者"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), </span>
+<span id="cb17-15"><a></a>                <span class="at">each =</span> <span class="fu">length</span>(times))</span>
+<span id="cb17-16"><a></a>)</span>
+<span id="cb17-17"><a></a></span>
+<span id="cb17-18"><a></a><span class="fu">head</span>(df_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  time      surv patient
+1    0 1.0000000   患者1
+2  100 0.9998516   患者1
+3  200 0.9981423   患者1
+4  300 0.9950139   患者1
+5  400 0.9657520   患者1
+6  500 0.9117861   患者1</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">tail</span>(df_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    time      surv patient
+100 1500 0.5138645   患者5
+101 1600 0.4702725   患者5
+102 1700 0.4246651   患者5
+103 1800 0.3996495   患者5
+104 1900 0.3614092   患者5
+105 2000 0.3437234   患者5</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="绘制多名患者的生存曲线">绘制多名患者的生存曲线</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="co"># 绘制多名患者的生存曲线</span></span>
+<span id="cb21-2"><a></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb21-3"><a></a><span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> surv, <span class="at">color =</span> patient)) <span class="sc">+</span></span>
+<span id="cb21-4"><a></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb21-5"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"前5个患者的预测生存曲线"</span>, </span>
+<span id="cb21-6"><a></a>       <span class="at">x =</span> <span class="st">"时间（天）"</span>, <span class="at">y =</span> <span class="st">"生存概率"</span>, </span>
+<span id="cb21-7"><a></a>       <span class="at">color =</span> <span class="st">"患者"</span>) <span class="sc">+</span></span>
+<span id="cb21-8"><a></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
+<span id="cb21-9"><a></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="绘制预测的生存曲线">绘制预测的生存曲线</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="co"># 预测生存曲线（示例：前 5 个患者）</span></span>
+<span id="cb22-2"><a></a>surv_pred <span class="ot">&lt;-</span> <span class="fu">predictSurvProb</span>(rsf_model, <span class="at">newdata =</span> gbsg2[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">times =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="at">by =</span> <span class="dv">200</span>))</span>
+<span id="cb22-3"><a></a><span class="fu">matplot</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="at">by =</span> <span class="dv">200</span>), <span class="fu">t</span>(surv_pred), <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
+<span id="cb22-4"><a></a>        <span class="at">xlab =</span> <span class="st">"时间（天）"</span>, <span class="at">ylab =</span> <span class="st">"生存概率"</span>,</span>
+<span id="cb22-5"><a></a>        <span class="at">main =</span> <span class="st">"前 5 个患者的预测生存曲线"</span>)</span>
+<span id="cb22-6"><a></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">title =</span> <span class="st">"患者 ID"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-14-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+</section>
+<section id="梯度提升生存模型-gbm-survival" class="slide level2">
+<h2>7.3 梯度提升生存模型 (GBM-Survival)</h2>
+<p>概念：GBM-Survival 使用梯度提升技术（类似 XGBoost）构建多个弱生存模型，逐步优化预测。目标是最小化损失函数（如负对数似然）。 优点： 捕捉复杂非线性关系。 通过调整参数（如学习率、树数）实现灵活性。 提供变量重要性和部分依赖图。 R 实现：使用 gbm 或 survivalmodels 包，结合 ggplot2 进行可视化。 适合人群：对提升方法有兴趣的初学者，稍复杂但直观。 2. 数据集介绍 我们使用 GBSG2 数据集（TH.data 包），包含 686 名乳腺癌患者的生存数据。</p>
+<p>变量： time：生存时间（天）。 cens：删失状态（1=事件发生，0=删失）。 horTh：激素治疗（yes/no）。 age：年龄。 menostat：绝经状态（Pre/Post）。 tsize：肿瘤大小（毫米）。 tgrade：肿瘤分级（I/II/III）。 pnodes：淋巴结数量。 progrec：孕激素受体。 estrec：雌激素受体。 目标：预测生存时间，评估协变量对生存的影响。 3. 随机生存森林 (RSF) 示例 3.1 方法介绍 RSF 通过构建多棵树，预测每个患者的生存概率或风险分数。变量重要性帮助识别关键因素，如淋巴结数量（pnodes）。</p>
+</section>
+<section id="gbm-survival应用举例gbsg2" class="slide level2">
+<h2>7.1 GBM-Survival应用举例：GBSG2</h2>
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="https://lizongzhang.github.io/survival" class="uri">https://lizongzhang.github.io/survival</a><br>© 2025 2025 医咖会 Li Zongzhang</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp('/' + window.location.host + '/');
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>

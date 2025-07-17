@@ -718,7 +718,50 @@ ggsurvplot(
 
 ```
 
+--------
 
+## 4.6 Modeling time-varying coefficients
+
+```{r}
+#| echo: true
+
+## 加载示例数据, cancer列表中的lung数据框
+data(cancer, package="survival")
+
+lung <- lung %>%
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1),   # 事件状态重编码：1=生存(0), 2=死亡(1)
+    female = recode(sex, `1` = 0, `2` = 1),      # 性别重编码：1=男(0), 2=女(1)
+  )
+
+# notice sex and tt(sex) in model formula
+lung.female.by.time <- coxph(Surv(time, status) ~ age + wt.loss + female + tt(female), # sex and tt(sex) in formula
+                          data=lung,
+                          tt=function(x,t,...) x*t) # linear change in effect of sex
+summary(lung.female.by.time)
+```
+
+--------
+
+## 4.7 Time-varying covariates
+
+```{r}
+head(jasa1)
+
+jasa1.cox <- coxph(Surv(start, stop, event) ~ transplant + age + surgery, data=jasa1)
+summary(jasa1.cox)
+
+# check PH assumptions
+cox.zph(jasa1.cox)
+
+# plot predicted survival by transplant group at mean age and surgery=0
+plotdata <- data.frame(transplant=0:1, age=-2.48, surgery=0)
+surv.by.transplant <- survfit(jasa1.cox, newdata=plotdata)
+ggsurvplot(surv.by.transplant, data=plotdata) # remember to supply data to ggsurvplot() for predicted survival after coxph()
+
+
+
+```
 
 
 
