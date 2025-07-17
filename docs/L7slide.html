@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.6.42">
 
   <meta name="author" content="Lzz">
-  <meta name="dcterms.date" content="2025-07-17">
+  <meta name="dcterms.date" content="2025-07-18">
   <title>R生存分析 – L7 随机生存森林</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -248,7 +248,7 @@ z-index: 1000;">
 </div>
 </div>
 
-  <p class="date">2025-07-17</p>
+  <p class="date">2025-07-18</p>
 </section>
 <section id="大纲" class="slide level2">
 <h2>大纲</h2>
@@ -404,7 +404,7 @@ z-index: 1000;">
                     Number of deaths: 299
                      Number of trees: 500
            Forest terminal node size: 15
-       Average no. of terminal nodes: 33.28
+       Average no. of terminal nodes: 33.128
 No. of variables tried at each split: 3
               Total no. of variables: 8
        Resampling used to grow trees: swor
@@ -413,9 +413,9 @@ No. of variables tried at each split: 3
                               Family: surv
                       Splitting rule: logrank *random*
        Number of random split points: 10
-                          (OOB) CRPS: 394.17324469
-                   (OOB) stand. CRPS: 0.16049399
-   (OOB) Requested performance error: 0.30624925</code></pre>
+                          (OOB) CRPS: 392.95887187
+                   (OOB) stand. CRPS: 0.15999954
+   (OOB) Requested performance error: 0.30630935</code></pre>
 </div>
 </div>
 </section>
@@ -447,15 +447,15 @@ No. of variables tried at each split: 3
 <span id="cb5-7"><a></a>var_importance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>         Variable  Importance
-pnodes     pnodes 0.160362724
-age           age 0.113848765
-progrec   progrec 0.088237608
-estrec     estrec 0.031227281
-tsize       tsize 0.023276155
-tgrade     tgrade 0.014751465
-horTh       horTh 0.014041600
-menostat menostat 0.000777329</code></pre>
+<pre><code>         Variable   Importance
+pnodes     pnodes 0.1616414459
+age           age 0.1134901861
+progrec   progrec 0.0848160926
+estrec     estrec 0.0317991599
+tsize       tsize 0.0249066132
+horTh       horTh 0.0153466834
+tgrade     tgrade 0.0134290742
+menostat menostat 0.0002661427</code></pre>
 </div>
 </div>
 <p>Importance：变量重要性得分，数值越大表示该变量对预测生存时间或事件发生的贡献越大。</p>
@@ -495,7 +495,7 @@ menostat menostat 0.000777329</code></pre>
 <span id="cb8-4"><a></a><span class="fu">head</span>(risk_scores)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1]  41.94989  36.93888  57.86573  31.09395  48.55887 171.06513</code></pre>
+<pre><code>[1]  42.33449  38.11575  56.94749  30.78709  49.95409 173.48586</code></pre>
 </div>
 </div>
 </section>
@@ -594,11 +594,11 @@ survdiff(formula = Surv(time, cens) ~ risk_group, data = gbsg2)
 n=685, 1 observation deleted due to missingness.
 
                     N Observed Expected (O-E)^2/E (O-E)^2/V
-risk_group=Low    226       24    130.0   86.4694  157.0729
-risk_group=Medium 226      102    103.4    0.0193    0.0295
-risk_group=High   233      173     65.5  176.1450  232.5130
+risk_group=Low    226       24    129.5   85.9880  155.4768
+risk_group=Medium 226      102    104.3    0.0502    0.0772
+risk_group=High   233      173     65.2  178.4172  235.7229
 
- Chisq= 273  on 2 degrees of freedom, p= &lt;2e-16 </code></pre>
+ Chisq= 275  on 2 degrees of freedom, p= &lt;2e-16 </code></pre>
 </div>
 </div>
 <img data-src="L7slide_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch"></section>
@@ -630,11 +630,11 @@ risk_group=High   233      173     65.5  176.1450  232.5130
 <div class="cell-output cell-output-stdout">
 <pre><code>  time      surv patient
 1    0 1.0000000   患者1
-2  100 0.9998516   患者1
-3  200 0.9981423   患者1
-4  300 0.9950139   患者1
-5  400 0.9657520   患者1
-6  500 0.9117861   患者1</code></pre>
+2  100 0.9995317   患者1
+3  200 0.9982135   患者1
+4  300 0.9927463   患者1
+5  400 0.9656378   患者1
+6  500 0.9077589   患者1</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -642,12 +642,12 @@ risk_group=High   233      173     65.5  176.1450  232.5130
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>    time      surv patient
-100 1500 0.5138645   患者5
-101 1600 0.4702725   患者5
-102 1700 0.4246651   患者5
-103 1800 0.3996495   患者5
-104 1900 0.3614092   患者5
-105 2000 0.3437234   患者5</code></pre>
+100 1500 0.4959512   患者5
+101 1600 0.4509512   患者5
+102 1700 0.4115069   患者5
+103 1800 0.3885710   患者5
+104 1900 0.3495712   患者5
+105 2000 0.3303903   患者5</code></pre>
 </div>
 </div>
 </section>
