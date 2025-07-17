@@ -124,5 +124,33 @@
     "title": "L5 AFT模型",
     "section": "",
     "text": "讲义\nL5 AFT模型\n\n\nR代码\n  点击下载代码文件: L5.R \n\n\n数据文件\n  点击下载数据文件: L5.R"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "R生存分析",
+    "section": "",
+    "text": "欢迎访问R语言生存分析:方法,实操与临床解读课程网站！"
+  },
+  {
+    "objectID": "index.html#请下载和安装最新版r和r-studio",
+    "href": "index.html#请下载和安装最新版r和r-studio",
+    "title": "R生存分析",
+    "section": "请下载和安装最新版R和R Studio",
+    "text": "请下载和安装最新版R和R Studio\nR https://www.r-project.org/\nR Studio https://posit.co/download/rstudio-desktop/"
+  },
+  {
+    "objectID": "index.html#数据文件下载",
+    "href": "index.html#数据文件下载",
+    "title": "R生存分析",
+    "section": "数据文件下载",
+    "text": "数据文件下载\n点击下载数据文件: stroke.xlsx"
+  },
+  {
+    "objectID": "L1.html",
+    "href": "L1.html",
+    "title": "L1 生存分析简介",
+    "section": "",
+    "text": "讲义\nL1 生存分析简介\n\n\nR代码\n  点击下载代码文件: L4.R \n\n\n数据文件\n  点击下载数据文件: L4.R"
   }
 ]
