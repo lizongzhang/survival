@@ -5,7 +5,7 @@
   color: #044875; 
 }
 
-.reveal h1, .reveal h2, .reveal h3,  .reveal h4 {
+.reveal h1, .reveal h2, .reveal h3,  .reveal h4,  .reveal h5{
   font-family: "STKaiti", "Noto Serif SC", "KaiTi", serif;
   font-weight: bold;
   color: #044875;
@@ -63,6 +63,14 @@
   white-space: pre-wrap;
   color: #002244;
 }
+
+.code-short {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.85em;
+}
+
+
 
 
 

@@ -11,7 +11,7 @@
 
   <meta name="author" content="Lzz">
   <meta name="dcterms.date" content="2025-07-18">
-  <title>R生存分析 – L7 随机生存森林</title>
+  <title>R生存分析 – L7 机器学习在生存分析中的应用</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -238,7 +238,7 @@ z-index: 1000;">
     <div class="slides">
 
 <section id="title-slide" data-background-image="img/yikahui_qcr.png" data-background-position="center bottom 200px" data-background-size="100px" class="quarto-title-block center">
-  <h1 class="title">L7 随机生存森林</h1>
+  <h1 class="title">L7 机器学习在生存分析中的应用</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -253,85 +253,104 @@ z-index: 1000;">
 <section id="大纲" class="slide level2">
 <h2>大纲</h2>
 <ul>
-<li><p>7.1 Cox模型简介</p></li>
-<li><p>7.2 Cox模型的数据结构</p></li>
-<li><p>7.3 Cox模型的估计</p></li>
-<li><p>7.4 Cox模型的检验</p></li>
+<li><p>7.1 随机生存森林模型简介</p></li>
+<li><p>7.2 梯度提升生存模型实操：从建模到可视化</p></li>
+<li><p>7.3 梯度提升生存模型简介</p></li>
+<li><p>7.4 梯度提升生存模型实操：从建模到可视化</p></li>
 </ul>
 </section>
-<section id="随机生存森林-rsf-简介" class="slide level2">
-<h2>7.1 随机生存森林 (RSF) 简介</h2>
-<p>随机生存森林 (Random Survival Forest) 是随机森林 (Random Forest) 在生存分析中的扩展，结合了决策树和集成学习的思想，适用于处理生存时间数据。</p>
-<p>传统生存分析方法（如 Cox 模型、AFT 模型和竞争风险模型）在许多场景下表现良好，但对数据分布或比例风险假设有一定限制。机器学习方法通过构建非参数模型，适应非线性关系、高维数据和交互效应，扩展了生存分析的应用。</p>
-<p>RSF 是一种基于随机森林的扩展，结合多棵生存树预测生存时间或风险。每个树基于随机样本和特征子集构建，输出累积风险函数（CHF）或生存概率。</p>
-<p>优点：</p>
-<p>无需假设比例风险或特定分布。</p>
-<p>处理高维数据和非线性关系。</p>
-<p>提供变量重要性分析和可视化。</p>
-<p>R 实现：使用 randomForestSRC包，代码简洁，可视化工具丰富（如生存曲线、风险分布）。 适合人群：初学者，易于理解和调试。</p>
+<section id="随机生存森林-rsf模型简介" class="slide level2">
+<h2>7.1 随机生存森林 (RSF)模型简介</h2>
+<ul>
+<li><p>随机生存森林 (Random Survival Forest) 模型：随机森林 (Random Forest)在生存分析中的扩展，结合了决策树和集成学习的思想，适用于处理生存时间数据。</p></li>
+<li><p>RSF是一种基于随机森林的扩展，结合多棵生存树预测生存时间或风险。每个树基于随机样本和特征子集构建，输出累积风险函数（CHF）或生存概率。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h3 id="核心建模思想">核心建模思想</h3>
-<p>基于生存树的集成：RSF 通过构建多棵生存决策树（Survival Tree），每棵树基于随机采样的数据子集和特征子集训练。生存树不同于传统分类树，它的目标是预测生存时间或累积风险函数 (Cumulative Hazard Function, CHF)，而不是简单的分类或回归。</p>
-<p>Bootstrap 采样与随机特征选择：使用 Bootstrap 方法从原始数据中随机抽样（有放回），并在每次分裂节点时随机选择特征子集（控制参数 mtry），增加模型的多样性和鲁棒性。</p>
-<p>预测输出：每个树输出个体的生存概率或风险分数，RSF 通过所有树的平均或加权组合生成最终预测。输出包括生存函数 $ S(t) $ 或累积风险 $ H(t) $。</p>
-<p>袋外数据 (Out-of-Bag, OOB)：未被抽样到的数据用于验证模型，计算 OOB 误差，评估预测性能。</p>
-<p>RSF 的建模过程避免了强分布假设（如指数或 Weibull 分布），通过非参数方式适应复杂数据模式。</p>
+<h3 id="rsf建模思想">7.1.1 RSF建模思想</h3>
+<ul>
+<li><p>基于生存树的集成：RSF 通过构建多棵生存决策树（Survival Tree），每棵树基于随机采样的数据子集和特征子集训练。</p></li>
+<li><p>生存树不同于传统分类树，它的目标是预测生存时间或累积风险函数 (Cumulative Hazard Function, CHF)，而不是简单的分类或回归。</p></li>
+<li><p>Bootstrap 采样与随机特征选择：使用 Bootstrap 方法从原始数据中随机抽样（有放回），并在每次分裂节点时随机选择特征子集（控制参数 mtry），增加模型的多样性和鲁棒性。</p></li>
+<li><p>预测输出：每个树输出个体的生存概率或风险分数，RSF 通过所有树的平均或加权组合生成最终预测。输出包括生存函数 $ S(t) $ 或累积风险 $ H(t) $。</p></li>
+<li><p>袋外数据 (Out-of-Bag, OOB)：未被抽样到的数据用于验证模型，计算 OOB 误差，评估预测性能。</p></li>
+<li><p>RSF 的建模过程避免了强分布假设（如指数或 Weibull 分布），通过非参数方式适应复杂数据模式。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h3 id="rsf-在生存分析中的优势">RSF 在生存分析中的优势：</h3>
-<p>无强假设：不要求比例风险假设（Cox 模型）或特定时间分布（AFT 模型），适合非线性关系和复杂交互效应。</p>
-<p>鲁棒性：通过随机性和集成学习，RSF 对异常值、缺失值和噪声数据具有较强容忍度。</p>
-<p>变量选择与重要性：自动评估变量重要性（Variable Importance, VIMP），帮助识别关键预测因子，无需手动筛选。</p>
-<p>高维数据处理：适合包含大量协变量的数据集，自动处理特征冗余。</p>
-<p>丰富的可视化：提供生存曲线、风险分布、部分依赖图等，直观展示结果。</p>
-<p>灵活性：通过调整参数（如 ntree, mtry, nodesize），可平衡偏差和方差。</p>
+<h3 id="rsf优势">7.1.2 RSF优势</h3>
+<ul>
+<li><p>传统生存分析方法（如 Cox、AFT 和竞争风险模型）通常依赖比例风险或特定分布等假设。</p></li>
+<li><p>机器学习方法通过构建非参数模型，灵活处理非线性、高维特征及交互作用，拓展了生存分析的适用范围。</p>
+<ul>
+<li><p>无强假设：不要求比例风险假设（Cox 模型）或特定时间分布（AFT 模型），适合非线性关系和复杂交互效应。</p></li>
+<li><p>鲁棒性：通过随机性和集成学习，RSF 对异常值、缺失值和噪声数据具有较强容忍度。</p></li>
+<li><p>变量选择与重要性：自动评估变量重要性（Variable Importance, VIMP），帮助识别关键预测因子，无需手动筛选。</p></li>
+<li><p>高维数据处理：适合包含大量协变量的数据集，自动处理特征冗余。</p></li>
+<li><p>丰富的可视化：提供生存曲线、风险分布、部分依赖图等，直观展示结果。</p></li>
+<li><p>灵活性：通过调整参数（如 ntree, mtry, nodesize），可平衡偏差和方差。</p></li>
+</ul></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h4 id="局限性">局限性</h4>
-<p>计算复杂度：随着树的数量 (ntree) 和数据规模增加，计算成本较高，适合中型数据集，不如线性模型高效。</p>
-<p>解释性有限：相比 Cox 模型的系数解释，RSF 的输出（如风险分数或生存概率）更难直观解读，尤其是交互效应的贡献。</p>
-<p>超参数敏感：参数 mtry, nodesize, 和 ntree 需要调优，设置不当可能导致过拟合或欠拟合。</p>
-<p>数据稀疏性问题：在事件发生稀少或时间点分布不均的数据中，RSF 的性能可能下降，树的分裂效率降低。</p>
-<p>非参数性质：缺乏概率分布假设，可能无法提供统计推断（如置信区间），更适合预测而非因果分析。</p>
+<h3 id="rsf局限性">7.1.3 RSF局限性</h3>
+<ul>
+<li><p>计算复杂度较高：随着树的数量（ntree）和样本规模增加，计算成本显著上升，适用于中等规模数据，效率不及线性模型。</p></li>
+<li><p>解释性较弱：相较于 Cox 模型的回归系数，RSF 输出的风险评分或生存概率难以直接解释，尤其难以量化交互项的具体贡献。</p></li>
+<li><p>对超参数敏感：mtry、nodesize 和 ntree 等参数需调优，设置不当易导致过拟合或欠拟合。</p></li>
+<li><p>对稀疏数据不敏感：在事件稀少或时间分布不均的情况下，分裂标准效果下降，模型性能可能受限。</p></li>
+<li><p>缺乏统计推断框架：作为非参数方法，RSF 不依赖分布假设，虽适合预测任务，但不易提供置信区间或因果解释。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h4 id="适用场景">适用场景</h4>
-<p>RSF 适用于以下场景：</p>
-<p>复杂非线性关系：当协变量与生存时间存在非线性或高阶交互效应时（如基因数据或影像特征）。</p>
-<p>高维数据：当变量数量远超样本量（如基因组学研究），RSF 可自动降维。</p>
-<p>异质性数据：当患者群体异质性高，传统模型（如 Cox）假设不成立时。</p>
-<p>探索性分析：用于发现重要变量或生成预测模型，特别适合初始研究阶段。</p>
-<p>竞争风险存在：尽管 RSF 不是专为竞争风险设计，但可通过扩展（如多状态模型）处理。</p>
+<h3 id="rsf适用场景">7.1.4 RSF适用场景</h3>
+<ul>
+<li><p>非线性与交互复杂的关系：当协变量与生存时间之间存在非线性模式或高阶交互（如基因表达或影像特征）时，RSF 能自动建模此类复杂结构。</p></li>
+<li><p>高维小样本数据：在变量数远多于样本量的场景（如基因组学研究）中，RSF 可自动进行特征选择与维度压缩。</p></li>
+<li><p>群体异质性显著：当研究对象具有高度异质性，传统模型（如 Cox）所依赖的比例风险假设难以成立时，RSF 提供更具鲁棒性的替代方案。</p></li>
+<li><p>探索性分析场景：适用于变量筛选和预测模型构建，尤其在研究早期阶段有助于发现潜在关联。</p></li>
+<li><p>竞争风险背景：尽管 RSF 并非专为竞争风险设计，但可通过模型扩展（如多状态建模）加以适配。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
+<h3 id="rsf数据要求">7.1.5 RSF数据要求</h3>
 <h4 id="样本容量">样本容量</h4>
-<p>最小要求：建议样本量至少为 100-200 个观测值，以确保 Bootstrap 采样的有效性。事件数（非删失样本）应至少为 50-100，以提供足够的信号。</p>
-<p>理想范围：500-1000 个样本可获得较稳定的结果，大样本（&gt;1000）进一步提升性能。</p>
-<p>限制：样本量过小（如 &lt;50）会导致树分裂不足，模型性能下降；事件稀少可能加剧此问题。</p>
+<ul>
+<li><p>最小要求：建议样本量至少为 100-200 个观测值，以确保 Bootstrap 采样的有效性。事件数（非删失样本）应至少为 50-100，以提供足够的信号。</p></li>
+<li><p>理想范围：500-1000 个样本可获得较稳定的结果，大样本（&gt;1000）进一步提升性能。</p></li>
+<li><p>限制：样本量过小（如 &lt;50）会导致树分裂不足，模型性能下降；事件稀少可能加剧此问题。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h4 id="变量个数">变量个数：</h4>
-<p>最小要求：至少 5-10 个协变量，足以构建有意义的树。</p>
-<p>理想范围：10-100 个变量，RSF 在高维场景中表现最佳（例如基因组数据可能有数千变量）。</p>
-<p>限制：变量过多（&gt;1000）可能导致计算负担增加，需调整 mtry 减少特征选择范围；无关变量过多可能降低效率，建议预处理去除噪声。</p>
-<p>事件-变量比：</p>
-<p>建议事件数至少是变量数的 5-10 倍，以避免过拟合。たとえば，100 个变量时，事件数应 &gt;500。</p>
+<h4 id="变量个数">变量个数</h4>
+<ul>
+<li><p>最低要求：建议样本量至少为 100–200，以确保 Bootstrap 重抽样的稳定性；其中事件数（非删失个案）应不少于 50–100，以提供足够的有效信息。</p></li>
+<li><p>理想范围：500–1000 个样本可确保模型稳定性；大样本（&gt;1000）有助于进一步提升预测性能与变量选择的可靠性。</p></li>
+<li><p>主要限制：样本过少（&lt;50）会导致分裂节点不足、模型不稳定；若事件稀少，则信息量进一步降低，影响模型有效性。</p></li>
+<li><p>事件-变量比建议至少为 5:1 至 10:1，以降低过拟合风险。</p>
+<ul>
+<li>事件是指研究对象经历了我们关注的终点结果，通常是 status == 1 的观测，即非删失的样本。</li>
+</ul></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h4 id="调参建议">调参建议：</h4>
-<p>nodesize（终端节点最小样本数）：通常设为 5-15，样本量大时可适当增加。 mtry（每次分裂选择的特征数）：默认值为 <span class="math inline">\(\sqrt{\text{变量总数}}\)</span>，可根据变量数量调整。</p>
+<h3 id="调参建议">7.1.6 调参建议</h3>
+<ul>
+<li><p>nodesize（终端节点最小样本数）：通常设为 5–15，样本量较大时可适当上调，以提高稳定性。</p></li>
+<li><p>mtry（每次分裂时随机选择的变量数）：默认值为变量个数的平方根，可根据变量维度与模型复杂度调节。</p></li>
+</ul>
 </section>
-<section id="随机生存森林-rsf-应用举例-gbsg2" class="slide level2">
-<h2>7.2 随机生存森林 (RSF) 应用举例: GBSG2</h2>
-<p>{TH.data}GBSG2: 686 名乳腺癌患者</p>
+<section id="随机生存森林模型实操从建模到可视化" class="slide level2">
+<h2>7.2 随机生存森林模型实操：从建模到可视化</h2>
+<h3 id="数据背景">7.2.1 数据背景</h3>
+<p>GBSG2{TH.data} 686 名乳腺癌患者</p>
 <p>time：生存时间（天）。</p>
 <p>cens：删失状态（1=事件发生，0=删失）</p>
 <p>horTh：激素治疗（yes/no）</p>
@@ -342,69 +361,112 @@ z-index: 1000;">
 <p>pnodes：淋巴结数量</p>
 <p>progrec：孕激素受体</p>
 <p>estrec：雌激素受体</p>
-<p>目标：预测生存时间，评估协变量对生存的影响</p>
 </section>
 <section class="slide level2">
 
-<p>样本容量：686，事件数 299，满足最小要求。 变量个数：9 个协变量，事件-变量比约 33，适合 RSF。 变量重要性：pnodes 和 tsize 通常排名靠前，反映临床意义。</p>
+<h4 id="考察是否满足数据要求">考察是否满足数据要求</h4>
+<ul>
+<li><p>样本容量：686</p></li>
+<li><p>事件数 299</p></li>
+<li><p>变量个数：8</p></li>
+<li><p>事件-变量比约 299/8 = 37</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h3 id="加载必要的包">加载必要的包</h3>
+<h3 id="加载包">7.2.2 加载包</h3>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="co"># 加载必要的包</span></span>
-<span id="cb1-2"><a></a><span class="fu">library</span>(randomForestSRC)  <span class="co"># 随机生存森林</span></span>
-<span id="cb1-3"><a></a><span class="fu">library</span>(TH.data)         <span class="co"># GBSG2 数据集</span></span>
-<span id="cb1-4"><a></a><span class="fu">library</span>(tidyverse)       <span class="co"># 数据处理和可视化</span></span>
-<span id="cb1-5"><a></a><span class="fu">library</span>(survival)        <span class="co"># 生存分析工具</span></span>
-<span id="cb1-6"><a></a><span class="fu">library</span>(pec)             <span class="co"># 生存概率预测</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="co"># 加载包</span></span>
+<span id="cb1-2"><a></a><span class="fu">library</span>(TH.data)         <span class="co"># GBSG2 数据集</span></span>
+<span id="cb1-3"><a></a><span class="fu">library</span>(randomForestSRC) <span class="co"># 随机生存森林</span></span>
+<span id="cb1-4"><a></a><span class="fu">library</span>(survival)        <span class="co"># 生存分析工具</span></span>
+<span id="cb1-5"><a></a><span class="fu">library</span>(pec)             <span class="co"># 生存概率预测</span></span>
+<span id="cb1-6"><a></a><span class="fu">library</span>(tidyverse)       </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section class="slide level2">
 
-<h3 id="数据预处理">数据预处理</h3>
+<h3 id="数据预处理">7.2.3 数据预处理</h3>
+<ul>
+<li><p>randomForestSRC::rfsrc()，定性变量必须设为 factor 类型。</p>
+<ul>
+<li>使用 0/1 数值会被当作连续变量处理，导致模型误判变量类型，影响建模效果与变量重要性的解释。</li>
+</ul></li>
+<li><p>rfsrc() 如何判断变量类型？</p>
+<ul>
+<li><p>factor 类型 → 视为分类变量，使用基于类别的分裂规则；</p></li>
+<li><p>数值型变量（包括 0/1）→ 视为连续变量，用于数值型分裂；</p></li>
+<li><p>字符串类型 → 自动转换为 factor</p></li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<p>数据预处理</p>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="co"># 加载数据</span></span>
 <span id="cb2-2"><a></a><span class="fu">data</span>(GBSG2, <span class="at">package =</span> <span class="st">"TH.data"</span>)</span>
 <span id="cb2-3"><a></a></span>
 <span id="cb2-4"><a></a><span class="co"># 数据预处理</span></span>
-<span id="cb2-5"><a></a>gbsg2 <span class="ot">&lt;-</span> GBSG2 <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a></a>gbsg2 <span class="ot">&lt;-</span> GBSG2 <span class="sc">%&gt;%</span> <span class="co">#对象名用小写，方便代码录入</span></span>
 <span id="cb2-6"><a></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-7"><a></a>    <span class="at">horTh =</span> <span class="fu">as.factor</span>(horTh),</span>
+<span id="cb2-7"><a></a>    <span class="at">horTh =</span> <span class="fu">as.factor</span>(horTh),  <span class="co">#在GBSG2中horTh是Factor,此处是示范如何将数值型转换为因子</span></span>
 <span id="cb2-8"><a></a>    <span class="at">menostat =</span> <span class="fu">as.factor</span>(menostat),</span>
 <span id="cb2-9"><a></a>    <span class="at">tgrade =</span> <span class="fu">as.factor</span>(tgrade)</span>
 <span id="cb2-10"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 </div>
 </section>
 <section class="slide level2">
 
-<h3 id="拟合-rsf-模型">拟合 RSF 模型</h3>
+<h3 id="拟合rsf">7.2.4 拟合RSF</h3>
+<h4 id="rsf语法结构">RSF()语法结构</h4>
+<div class="code-short">
+<div class="sourceCode" id="cb3" data-code-overflow="scroll" data-code-height="50px"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">rfsrc</span>(formula,</span>
+<span id="cb3-2"><a></a>      data,</span>
+<span id="cb3-3"><a></a>      <span class="at">ntree =</span> <span class="dv">1000</span>,</span>
+<span id="cb3-4"><a></a>      <span class="at">mtry =</span> <span class="cn">NULL</span>,</span>
+<span id="cb3-5"><a></a>      <span class="at">nodesize =</span> <span class="cn">NULL</span>,</span>
+<span id="cb3-6"><a></a>      <span class="at">importance =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb3-7"><a></a>      <span class="at">block.size =</span> <span class="dv">1</span>,</span>
+<span id="cb3-8"><a></a>      <span class="at">splitrule =</span> <span class="st">"logrank"</span>,</span>
+<span id="cb3-9"><a></a>      ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="small">
+<ul>
+<li><p>formula Surv(time, status) ~ x1 + x2 + …</p></li>
+<li><p>ntree 构建的树的数量，默认 1000</p></li>
+<li><p>mtry 每次节点分裂时随机选取的变量数，默认是变量个数的平方根</p></li>
+<li><p>nodesize 每棵树终端节点的最小样本数（生存模型中建议 15–25）</p></li>
+<li><p>importance 是否计算变量重要性</p></li>
+<li><p>block.size 控制高维数据的内存计算效率，建议设为 10–50</p></li>
+<li><p>splitrule 分裂标准，生存模型中默认为 “logrank”</p></li>
+</ul>
+</div>
+</section>
+<section class="slide level2">
+
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="co"># 拟合 RSF 模型</span></span>
-<span id="cb3-2"><a></a>rsf_model <span class="ot">&lt;-</span> <span class="fu">rfsrc</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> horTh <span class="sc">+</span> age <span class="sc">+</span> menostat <span class="sc">+</span> tsize <span class="sc">+</span> tgrade <span class="sc">+</span> pnodes <span class="sc">+</span> progrec <span class="sc">+</span> estrec,</span>
-<span id="cb3-3"><a></a>                   <span class="at">data =</span> gbsg2,</span>
-<span id="cb3-4"><a></a>                   <span class="at">ntree =</span> <span class="dv">500</span>,            <span class="co"># 树的数量</span></span>
-<span id="cb3-5"><a></a>                   <span class="at">mtry =</span> <span class="dv">3</span>,               <span class="co"># 每次分裂选择的特征数</span></span>
-<span id="cb3-6"><a></a>                   <span class="at">nodesize =</span> <span class="dv">15</span>,          <span class="co"># 终端节点最小样本数</span></span>
-<span id="cb3-7"><a></a>                   <span class="at">importance =</span> <span class="cn">TRUE</span>)      <span class="co"># 计算变量重要性</span></span>
-<span id="cb3-8"><a></a></span>
-<span id="cb3-9"><a></a><span class="co"># 查看模型摘要</span></span>
-<span id="cb3-10"><a></a><span class="fu">print</span>(rsf_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="co"># 拟合 RSF 模型</span></span>
+<span id="cb4-2"><a></a>rsf_model <span class="ot">&lt;-</span> <span class="fu">rfsrc</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> horTh <span class="sc">+</span> age <span class="sc">+</span> menostat <span class="sc">+</span> tsize <span class="sc">+</span> tgrade <span class="sc">+</span> pnodes <span class="sc">+</span> progrec <span class="sc">+</span> estrec,</span>
+<span id="cb4-3"><a></a>                   <span class="at">data =</span> gbsg2,</span>
+<span id="cb4-4"><a></a>                   <span class="at">ntree =</span> <span class="dv">500</span>,            <span class="co"># 树的数量</span></span>
+<span id="cb4-5"><a></a>                   <span class="at">mtry =</span> <span class="dv">3</span>,               <span class="co"># 变量个数的平方根 </span></span>
+<span id="cb4-6"><a></a>                   <span class="at">nodesize =</span> <span class="dv">15</span>,          <span class="co"># 终端节点最小样本数</span></span>
+<span id="cb4-7"><a></a>                   <span class="at">importance =</span> <span class="cn">TRUE</span>)      <span class="co"># 计算变量重要性</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>查看RSF模型摘要</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="co"># 查看模型摘要</span></span>
+<span id="cb5-2"><a></a>rsf_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                         Sample size: 686
                     Number of deaths: 299
                      Number of trees: 500
            Forest terminal node size: 15
-       Average no. of terminal nodes: 33.128
+       Average no. of terminal nodes: 33.17
 No. of variables tried at each split: 3
               Total no. of variables: 8
        Resampling used to grow trees: swor
@@ -413,127 +475,164 @@ No. of variables tried at each split: 3
                               Family: surv
                       Splitting rule: logrank *random*
        Number of random split points: 10
-                          (OOB) CRPS: 392.95887187
-                   (OOB) stand. CRPS: 0.15999954
-   (OOB) Requested performance error: 0.30630935</code></pre>
+                          (OOB) CRPS: 395.78328138
+                   (OOB) stand. CRPS: 0.16114954
+   (OOB) Requested performance error: 0.30563319</code></pre>
 </div>
 </div>
 </section>
 <section class="slide level2">
 
-<p>输出解读</p>
-<p>Sample size: 686 总样本量为 686，表示模型训练时使用的观察总数。 Number of deaths: 299 发生事件（死亡或目标结局）的数量为 299，剩余样本为审查（censored）数据。 Number of trees: 500 模型构建了 500 棵决策树，这是随机森林的核心参数，控制模型的稳定性和泛化能力。树数较多通常提高精度但增加计算成本。 Forest terminal node size: 15 每棵树的终端节点（leaf node）最小样本数为 15。这是树的复杂度控制参数，防止过拟合。 Average no. of terminal nodes: 33.166 平均每棵树有约 33.166 个终端节点，反映树的平均深度和复杂度。</p>
+<h3 id="rsf模型估计结果解读">7.2.5 RSF模型估计结果解读</h3>
+<ul>
+<li><p>Sample size: 686 总样本量为 686，表示模型训练时使用的观察总数。</p></li>
+<li><p>Number of deaths: 299 发生事件（死亡或目标结局）的数量为 299，剩余样本为审查（censored）数据。</p></li>
+<li><p>Number of trees: 500 模型构建了500棵决策树，这是随机森林的核心参数，控制模型的稳定性和泛化能力。树数较多通常提高精度但增加计算成本。</p></li>
+<li><p>Forest terminal node size: 15 每棵树的终端节点（leaf node）最小样本数为15。这是树的复杂度控制参数，防止过拟合。</p></li>
+<li><p>Average no. of terminal nodes:33.166 平均每棵树有约 33.166 个终端节点，反映树的平均深度和复杂度。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<p>No.&nbsp;of variables tried at each split: 3 每次分裂时随机选择的变量数为 3。这是随机森林的关键特征，通过限制变量数量引入随机性，减少相关性。 Total no. of variables: 8 模型总共使用了 8 个预测变量，可能是如 sex, age, ulcer 等特征（具体取决于数据）。 Resampling used to grow trees: swor 使用了“sampling without replacement”（无放回抽样）方法生长树。这确保每个树基于不同的子样本，提高模型多样性。 Resample size used to grow trees: 434 每棵树生长时使用的子样本大小为 434（约占总样本 686 的 63%），这是无放回抽样的结果。 Analysis: RSF 分析类型为随机生存森林（Random Survival Forest），专门用于生存数据。</p>
+<p>RSF模型估计结果解读</p>
+<ul>
+<li><p>No.&nbsp;of variables tried at each split: 3 每次分裂时随机选择的变量数为 3。随机森林m模型的关键特征，通过限制变量数量引入随机性，减少相关性。</p></li>
+<li><p>Total no. of variables: 8 模型总共使用了 8 个预测变量。</p></li>
+<li><p>Resampling used to grow trees:swor 使用了“sampling without replacement”（无放回抽样）方法生长树。这确保每个树基于不同的子样本，提高模型多样性。</p></li>
+<li><p>Resample size used to grow trees: 434 每棵树生长时使用的子样本大小为 434（约占总样本 686 的 63%），这是无放回抽样的结果。</p></li>
+<li><p>Analysis: RSF分析类型为随机生存森林（Random Survival Forest），专门用于生存数据。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<p>Family: surv 模型家族为“surv”（生存分析），表示处理时间到事件数据。 Splitting rule: logrank random 分裂规则基于 log-rank 统计量，带随机性（random），用于优化节点分裂以最大化生存差异。 Number of random split points: 10 每次分裂尝试 10 个随机切分点，增加随机性并提高计算效率。 (OOB) CRPS: 395.67263386 外部样本（Out-Of-Bag, OOB）累积预测误差 (Cumulative Rank Probability Score, CRPS) 为 395.67。CRPS 衡量预测分布与实际观测的匹配程度，值越小越好。 (OOB) stand. CRPS: 0.16110449 标准化 OOB CRPS 为 0.161，标准化后值在 0 到 1 之间，0.161 表示中等预测精度。 (OOB) Requested performance error: 0.30879613 请求的 OOB 性能误差为 0.309，通常与交叉验证或特定指标（如 Brier 分数）相关，反映模型预测误差的基准。</p>
+<p>RSF模型估计结果解读</p>
+<ul>
+<li><p>Family: surv 模型家族为“surv”（生存分析），表示处理时间到事件数据。</p></li>
+<li><p>Splitting rule: logrank random 分裂规则基于 log-rank 统计量，带随机性（random），用于优化节点分裂以最大化生存差异。</p></li>
+<li><p>Number of random split points: 10 每次分裂尝试 10 个随机切分点，增加随机性并提高计算效率。</p></li>
+<li><p>(OOB) CRPS: 395.67263386</p>
+<ul>
+<li><p>外部样本（Out-Of-Bag, OOB）累积预测误差 (Cumulative Rank Probability Score, CRPS) 为 395.67。</p></li>
+<li><p>CRPS 衡量预测分布与实际观测的匹配程度，值越小越好。</p></li>
+</ul></li>
+<li><p>(OOB) stand. CRPS: 0.16110449 标准化 OOB CRPS 为 0.161。</p>
+<ul>
+<li>标准化后值在 0 到 1 之间，0.161 表示中等预测精度。</li>
+</ul></li>
+<li><p>(OOB) Requested performance error: 0.30879613 请求的 OOB 性能误差为0.309。</p>
+<ul>
+<li>OOB 性能误差 与交叉验证或特定指标（如 Brier分数）相关，反映模型预测误差的基准。</li>
+</ul></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h3 id="提取变量重要性">提取变量重要性</h3>
+<h3 id="计算变量重要性">7.2.6 计算变量重要性</h3>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="co"># 提取变量重要性</span></span>
-<span id="cb5-2"><a></a>var_importance <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb5-3"><a></a>  <span class="at">Variable =</span> <span class="fu">names</span>(rsf_model<span class="sc">$</span>importance),</span>
-<span id="cb5-4"><a></a>  <span class="at">Importance =</span> rsf_model<span class="sc">$</span>importance</span>
-<span id="cb5-5"><a></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-6"><a></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Importance))</span>
-<span id="cb5-7"><a></a>var_importance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># 计算变量重要性</span></span>
+<span id="cb7-2"><a></a>var_importance <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-3"><a></a>  <span class="at">Variable =</span> <span class="fu">names</span>(rsf_model<span class="sc">$</span>importance),</span>
+<span id="cb7-4"><a></a>  <span class="at">Importance =</span> rsf_model<span class="sc">$</span>importance</span>
+<span id="cb7-5"><a></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Importance))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>var_importance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         Variable   Importance
-pnodes     pnodes 0.1616414459
-age           age 0.1134901861
-progrec   progrec 0.0848160926
-estrec     estrec 0.0317991599
-tsize       tsize 0.0249066132
-horTh       horTh 0.0153466834
-tgrade     tgrade 0.0134290742
-menostat menostat 0.0002661427</code></pre>
+pnodes     pnodes 0.1611522459
+age           age 0.1080859247
+progrec   progrec 0.0863406667
+estrec     estrec 0.0350998400
+tsize       tsize 0.0257674972
+tgrade     tgrade 0.0146106773
+horTh       horTh 0.0145439118
+menostat menostat 0.0009477045</code></pre>
 </div>
 </div>
-<p>Importance：变量重要性得分，数值越大表示该变量对预测生存时间或事件发生的贡献越大。</p>
+<p>Importance：变量重要性得分，数值越大表示该变量在区分生存时间或事件发生方面的贡献越大。</p>
 </section>
 <section class="slide level2">
 
-<p>总体解读 排名：pnodes 是最重要变量，贡献约占 16.2%，远高于其他变量。age 和 progrec 也显著，贡献分别约 11.3% 和 8.5%。menostat 几乎无影响 (0.05%)。</p>
-<p>分布：重要性得分差异较大，前三变量 (pnodes, age, progrec) 占主导，其余变量影响较弱。</p>
-<p>含义：这些得分反映变量在 RSF 分裂过程中的累积影响，通常通过 OOB 误差的减少量计算。</p>
-<p>得分高表示该变量在区分生存时间或事件发生方面更有效。</p>
+<h4 id="变量重要性排名解读">变量重要性排名解读</h4>
+<ul>
+<li><p>pnodes 是最重要变量，贡献约占 16.2%，远高于其他变量。</p></li>
+<li><p>age和 progrec 也显著，贡献分别约 11.3% 和 8.5%。</p></li>
+<li><p>menostat 几乎无影响(0.05%)。</p></li>
+<li><p>重要性得分差异较大，前三变量 (pnodes, age, progrec) 占主导，其余变量影响较弱。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-<h3 id="可视化变量重要性">可视化变量重要性</h3>
+<h3 id="变量重要性的可视化条形图">7.2.7 变量重要性的可视化——条形图</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># 可视化变量重要性</span></span>
-<span id="cb7-2"><a></a><span class="fu">ggplot</span>(var_importance, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, Importance), <span class="at">y =</span> Importance)) <span class="sc">+</span></span>
-<span id="cb7-3"><a></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>) <span class="sc">+</span></span>
-<span id="cb7-4"><a></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb7-5"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"变量重要性（RSF）"</span>, <span class="at">x =</span> <span class="st">"变量"</span>, <span class="at">y =</span> <span class="st">"重要性"</span>) <span class="sc">+</span></span>
-<span id="cb7-6"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-
-</div>
-<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
-<section class="slide level2">
-
-<h3 id="预测风险分数">预测风险分数</h3>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="co"># 预测风险分数</span></span>
-<span id="cb8-2"><a></a>risk_scores <span class="ot">&lt;-</span> <span class="fu">predict</span>(rsf_model, <span class="at">newdata =</span> gbsg2)<span class="sc">$</span>predicted</span>
-<span id="cb8-3"><a></a></span>
-<span id="cb8-4"><a></a><span class="fu">head</span>(risk_scores)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1]  42.33449  38.11575  56.94749  30.78709  49.95409 173.48586</code></pre>
-</div>
-</div>
-</section>
-<section class="slide level2">
-
-<p>风险分数（Risk Score）: RSF 模型预测的个体生存风险指标，通常表示个体发生目标事件（如死亡）的相对风险或预期生存时间。</p>
-<p>在生存分析中，风险分数通常是基于累积危险函数（Cumulative Hazard Function, CHF）或类似度量计算的数值。</p>
-<p>风险分数值越高，表示该个体发生事件的概率越大或生存时间越短。</p>
-<p>对于 rsf_model，风险分数可能是每个样本的预期累积危险值（或其转化形式），反映了基于输入特征（如 age, pnodes 等）预测的死亡风险。</p>
-<h3 id="可视化风险分数的分布">可视化风险分数的分布</h3>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="co"># 可视化风险分数的分布</span></span>
-<span id="cb10-2"><a></a><span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">risk =</span> risk_scores), <span class="fu">aes</span>(<span class="at">x =</span> risk)) <span class="sc">+</span></span>
-<span id="cb10-3"><a></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">"lightgreen"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb10-4"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"RSF 风险分数的分布"</span>, <span class="at">x =</span> <span class="st">"风险分数"</span>, <span class="at">y =</span> <span class="st">"频数"</span>) <span class="sc">+</span></span>
-<span id="cb10-5"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="co"># 绘制变量重要性的条形图</span></span>
+<span id="cb10-2"><a></a><span class="fu">ggplot</span>(var_importance, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(Variable, Importance), <span class="at">y =</span> Importance)) <span class="sc">+</span></span>
+<span id="cb10-3"><a></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>) <span class="sc">+</span></span>
+<span id="cb10-4"><a></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb10-5"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"变量重要性（RSF）"</span>, <span class="at">x =</span> <span class="st">"变量"</span>, <span class="at">y =</span> <span class="st">"重要性"</span>) <span class="sc">+</span></span>
+<span id="cb10-6"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
 <img data-src="L7slide_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-<h3 id="风险分数分层">风险分数分层</h3>
+<h3 id="预测风险分数">7.2.8 预测风险分数</h3>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="co"># 风险分数分层</span></span>
-<span id="cb11-2"><a></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb11-3"><a></a>gbsg2<span class="sc">$</span>risk_group <span class="ot">&lt;-</span> <span class="fu">cut</span>(risk_scores, </span>
-<span id="cb11-4"><a></a>                        <span class="at">breaks =</span> <span class="fu">quantile</span>(risk_scores, </span>
-<span id="cb11-5"><a></a>                                          <span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.33</span>, <span class="fl">0.66</span>, <span class="dv">1</span>)), </span>
-<span id="cb11-6"><a></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span>))</span>
-<span id="cb11-7"><a></a>gbsg2<span class="sc">$</span>risk_scores <span class="ot">&lt;-</span> risk_scores</span>
-<span id="cb11-8"><a></a></span>
-<span id="cb11-9"><a></a><span class="fu">table</span>(gbsg2<span class="sc">$</span>risk_group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="co"># 预测风险分数</span></span>
+<span id="cb11-2"><a></a>gbsg2<span class="sc">$</span>risk_score  <span class="ot">&lt;-</span> <span class="fu">predict</span>(rsf_model, <span class="at">newdata =</span> gbsg2)<span class="sc">$</span>predicted</span>
+<span id="cb11-3"><a></a></span>
+<span id="cb11-4"><a></a><span class="fu">summary</span>(gbsg2<span class="sc">$</span>risk_score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  5.242  25.465  41.647  54.104  72.507 175.844 </code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="风险分数risk-score">风险分数（Risk Score）</h4>
+<ul>
+<li><p>随机生存森林模型可输出每个个体的生存风险评分，用于衡量其发生目标事件（如死亡）的相对风险或预期生存时间。在生存分析中，该风险评分通常基于累积危险函数（Cumulative Hazard Function, CHF）计算。</p></li>
+<li><p>风险分数越高，表示该个体累积风险越大，预示其更可能较早发生事件或生存时间较短。</p></li>
+<li><p>在 rsf_model 中，风险分数对应于模型为每个样本估计的预期累积危险值（或其函数变换），体现了在给定协变量（如 age、pnodes 等）条件下预测的个体死亡风险水平。</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="风险分数的可视化">7.2.9 风险分数的可视化</h3>
+<h4 id="风险分数的直方图">风险分数的直方图</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co"># 可视化风险分数的分布</span></span>
+<span id="cb13-2"><a></a>gbsg2 <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> risk_score)) <span class="sc">+</span></span>
+<span id="cb13-4"><a></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">"lightgreen"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb13-5"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"RSF 风险分数的分布"</span>, <span class="at">x =</span> <span class="st">"风险分数"</span>, <span class="at">y =</span> <span class="st">"频数"</span>) <span class="sc">+</span></span>
+<span id="cb13-6"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+</section>
+<section class="slide level2">
+
+<h4 id="高中低风险组分层">高中低风险组分层</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="co"># 风险分数分层</span></span>
+<span id="cb14-2"><a></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb14-3"><a></a>gbsg2<span class="sc">$</span>risk_group <span class="ot">&lt;-</span> <span class="fu">cut</span>(gbsg2<span class="sc">$</span>risk_score, </span>
+<span id="cb14-4"><a></a>                        <span class="at">breaks =</span> <span class="fu">quantile</span>(gbsg2<span class="sc">$</span>risk_score, </span>
+<span id="cb14-5"><a></a>                                          <span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.33</span>, <span class="fl">0.66</span>, <span class="dv">1</span>)), </span>
+<span id="cb14-6"><a></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span>))</span>
+<span id="cb14-7"><a></a></span>
+<span id="cb14-8"><a></a><span class="fu">table</span>(gbsg2<span class="sc">$</span>risk_group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
    Low Medium   High 
@@ -543,50 +642,51 @@ menostat menostat 0.0002661427</code></pre>
 </section>
 <section class="slide level2">
 
-<h3 id="低中高风险组分组箱线图">低中高风险组分组箱线图</h3>
+<h4 id="高中低风险组风险分数箱线图">高中低风险组风险分数箱线图</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co"># 低中高风险组分组箱线图</span></span>
-<span id="cb13-2"><a></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb13-3"><a></a>gbsg2 <span class="sc">%&gt;%</span> </span>
-<span id="cb13-4"><a></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(risk_group)) <span class="sc">%&gt;%</span></span>
-<span id="cb13-5"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> risk_group, <span class="at">y =</span> risk_scores, <span class="at">color =</span> risk_group)) <span class="sc">+</span></span>
-<span id="cb13-6"><a></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
-<span id="cb13-7"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Risk Group"</span>, <span class="at">y =</span> <span class="st">"Risk Score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="co"># 高中低风险组风险分数箱线图</span></span>
+<span id="cb16-2"><a></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb16-3"><a></a>gbsg2 <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(risk_group)) <span class="sc">%&gt;%</span></span>
+<span id="cb16-5"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(risk_group, risk_score, <span class="at">color =</span> risk_group)) <span class="sc">+</span></span>
+<span id="cb16-6"><a></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
+<span id="cb16-7"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Risk Group"</span>, <span class="at">y =</span> <span class="st">"Risk Score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
-<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"></section>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-<h3 id="低中高风险组分组km曲线">低中高风险组分组KM曲线</h3>
+<h3 id="高中低风险组分组km曲线">7.2.10 高中低风险组分组KM曲线</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="co"># 低中高风险组分组KM曲线</span></span>
-<span id="cb14-2"><a></a></span>
-<span id="cb14-3"><a></a><span class="co"># 拟合 Kaplan-Meier 模型</span></span>
-<span id="cb14-4"><a></a>surv_fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> risk_group, <span class="at">data =</span> gbsg2)</span>
-<span id="cb14-5"><a></a></span>
-<span id="cb14-6"><a></a><span class="co"># 绘制 Kaplan-Meier 曲线</span></span>
-<span id="cb14-7"><a></a><span class="fu">library</span>(survminer)</span>
-<span id="cb14-8"><a></a><span class="fu">ggsurvplot</span>(surv_fit, </span>
-<span id="cb14-9"><a></a>           <span class="at">data =</span> gbsg2,</span>
-<span id="cb14-10"><a></a>           <span class="at">palette =</span> <span class="st">"set1"</span>,  <span class="co"># 低、中、高风险颜色</span></span>
-<span id="cb14-11"><a></a>           <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(),</span>
-<span id="cb14-12"><a></a>           <span class="at">legend.title =</span> <span class="st">"Risk Group"</span>,</span>
-<span id="cb14-13"><a></a>           <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span>),</span>
-<span id="cb14-14"><a></a>           <span class="at">xlab =</span> <span class="st">"Time (Days)"</span>,</span>
-<span id="cb14-15"><a></a>           <span class="at">ylab =</span> <span class="st">"Survival Probability"</span>,</span>
-<span id="cb14-16"><a></a>           <span class="at">conf.int =</span> <span class="cn">TRUE</span>)  <span class="co"># 添加置信区间</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a><span class="co"># Kaplan-Meier估计</span></span>
+<span id="cb17-2"><a></a>surv_fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> risk_group, <span class="at">data =</span> gbsg2)</span>
+<span id="cb17-3"><a></a></span>
+<span id="cb17-4"><a></a><span class="co"># 低中高风险组分组KM曲线</span></span>
+<span id="cb17-5"><a></a><span class="fu">library</span>(survminer)</span>
+<span id="cb17-6"><a></a><span class="fu">ggsurvplot</span>(surv_fit, </span>
+<span id="cb17-7"><a></a>           <span class="at">data =</span> gbsg2,</span>
+<span id="cb17-8"><a></a>           <span class="at">palette =</span> <span class="st">"set1"</span>,  <span class="co"># 低、中、高风险颜色</span></span>
+<span id="cb17-9"><a></a>           <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(),</span>
+<span id="cb17-10"><a></a>           <span class="at">legend.title =</span> <span class="st">"Risk Group"</span>,</span>
+<span id="cb17-11"><a></a>           <span class="at">legend.labs =</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span>),</span>
+<span id="cb17-12"><a></a>           <span class="at">xlab =</span> <span class="st">"Time (Days)"</span>,</span>
+<span id="cb17-13"><a></a>           <span class="at">ylab =</span> <span class="st">"Survival Probability"</span>,</span>
+<span id="cb17-14"><a></a>           <span class="at">conf.int =</span> <span class="cn">TRUE</span>)  <span class="co"># 添加置信区间</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="co">#添加 p 值（log-rank 检验）</span></span>
-<span id="cb15-2"><a></a><span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> risk_group, <span class="at">data =</span> gbsg2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<p>高中低组间差异log-rank检验</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a><span class="co"># 高中低组间差异log-rank检验</span></span>
+<span id="cb18-2"><a></a><span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> risk_group, <span class="at">data =</span> gbsg2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
 survdiff(formula = Surv(time, cens) ~ risk_group, data = gbsg2)
@@ -594,138 +694,497 @@ survdiff(formula = Surv(time, cens) ~ risk_group, data = gbsg2)
 n=685, 1 observation deleted due to missingness.
 
                     N Observed Expected (O-E)^2/E (O-E)^2/V
-risk_group=Low    226       24    129.5   85.9880  155.4768
-risk_group=Medium 226      102    104.3    0.0502    0.0772
-risk_group=High   233      173     65.2  178.4172  235.7229
+risk_group=Low    226       26    130.1    83.260   151.460
+risk_group=Medium 226       99    104.0     0.244     0.375
+risk_group=High   233      174     64.9   183.412   242.247
 
- Chisq= 275  on 2 degrees of freedom, p= &lt;2e-16 </code></pre>
+ Chisq= 278  on 2 degrees of freedom, p= &lt;2e-16 </code></pre>
 </div>
 </div>
-<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch"></section>
+</section>
 <section class="slide level2">
 
-<h3 id="计算5个新患者的生存概率">计算5个新患者的生存概率</h3>
+<h3 id="预测患者的生存概率">7.2.11 预测患者的生存概率</h3>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a><span class="fu">library</span>(reshape2)</span>
-<span id="cb17-2"><a></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb17-3"><a></a></span>
-<span id="cb17-4"><a></a><span class="co"># 假设 rsf_model 已经训练好，gbsg2[1:5, ] 是5个新样本</span></span>
-<span id="cb17-5"><a></a><span class="fu">library</span>(pec)</span>
-<span id="cb17-6"><a></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="dv">100</span>)</span>
-<span id="cb17-7"><a></a>surv_pred <span class="ot">&lt;-</span> <span class="fu">predictSurvProb</span>(rsf_model, </span>
-<span id="cb17-8"><a></a>                             <span class="at">newdata =</span> gbsg2[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], </span>
-<span id="cb17-9"><a></a>                             <span class="at">times =</span> times)</span>
-<span id="cb17-10"><a></a><span class="co"># 转成长数据框</span></span>
-<span id="cb17-11"><a></a>df_long <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb17-12"><a></a>  <span class="at">time =</span> <span class="fu">rep</span>(times, <span class="dv">5</span>),</span>
-<span id="cb17-13"><a></a>  <span class="at">surv =</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(surv_pred)),</span>
-<span id="cb17-14"><a></a>  <span class="at">patient =</span> <span class="fu">rep</span>(<span class="fu">paste0</span>(<span class="st">"患者"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), </span>
-<span id="cb17-15"><a></a>                <span class="at">each =</span> <span class="fu">length</span>(times))</span>
-<span id="cb17-16"><a></a>)</span>
-<span id="cb17-17"><a></a></span>
-<span id="cb17-18"><a></a><span class="fu">head</span>(df_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb20-2"><a></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb20-3"><a></a></span>
+<span id="cb20-4"><a></a><span class="co"># 假设 rsf_model 已经训练好，将gbsg2[1:5, ]的前五个样本视作 5个新样本</span></span>
+<span id="cb20-5"><a></a><span class="fu">library</span>(pec)</span>
+<span id="cb20-6"><a></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="dv">100</span>)</span>
+<span id="cb20-7"><a></a>surv_pred <span class="ot">&lt;-</span> <span class="fu">predictSurvProb</span>(rsf_model, </span>
+<span id="cb20-8"><a></a>                             <span class="at">newdata =</span> gbsg2[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], </span>
+<span id="cb20-9"><a></a>                             <span class="at">times =</span> times)</span>
+<span id="cb20-10"><a></a><span class="co"># 转成长数据框</span></span>
+<span id="cb20-11"><a></a>df_long <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb20-12"><a></a>  <span class="at">time =</span> <span class="fu">rep</span>(times, <span class="dv">5</span>),</span>
+<span id="cb20-13"><a></a>  <span class="at">surv =</span> <span class="fu">as.vector</span>(<span class="fu">t</span>(surv_pred)),</span>
+<span id="cb20-14"><a></a>  <span class="at">patient =</span> <span class="fu">rep</span>(<span class="fu">paste0</span>(<span class="st">"患者"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), </span>
+<span id="cb20-15"><a></a>                <span class="at">each =</span> <span class="fu">length</span>(times))</span>
+<span id="cb20-16"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="fu">head</span>(df_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  time      surv patient
 1    0 1.0000000   患者1
-2  100 0.9995317   患者1
-3  200 0.9982135   患者1
-4  300 0.9927463   患者1
-5  400 0.9656378   患者1
-6  500 0.9077589   患者1</code></pre>
+2  100 0.9998490   患者1
+3  200 0.9992339   患者1
+4  300 0.9953144   患者1
+5  400 0.9691764   患者1
+6  500 0.9150668   患者1</code></pre>
 </div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">tail</span>(df_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">tail</span>(df_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    time      surv patient
-100 1500 0.4959512   患者5
-101 1600 0.4509512   患者5
-102 1700 0.4115069   患者5
-103 1800 0.3885710   患者5
-104 1900 0.3495712   患者5
-105 2000 0.3303903   患者5</code></pre>
+100 1500 0.5068537   患者5
+101 1600 0.4637897   患者5
+102 1700 0.4241966   患者5
+103 1800 0.3959339   患者5
+104 1900 0.3581623   患者5
+105 2000 0.3412180   患者5</code></pre>
 </div>
 </div>
 </section>
 <section class="slide level2">
 
-<h3 id="绘制多名患者的生存曲线">绘制多名患者的生存曲线</h3>
+<h3 id="绘制患者的生存曲线">7.2.12 绘制患者的生存曲线</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="co"># 绘制多名患者的生存曲线</span></span>
-<span id="cb21-2"><a></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb21-3"><a></a><span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> surv, <span class="at">color =</span> patient)) <span class="sc">+</span></span>
-<span id="cb21-4"><a></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb21-5"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"前5个患者的预测生存曲线"</span>, </span>
-<span id="cb21-6"><a></a>       <span class="at">x =</span> <span class="st">"时间（天）"</span>, <span class="at">y =</span> <span class="st">"生存概率"</span>, </span>
-<span id="cb21-7"><a></a>       <span class="at">color =</span> <span class="st">"患者"</span>) <span class="sc">+</span></span>
-<span id="cb21-8"><a></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
-<span id="cb21-9"><a></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="co"># 绘制5名患者的生存曲线</span></span>
+<span id="cb25-2"><a></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb25-3"><a></a><span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> surv, <span class="at">color =</span> patient)) <span class="sc">+</span></span>
+<span id="cb25-4"><a></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb25-5"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"前5个患者的预测生存曲线"</span>, </span>
+<span id="cb25-6"><a></a>       <span class="at">x =</span> <span class="st">"时间（天）"</span>, <span class="at">y =</span> <span class="st">"生存概率"</span>, </span>
+<span id="cb25-7"><a></a>       <span class="at">color =</span> <span class="st">"患者"</span>) <span class="sc">+</span></span>
+<span id="cb25-8"><a></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
+<span id="cb25-9"><a></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
-<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch"></section>
+<section id="梯度提升生存模型-gbm-survival简介" class="slide level2">
+<h2>7.3 梯度提升生存模型 (GBM-Survival)简介</h2>
+<h3 id="gbm-survival建模思想">7.3.1 GBM-Survival建模思想</h3>
+<ul>
+<li>梯度提升机（Gradient Boosting Machine, GBM）是一类强大的集成学习方法：</li>
+</ul>
+<blockquote>
+<p>通过迭代训练多个弱学习器（通常为回归树），每一轮模型都修正前一轮的误差，从而逼近真实目标函数。</p>
+</blockquote>
+<ul>
+<li><p>在生存分析中，GBM 可用于优化多种生存目标函数，包括：</p>
+<ul>
+<li><strong>Cox 部分似然函数</strong>：适用于比例风险假设；</li>
+<li><strong>排序损失函数</strong>：如负对数似然、C-index、pairwise loss，用于优化风险排序或生存预测精度。</li>
+</ul></li>
+</ul>
+</section>
 <section class="slide level2">
 
-<h3 id="绘制预测的生存曲线">绘制预测的生存曲线</h3>
+<h3 id="gbm-survival方法优势">7.3.2 GBM-Survival方法优势</h3>
+<p>传统生存模型（如 CoxPH）面临以下限制：</p>
+<ul>
+<li>假设 hazard 与协变量线性相关；</li>
+<li>满足比例风险假设；</li>
+<li>特征数量较少；</li>
+<li>忽略交互作用与非线性结构。</li>
+</ul>
+<p>当假设不成立时，预测性能下降。</p>
+<p>GBM-Survival 优势：</p>
+<ul>
+<li>支持建模<strong>非线性与交互关系</strong>；</li>
+<li><strong>迭代优化</strong>提升预测精度；</li>
+<li>输出<strong>累积危险函数值</strong>或<strong>部分依赖图</strong>，辅助解释。</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="gbm-survival局限与挑战">7.3.3 GBM-Survival局限与挑战</h3>
+<ul>
+<li><strong>解释性较差</strong>：无法像 Cox 回归清晰解释变量作用；</li>
+<li><strong>超参数敏感</strong>：需调参优化，增加建模工作量；</li>
+<li><strong>计算成本高</strong>：样本大时训练耗时；</li>
+<li><strong>不能直接输出生存概率</strong>，需进一步转换；</li>
+<li><strong>缺失值与时间变异变量处理有限</strong>。</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="gbm-survival适用场景">7.3.4 GBM-Survival适用场景</h3>
+<p>GBM-Survival 适用于以下任务：</p>
+<ul>
+<li><strong>高维/复杂变量结构的数据分析</strong>
+<ul>
+<li>如基因组、影像、临床大数据；</li>
+</ul></li>
+<li><strong>生存时间或事件概率预测</strong>
+<ul>
+<li>用于患者分层、预后预测、设备寿命建模；</li>
+</ul></li>
+<li><strong>模型预测能力要求高</strong>
+<ul>
+<li>如 AI 医疗、精准医疗等任务；</li>
+</ul></li>
+<li><strong>传统模型假设不成立或变量筛选需求强</strong>
+<ul>
+<li>不依赖比例风险假设，自动处理特征筛选。</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="gbm-survival数据要求">7.3.5 GBM-Survival数据要求</h3>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>要素</th>
+<th>建议标准</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>样本容量</td>
+<td>最低建议 100–200，推荐 ≥500</td>
+</tr>
+<tr class="even">
+<td>事件数/变量比</td>
+<td>≥5–10，避免过拟合</td>
+</tr>
+<tr class="odd">
+<td>变量个数</td>
+<td>推荐 5–50，若 &gt;50 建议预筛选或降维</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gbm-survival模型实操" class="slide level2">
+<h2>7.4 GBM-Survival模型实操</h2>
+<h3 id="数据背景-1">7.4.1 数据背景</h3>
+<p>GBSG2{TH.data} 686 名乳腺癌患者</p>
+<p>time：生存时间（天）。</p>
+<p>cens：删失状态（1=事件发生，0=删失）</p>
+<p>horTh：激素治疗（yes/no）</p>
+<p>age：年龄</p>
+<p>menostat：绝经状态（Pre/Post）</p>
+<p>tsize：肿瘤大小（毫米）</p>
+<p>tgrade：肿瘤分级（I/II/III）</p>
+<p>pnodes：淋巴结数量</p>
+<p>progrec：孕激素受体</p>
+<p>estrec：雌激素受体</p>
+</section>
+<section class="slide level2">
+
+<h3 id="加载包-1">7.4.2 加载包</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="co"># 加载必要的包</span></span>
+<span id="cb26-2"><a></a><span class="fu">library</span>(survival)        <span class="co"># 生存分析工具</span></span>
+<span id="cb26-3"><a></a><span class="fu">library</span>(TH.data)         <span class="co"># GBSG2 数据集</span></span>
+<span id="cb26-4"><a></a><span class="fu">library</span>(tidyverse)       <span class="co"># 数据处理和可视化</span></span>
+<span id="cb26-5"><a></a><span class="fu">library</span>(gbm)             <span class="co"># Generalized Boosted Regression Modeling</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="数据预处理-1">7.4.3 数据预处理</h3>
+<ul>
+<li><p>gbm::gbm()，定性变量建议设为 factor 类型。</p>
+<ul>
+<li><p>gbm() 能自动处理 factor型变量，会自动哑变量编码（dummy coding），按类别分裂。</p></li>
+<li><p>如果你用0-1数值型变量，gbm()会把它当作连续型变量，决策树会直接比较数值，不是严格按两类分裂</p></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="co"># 数据预处理</span></span>
+<span id="cb27-2"><a></a>gbsg2 <span class="ot">&lt;-</span> GBSG2 <span class="sc">%&gt;%</span>             <span class="co"># 保存到一个新的数据框，对象名称小写</span></span>
+<span id="cb27-3"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb27-4"><a></a>    <span class="at">horTh =</span> <span class="fu">as.factor</span>(horTh),  <span class="co"># R举例如何转成因子</span></span>
+<span id="cb27-5"><a></a>    <span class="at">menostat =</span> <span class="fu">as.factor</span>(menostat),</span>
+<span id="cb27-6"><a></a>    <span class="at">tgrade =</span> <span class="fu">as.factor</span>(tgrade)</span>
+<span id="cb27-7"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="拟合gbm-survival模型">7.4.4 拟合GBM-Survival模型</h3>
+<h4 id="gbm语法结构">gbm()语法结构</h4>
+<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="fu">gbm</span>(formula, </span>
+<span id="cb28-2"><a></a>    <span class="at">distribution =</span> <span class="st">"bernoulli"</span>, </span>
+<span id="cb28-3"><a></a>    <span class="at">data =</span> <span class="fu">list</span>(), </span>
+<span id="cb28-4"><a></a>    <span class="at">n.trees =</span> <span class="dv">100</span>, </span>
+<span id="cb28-5"><a></a>    <span class="at">interaction.depth =</span> <span class="dv">1</span>, </span>
+<span id="cb28-6"><a></a>    <span class="at">shrinkage =</span> <span class="fl">0.1</span>, </span>
+<span id="cb28-7"><a></a>    <span class="at">bag.fraction =</span> <span class="fl">0.5</span>, </span>
+<span id="cb28-8"><a></a>    <span class="at">verbose =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb28-9"><a></a>    ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section class="slide level2">
+
+<h4 id="关键参数解释">关键参数解释</h4>
+<ul>
+<li><strong><code>distribution = "coxph"</code></strong>
+<ul>
+<li><strong>含义</strong>: 指定使用 Cox 比例风险模型的似然函数作为优化目标，适用于生存分析。<br>
+</li>
+<li><strong>用法</strong>: 设为 <code>"coxph"</code> 时，模型基于部分似然估计风险，适合处理生存时间和审查数据（如 <code>Surv(time, cens)</code>）。</li>
+</ul></li>
+<li><strong><code>n.trees = 100</code></strong>
+<ul>
+<li><strong>含义</strong>: 构建的树的数量，控制模型的迭代次数和复杂度。<br>
+</li>
+<li><strong>用法</strong>: 值越大（如 100-500）捕捉更多模式，但可能过拟合，建议结合交叉验证调整。</li>
+</ul></li>
+<li><strong><code>interaction.depth = 3</code></strong>
+<ul>
+<li><strong>含义</strong>: 每棵树的深度，决定变量间交互的阶数。<br>
+</li>
+<li><strong>用法</strong>: 设为 3 表示允许三阶交互，增强非线性建模，但过高可能导致过拟合。</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h4 id="关键参数解释-1">关键参数解释</h4>
+<ul>
+<li><strong><code>shrinkage = 0.1</code></strong>
+<ul>
+<li><strong>含义</strong>: 学习率，控制每次迭代的步长，影响收敛速度和稳定性。<br>
+</li>
+<li><strong>用法</strong>: 0.1 较高，收敛快但可能不稳定，建议降低至 0.01-0.05 并增加 <code>n.trees</code>。</li>
+</ul></li>
+<li><strong><code>bag.fraction = 0.5</code></strong>
+<ul>
+<li><strong>含义</strong>: 每次迭代中随机采样的比例，引入随机性以增强模型鲁棒性。<br>
+</li>
+<li><strong>用法</strong>: 0.5 表示使用 50% 数据训练每棵树，值可调至 0.5-0.7 优化性能。</li>
+</ul></li>
+<li><strong><code>verbose = FALSE</code></strong>
+<ul>
+<li><strong>含义</strong>: 控制是否打印训练过程中的详细信息。<br>
+</li>
+<li><strong>用法</strong>: 设为 <code>FALSE</code> 静默运行，设为 <code>TRUE</code> 可调试模型过程。</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a><span class="co"># 拟合 GBM-Survival 模型</span></span>
+<span id="cb29-2"><a></a>gbm_model <span class="ot">&lt;-</span> <span class="fu">gbm</span>(<span class="fu">Surv</span>(time, cens) <span class="sc">~</span> horTh <span class="sc">+</span> age <span class="sc">+</span> menostat <span class="sc">+</span> tsize <span class="sc">+</span> </span>
+<span id="cb29-3"><a></a>                   tgrade <span class="sc">+</span> pnodes <span class="sc">+</span> progrec <span class="sc">+</span> estrec,</span>
+<span id="cb29-4"><a></a>                 <span class="at">data =</span> gbsg2,</span>
+<span id="cb29-5"><a></a>                 <span class="at">distribution =</span> <span class="st">"coxph"</span>,  <span class="co"># 使用 Cox 似然</span></span>
+<span id="cb29-6"><a></a>                 <span class="at">n.trees =</span> <span class="dv">100</span>,           <span class="co"># 树的数量</span></span>
+<span id="cb29-7"><a></a>                 <span class="at">interaction.depth =</span> <span class="dv">3</span>,   <span class="co"># 树的深度</span></span>
+<span id="cb29-8"><a></a>                 <span class="at">shrinkage =</span> <span class="fl">0.1</span>,         <span class="co"># 学习率</span></span>
+<span id="cb29-9"><a></a>                 <span class="at">bag.fraction =</span> <span class="fl">0.5</span>,      <span class="co"># 随机采样的比例</span></span>
+<span id="cb29-10"><a></a>                 <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="查看模型摘要">查看模型摘要</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a><span class="fu">summary</span>(gbm_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+<div class="cell-output cell-output-stdout">
+<pre><code>              var   rel.inf
+pnodes     pnodes 26.260071
+progrec   progrec 19.699422
+age           age 17.942018
+tsize       tsize 15.076689
+estrec     estrec 12.273676
+horTh       horTh  5.156244
+tgrade     tgrade  3.591881
+menostat menostat  0.000000</code></pre>
+</div>
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-21-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="变量重要性评估">7.4.5 变量重要性评估</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="co"># 计算变量相对影响</span></span>
+<span id="cb32-2"><a></a>rel_inf <span class="ot">&lt;-</span> <span class="fu">summary</span>(gbm_model)<span class="sc">$</span>rel.inf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a>rel_inf_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">variable =</span> <span class="fu">names</span>(gbsg2)[<span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>], </span>
+<span id="cb33-2"><a></a>                         <span class="at">importance =</span> rel_inf)</span>
+<span id="cb33-3"><a></a></span>
+<span id="cb33-4"><a></a>rel_inf_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  variable importance
+1    horTh  26.260071
+2      age  19.699422
+3 menostat  17.942018
+4    tsize  15.076689
+5   tgrade  12.273676
+6   pnodes   5.156244
+7  progrec   3.591881
+8   estrec   0.000000</code></pre>
+</div>
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-22-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<p>绘制变量相对影响条形图</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a></a><span class="fu">ggplot</span>(rel_inf_df, </span>
+<span id="cb35-2"><a></a>       <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(variable, importance), <span class="at">y =</span> importance)) <span class="sc">+</span></span>
+<span id="cb35-3"><a></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#A0D8EF"</span>) <span class="sc">+</span></span>
+<span id="cb35-4"><a></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb35-5"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"变量相对影响（GBM-Survival）"</span>, <span class="at">x =</span> <span class="st">"变量"</span>, <span class="at">y =</span> <span class="st">"相对影响"</span>) <span class="sc">+</span></span>
+<span id="cb35-6"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-23-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="计算风险分数">7.4.6 计算风险分数</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a></a><span class="co"># 计算风险分数</span></span>
+<span id="cb36-2"><a></a>gbsg2<span class="sc">$</span>risk_score_gbm <span class="ot">&lt;-</span> <span class="fu">predict</span>(gbm_model, <span class="at">newdata =</span> gbsg2, <span class="at">n.trees =</span> <span class="dv">100</span>)</span>
+<span id="cb36-3"><a></a></span>
+<span id="cb36-4"><a></a><span class="fu">summary</span>(gbsg2<span class="sc">$</span>risk_score_gbm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-2.9533 -1.4338 -0.9439 -0.8170 -0.2287  1.8224 </code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="风险分数的直方图-1">风险分数的直方图</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a></a>gbsg2 <span class="sc">%&gt;%</span> </span>
+<span id="cb38-2"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(risk_score_gbm)) <span class="sc">+</span></span>
+<span id="cb38-3"><a></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb38-4"><a></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"GBM-Survival 风险分数的分布"</span>, <span class="at">x =</span> <span class="st">"风险分数"</span>, <span class="at">y =</span> <span class="st">"频数"</span>) <span class="sc">+</span></span>
+<span id="cb38-5"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-25-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="单变量部份依赖图">7.4.7 单变量部份依赖图</h3>
+<p>部分依赖图（Partial Dependence Plot, PDP）是一种可视化工具，用于展示一个或多个特征（预测变量）对机器学习模型预测输出的边际效应，忽略其他变量的交互影响。</p>
+<p>它通过对其他变量取平均值，隔离目标变量（如pnodes）的贡献，生成一个平均化的效应曲线。</p>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a></a><span class="fu">library</span>(pdp)</span>
+<span id="cb39-2"><a></a>pd_1d <span class="ot">&lt;-</span> <span class="fu">partial</span>(gbm_model, <span class="at">pred.var =</span> <span class="st">"pnodes"</span>, </span>
+<span id="cb39-3"><a></a>                 <span class="at">n.trees =</span> <span class="dv">100</span>, <span class="at">train =</span> GBSG2)</span>
+<span id="cb39-4"><a></a><span class="fu">autoplot</span>(pd_1d, <span class="at">rug =</span> <span class="cn">TRUE</span>, <span class="at">train =</span> gbsg2) <span class="sc">+</span></span>
+<span id="cb39-5"><a></a>  <span class="fu">geom_line</span>(<span class="at">color=</span><span class="st">"navy"</span>) <span class="sc">+</span></span>
+<span id="cb39-6"><a></a>  <span class="fu">geom_smooth</span>(<span class="at">color =</span> <span class="st">"lightblue"</span>,</span>
+<span id="cb39-7"><a></a>              <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-26-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<ul>
+<li><p>partial() 函数输出模型预测值, 即对数累积危险</p></li>
+<li><p>X轴代表淋巴结数量, Y轴代对数累积危险</p></li>
+<li><p>若曲线呈上升趋势，表明淋巴结数量(pnodes)增加与风险升高相关</p></li>
+<li><p>若有拐点或平台，提示非线性效应（如低 pnodes 时风险低，超过某阈值后急升）</p></li>
+<li><p>rug 标记：横轴上的小标记表示训练数据 pnodes的分布，注意曲线在数据稀疏区域（标记少）的外推风险。</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="多变量部分依赖图-2d-pdp">7.4.8 多变量部分依赖图 (2D PDP)</h3>
+<ul>
+<li><p>展示两个预测变量（如 pnodes 和 age）的联合边际效应，通常以伪彩色级别图或等高线图形式。</p></li>
+<li><p>chull = TRUE 限制范围在训练数据凸包内，contour = TRUE 添加等高线</p></li>
+<li><p>颜色/伪彩色：表示对数累积危险（log hazard）的强度，深色为低风险，浅色为高风险</p></li>
+<li><p>等高线：contour = TRUE 添加的线表示 log hazard的等值线，密集线段提示风险梯度大。</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="co"># 预测生存曲线（示例：前 5 个患者）</span></span>
-<span id="cb22-2"><a></a>surv_pred <span class="ot">&lt;-</span> <span class="fu">predictSurvProb</span>(rsf_model, <span class="at">newdata =</span> gbsg2[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">times =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="at">by =</span> <span class="dv">200</span>))</span>
-<span id="cb22-3"><a></a><span class="fu">matplot</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">2000</span>, <span class="at">by =</span> <span class="dv">200</span>), <span class="fu">t</span>(surv_pred), <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
-<span id="cb22-4"><a></a>        <span class="at">xlab =</span> <span class="st">"时间（天）"</span>, <span class="at">ylab =</span> <span class="st">"生存概率"</span>,</span>
-<span id="cb22-5"><a></a>        <span class="at">main =</span> <span class="st">"前 5 个患者的预测生存曲线"</span>)</span>
-<span id="cb22-6"><a></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">lty =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">title =</span> <span class="st">"患者 ID"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a></a>pd_2d <span class="ot">&lt;-</span> <span class="fu">partial</span>(gbm_model, </span>
+<span id="cb40-2"><a></a>                 <span class="at">pred.var =</span> <span class="fu">c</span>(<span class="st">"pnodes"</span>, <span class="st">"age"</span>), </span>
+<span id="cb40-3"><a></a>                 <span class="at">n.trees =</span> <span class="dv">100</span>, <span class="at">chull =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb40-4"><a></a></span>
+<span id="cb40-5"><a></a><span class="fu">autoplot</span>(pd_2d, <span class="at">contour =</span> <span class="cn">TRUE</span>, <span class="at">legend.title =</span> <span class="st">"Log Hazard"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
-<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-14-1.png" width="960" class="r-stretch"></section>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-27-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-</section>
-<section id="梯度提升生存模型-gbm-survival" class="slide level2">
-<h2>7.3 梯度提升生存模型 (GBM-Survival)</h2>
-<p>概念：GBM-Survival 使用梯度提升技术（类似 XGBoost）构建多个弱生存模型，逐步优化预测。目标是最小化损失函数（如负对数似然）。 优点： 捕捉复杂非线性关系。 通过调整参数（如学习率、树数）实现灵活性。 提供变量重要性和部分依赖图。 R 实现：使用 gbm 或 survivalmodels 包，结合 ggplot2 进行可视化。 适合人群：对提升方法有兴趣的初学者，稍复杂但直观。 2. 数据集介绍 我们使用 GBSG2 数据集（TH.data 包），包含 686 名乳腺癌患者的生存数据。</p>
-<p>变量： time：生存时间（天）。 cens：删失状态（1=事件发生，0=删失）。 horTh：激素治疗（yes/no）。 age：年龄。 menostat：绝经状态（Pre/Post）。 tsize：肿瘤大小（毫米）。 tgrade：肿瘤分级（I/II/III）。 pnodes：淋巴结数量。 progrec：孕激素受体。 estrec：雌激素受体。 目标：预测生存时间，评估协变量对生存的影响。 3. 随机生存森林 (RSF) 示例 3.1 方法介绍 RSF 通过构建多棵树，预测每个患者的生存概率或风险分数。变量重要性帮助识别关键因素，如淋巴结数量（pnodes）。</p>
-</section>
-<section id="gbm-survival应用举例gbsg2" class="slide level2">
-<h2>7.1 GBM-Survival应用举例：GBSG2</h2>
-</section>
-<section class="slide level2">
-
+<h4 id="如何读懂2d-pdp">如何读懂2D PDP?</h4>
+<ul>
+<li><p>颜色梯度：观察颜色从深到浅的变化，浅色区域（如 pnodes &gt; 10 和 age &gt; 60）表示高风险。</p></li>
+<li><p>等高线解读：等高线密集处（如 pnodes = 5-10）表明风险快速变化。</p></li>
+<li><p>凸包限制：chull = TRUE 确保仅显示训练数据范围，避免外推。</p></li>
+<li><p>交互效应：若颜色变化主要随 pnodes 而非 age，说明 pnodes 占主导；若有交叉模式，提示两变量交互。</p></li>
+<li><p>临床意义：例如，若 age &lt; 50 时 pnodes 影响小，但 age &gt; 70 时风险随 pnodes 激增，可能反映老年患者更脆弱。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a></a><span class="fu">plotPartial</span>(pd_2d, <span class="at">levelplot =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb41-2"><a></a>            <span class="at">contour =</span> <span class="cn">TRUE</span>, <span class="at">contour.color =</span> <span class="st">"white"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-28-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="个体条件期望曲线ice-curves">7.4.9 个体条件期望曲线ICE Curves</h3>
+<ul>
+<li><p>Individual Conditional Expectation, ICE, ICE 为每个观测值生成单独的曲线，而不是平均效应，反映 pnodes 对该样本风险的个性化效应。</p>
+<ul>
+<li>每个观测值（GBSG2 数据中的行）, 在 pnodes 不同值上, 预测的个体的对数累积危险。</li>
+</ul></li>
+<li><p>ICE曲线存在相交说明：存在特征交互效应, 模型对特征X的效应与其他变量有关，存在变量间交互作用。</p></li>
+<li><p>部分依赖图（PDP）是ICE曲线的均值。ICE曲线大范围相交时，PDP会掩盖不同个体的异质性，PDP的解释力变弱。</p></li>
+</ul>
 </section>
 <section class="slide level2">
 
-</section>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a></a>ice_curves <span class="ot">&lt;-</span> <span class="fu">partial</span>(gbm_model, </span>
+<span id="cb42-2"><a></a>                      <span class="at">pred.var =</span> <span class="st">"pnodes"</span>, </span>
+<span id="cb42-3"><a></a>                      <span class="at">ice =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb42-4"><a></a>                      <span class="at">n.trees =</span> <span class="dv">100</span>)</span>
+<span id="cb42-5"><a></a><span class="fu">plotPartial</span>(ice_curves, <span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="at">rug =</span> <span class="cn">TRUE</span>, <span class="at">train =</span> gbsg2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-29-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-</section>
+<p>个体条件期望曲线ICE Curves</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a></a><span class="fu">autoplot</span>(ice_curves, <span class="at">center =</span> <span class="cn">FALSE</span>, <span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="at">pdp.color =</span> <span class="st">"red"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-30-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-</section>
+<p>7.4.10 中心化个体条件期望曲线 (c-ICE Curves)</p>
+<p>目的：中心化后更易观察个体效应差异。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a></a>cice_curves <span class="ot">&lt;-</span> <span class="fu">partial</span>(gbm_model, <span class="at">pred.var =</span> <span class="st">"pnodes"</span>, <span class="at">ice =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb44-2"><a></a>                       <span class="at">center =</span> <span class="cn">TRUE</span>, <span class="at">n.trees =</span> <span class="dv">100</span>)</span>
+<span id="cb44-3"><a></a><span class="fu">autoplot</span>(cice_curves, <span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="at">pdp.color =</span> <span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L7slide_files/figure-revealjs/unnamed-chunk-31-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-</section>
-<section class="slide level2">
-
-</section>
-<section class="slide level2">
-
-</section>
-<section class="slide level2">
-
-</section>
-<section class="slide level2">
-
+<p>总结</p>
 
 
 </section>

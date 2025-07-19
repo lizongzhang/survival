@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.6.42">
 
   <meta name="author" content="Lzz">
-  <meta name="dcterms.date" content="2025-07-18">
+  <meta name="dcterms.date" content="2025-07-19">
   <title>R生存分析 – L6 竞争风险模型</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -248,7 +248,7 @@ z-index: 1000;">
 </div>
 </div>
 
-  <p class="date">2025-07-18</p>
+  <p class="date">2025-07-19</p>
 </section>
 <section id="大纲" class="slide level2">
 <h2>大纲</h2>
@@ -261,51 +261,99 @@ z-index: 1000;">
 <section id="竞争风险模型简介" class="slide level2">
 <h2>6.1 竞争风险模型简介</h2>
 <ul>
-<li><p>竞争风险分析（Competing Risks Analysis）是生存分析的分支，处理目标事件受其他“竞争事件”干扰的情况，后者可能先发生并阻止目标事件。</p></li>
-<li><p>示例：研究癌症患者因病死亡时，其他原因（如心血管病）死亡为竞争事件。</p></li>
+<li><p>竞争风险模型（Competing Risks Model）在存在多种互斥结局时，用于分析和比较特定结局发生概率及影响因素的统计方法。</p>
+<ul>
+<li><p>竞争风险Competing Risks()：是指在随访或观察期间，研究对象有可能因为多种不同且互斥的原因发生终点事件，一旦发生其中一种事件，就无法再经历其他事件。</p></li>
+<li><p>各种终点事件“竞争”着谁先发生</p></li>
+<li><p>这些事件互相排斥，每个对象只能经历其中之一。</p></li>
+</ul></li>
+<li><p>传统的生存分析（如Kaplan-Meier、Cox回归）往往只关注单一结局，忽略了其他风险事件的影响，可能导致结果偏倚。</p></li>
 </ul>
 </section>
 <section class="slide level2">
 
-<h3 id="为什么需要竞争风险分析">为什么需要竞争风险分析？</h3>
+</section>
+<section>
+<section id="竞争风险模型设定" class="title-slide slide level1 center">
+<h1>6.1.1 竞争风险模型设定</h1>
+<p>竞争风险模型假设每个研究对象在随访期间仅会经历一种事件（如死亡、复发、失访等），事件之间相互排斥。</p>
 <ul>
-<li><p>传统生存分析（如Kaplan-Meier、Cox模型）假设删失是独立的，与目标事件风险无关。</p></li>
-<li><p>现实中，竞争事件（如其他原因死亡）会阻止目标事件，导致删失不独立，传统方法可能低估风险。</p></li>
+<li><strong>累积发生率函数（Cumulative Incidence Function, CIF）</strong>：估计特定结局在给定时间发生的概率。</li>
+<li><strong>Fine-Gray模型</strong>：Fine-Gray模型就是在多种互斥结局同时可能发生时，用来分析特定结局风险和影响因素的工具。。</li>
+<li><strong>Cause-specific Hazard模型</strong>：分别对每种结局建模，主要用于机制解释。</li>
 </ul>
+<p>模型设定需明确每类事件的定义，并正确标注事件类型（如status=0为无事件，1为事件A，2为事件B等）。</p>
 </section>
 <section class="slide level2">
 
-<h3 id="应用场景">应用场景</h3>
+<h4 id="竞争风险分析核心概念">竞争风险分析核心概念</h4>
+<p>竞争风险分析通过累积发生概率或亚分布风险来估计目标事件的概率。</p>
 <ul>
-<li><p>医学：分析特定疾病死亡概率，考虑其他死亡原因。</p></li>
-<li><p>工程：分析设备特定故障失效时间，考虑其他故障。</p></li>
-<li><p>社会学：分析失业人员找到工作的概率，竞争事件如退出劳动力市场。</p></li>
-</ul>
-</section>
-<section class="slide level2">
-
-<h3 id="竞争风险分析核心概念">竞争风险分析核心概念</h3>
-<p>竞争风险分析通过累积发生概率（Cumulative Incidence Function, CIF）或亚分布风险（Subdistribution Hazard）来估计目标事件的概率。</p>
-<ul>
-<li><p>累积发生概率（Cumulative Incidence Function, CIF）: 在某时间点前，目标事件发生的概率，考虑了竞争事件的影响。</p></li>
-<li><p>亚分布风险：针对目标事件的特定风险函数，用于建模协变量对 CIF 的影响。</p></li>
+<li><p>累积发生率函数(Cumulative Incidence Function, CIF): 在某时间点前，目标事件发生的累积概率。</p></li>
+<li><p>亚分布风险(Subdistribution Hazard)：在所有样本中，某一特定事件（如目标事件）在某时刻尚未发生的情况下，单位时间内首次发生该事件的速率，即便有些样本已经因为其他事件（竞争事件）而“失去观察”也要“留在分母里”。</p></li>
+<li><p>传统风险率（如Cox模型）只考虑还没发生任何事件的个体。</p></li>
+<li><p>亚分布风险则把已经发生了竞争事件的人继续留在统计基数中（虽然这些人实际上不会再发生目标事件），以便更准确地反映实际发生概率。</p></li>
 </ul>
 <p>Fine-Gray模型：一种常用的竞争风险回归模型，基于亚分布风险，估计协变量对目标事件累积发生概率的影响。</p>
-<p>Gray 检验：比较不同组的CIF，适用于竞争风险。</p>
+<p>Gray 检验：比较在存在竞争风险时，不同组的CIF是否存在显著差异。</p>
 </section>
 <section class="slide level2">
 
-<h3 id="竞争风险模型数学框架">竞争风险模型数学框架</h3>
-<p>累积发生概率（CIF） 对于目标事件 <span class="math inline">\(k\)</span> <span class="math inline">\(，CIF 定义为：\)</span><span class="math inline">\(CIF_k(t) = P(T \leq t, \text{事件类型} = k)\)</span>$ 其中 $ T $ 是事件发生时间，CIF 考虑了所有竞争事件的发生概率。</p>
-<p>Fine-Gray 模型</p>
-<p>Fine-Gray 模型基于亚分布风险函数，假设协变量对目标事件的亚分布风险有比例效应： <span class="math display">\[h_k(t | X) = h_{k0}(t) \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)\]</span> 其中：</p>
-<p>$ h_k(t | X) $：目标事件 $ k $ 的亚分布风险。</p>
-<p>$ h_{k0}(t) $：基线亚分布风险。</p>
-<p>$ _i $：协变量 $ X_i $ 的回归系数，解释变量对 CIF 的影响</p>
+<h4 id="竞争风险模型数学框架">竞争风险模型数学框架</h4>
+<p>累积发生概率（CIF） 对于目标事件 <span class="math inline">\(k\)</span> <span class="math inline">\(，CIF 定义为：\)</span><span class="math inline">\(CIF_k(t) = P(T \leq t, \text{事件类型} = k)\)</span>$ 其中 <span class="math inline">\(T\)</span> 是事件发生时间，CIF 考虑了所有竞争事件的发生概率。</p>
+<p>Fine-Gray 模型基于亚分布风险函数(Subdistribution Hazard)，假设协变量对目标事件的亚分布风险有比例效应： <span class="math display">\[h_k(t | X) = h_{k0}(t) \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)\]</span></p>
+<p><span class="math inline">\(h_k(t\|X)\)</span>：目标事件<span class="math inline">\(k\)</span>的亚分布风险。</p>
+<p><span class="math inline">\(h_{k0}(t)\)</span>：基线亚分布风险。</p>
+<p><span class="math inline">\(\beta\_i\)</span>：协变量<span class="math inline">\(X_i\)</span> 的回归系数，解释变量对 CIF 的影响。</p>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="竞争风险模型优势" class="title-slide slide level1 center">
+<h1>6.1.2 竞争风险模型优势</h1>
+<ul>
+<li><p><strong>真实反映多结局过程</strong>：同时考虑各类风险事件，避免高估单一结局的发生率。</p></li>
+<li><p><strong>避免传统生存分析偏倚</strong>：Kaplan-Meier等方法在存在竞争风险时会高估目标事件概率，竞争风险模型能准确估计。</p></li>
+<li><p><strong>可比较不同组别累计发生率</strong>：通过CIF曲线和Gray检验比较不同亚组的特定事件概率。</p></li>
+<li><p><strong>可回归分析协变量影响</strong>：Fine-Gray模型可分析协变量对特定结局的影响，更适用于临床风险分层。</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="竞争风险模型适用场景" class="title-slide slide level1 center">
+<h1>6.1.3 竞争风险模型适用场景</h1>
+<ul>
+<li><p><strong>医学随访研究</strong>：如肿瘤患者因肿瘤死亡与非肿瘤死亡是竞争风险。</p></li>
+<li><p><strong>器官移植</strong>：移植失败和患者死亡互为竞争风险。</p></li>
+<li><p><strong>流行病学队列</strong>：多种排他性结局（如多种疾病的首次发作）分析。</p></li>
+<li><p><strong>失访/退出研究</strong>：失访与终点事件互为竞争风险时。</p></li>
+</ul>
+</section>
+<section id="竞争风险模型数据要求" class="slide level2">
+<h2>6.1.4 竞争风险模型数据要求</h2>
+<h3 id="对样本容量的要求">对样本容量的要求</h3>
+<ul>
+<li><p>事件数而非总样本数更关键</p>
+<ul>
+<li>竞争风险分析的统计效能主要取决于每种结局（即每类事件类型）的实际发生数，而不是总样本数。</li>
+</ul></li>
+<li><p>每类（目标）竞争事件的发生例数越多越好，建议每个自变量对应的目标事件数≥10。</p></li>
+<li><p>每类（目标）竞争事件的发生例数越多越好，建议每个自变量对应的目标事件数≥10。</p></li>
+<li><p>目标事件的发生概率明显高于竞争事件的发生概率。</p></li>
+<li><p>某些竞争事件发生率极低时，模型参数可能估计不稳定，建议合并类别或减少变量数量。</p></li>
+</ul>
+<h3 id="对变量个数的要求">对变量个数的要求</h3>
+<ul>
+<li>通用经验：“事件数/变量数比”建议≥10</li>
+</ul>
 </section>
 <section id="tidycmprsk-和-cmprsk" class="slide level2">
 <h2>6.2 <code>tidycmprsk</code> 和 <code>cmprsk</code></h2>
 <p>推荐使用：tidycmprsk::cuminc(…)</p>
+<p>明确声明调用tidycmprsk中的cuminc(), 避免使用其它函数如<code>ggcuminc()</code>时报错。</p>
 <ul>
 <li><p>tidycmprsk::cuminc()</p>
 <ul>
@@ -317,17 +365,15 @@ z-index: 1000;">
 </ul></li>
 </ul>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">find</span>(<span class="st">"cuminc"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 <div class="cell-output cell-output-stdout">
-<pre><code>character(0)</code></pre>
+<pre><code>[1] "package:cmprsk"     "package:tidycmprsk"</code></pre>
 </div>
 </div>
 </section>
-<section id="应用举例竞争风险fine-gray模型" class="slide level2">
-<h2>6.3 应用举例：竞争风险Fine-Gray模型</h2>
+<section id="竞争风险fine-gray模型实操" class="slide level2">
+<h2>6.3 竞争风险Fine-Gray模型实操</h2>
+<h3 id="数据背景">6.3.1 数据背景</h3>
 <p>{MASS} 包中的 Melanoma 黑色素瘤数据</p>
 <ul>
 <li><p>time：生存时间（天），可能为删失数据。</p></li>
@@ -341,9 +387,25 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-<h3 id="数据准备">6.3.1 数据准备</h3>
+<h3 id="数据准备">6.3.2 数据准备</h3>
 <p>编码：0=删失，1=目标事件，2=竞争事件</p>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="co"># 加载 MASS 包中的 Melanoma 数据集</span></span>
+<span id="cb3-2"><a></a><span class="fu">data</span>(Melanoma, <span class="at">package =</span> <span class="st">"MASS"</span>)</span>
+<span id="cb3-3"><a></a></span>
+<span id="cb3-4"><a></a><span class="co"># Melanoma 中的status：1 表示因黑色素瘤死亡，2 表示存活，3 表示因其他原因死亡</span></span>
+<span id="cb3-5"><a></a><span class="co"># 重编码 status，并转换为因子型</span></span>
+<span id="cb3-6"><a></a>Melanoma <span class="ot">&lt;-</span> </span>
+<span id="cb3-7"><a></a>  Melanoma <span class="sc">%&gt;%</span> </span>
+<span id="cb3-8"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-9"><a></a>    <span class="at">status =</span> <span class="fu">as.factor</span>(<span class="fu">recode</span>(status, <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>, <span class="st">`</span><span class="at">3</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">2</span>))</span>
+<span id="cb3-10"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="fu">head</span>(Melanoma) <span class="co"># 查看数据前6行，检查数据结构</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  time status sex age year thickness ulcer
 1   10      2   1  76 1972      6.76     1
@@ -357,18 +419,12 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-</section>
-<section class="slide level2">
-
-<h3 id="计算cif">6.3.2 计算CIF</h3>
-<h4 id="计算无分组cif">计算无分组CIF</h4>
+<h3 id="计算cif">6.3.3 计算CIF</h3>
+<p>计算观测到到目标事件/竞争事件的累积发生率</p>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="co"># 计算无分组的竞争风险累积发生概率（CIF）</span></span>
-<span id="cb4-2"><a></a>cif <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma)</span>
-<span id="cb4-3"><a></a>cif</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="co"># 计算目标事件/竞争事件的累积发生概率（CIF）</span></span>
+<span id="cb6-2"><a></a>cif <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma)</span>
+<span id="cb6-3"><a></a>cif</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>time    n.risk   estimate   std.error   95% CI          
 1,000   171      0.127      0.023       0.086, 0.177    
@@ -398,34 +454,32 @@ z-index: 1000;">
 <section class="slide level2">
 
 <h4 id="计算分组cif">计算分组CIF</h4>
+<p>按照是否有溃疡(ulcer)分为两组，计算这两个组别的CIF</p>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># 按ulcer分组，计算并展示5年（1826.25天）时点的CIF表，并进行组间比较</span></span>
-<span id="cb7-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
-<span id="cb7-4"><a></a>    <span class="at">times =</span> <span class="fl">1826.25</span>, </span>
-<span id="cb7-5"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-6"><a></a>  <span class="fu">add_p</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="co"># 按ulcer分组，计算并展示5年（1826.25天）时点的CIF表，并进行组间比较</span></span>
+<span id="cb9-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
+<span id="cb9-4"><a></a>    <span class="at">times =</span> <span class="fl">1826.25</span>, </span>
+<span id="cb9-5"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-6"><a></a>  <span class="fu">add_p</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="mbnzhsexvh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#mbnzhsexvh table {
+<div id="cojufgkufr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cojufgkufr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#mbnzhsexvh thead, #mbnzhsexvh tbody, #mbnzhsexvh tfoot, #mbnzhsexvh tr, #mbnzhsexvh td, #mbnzhsexvh th {
+#cojufgkufr thead, #cojufgkufr tbody, #cojufgkufr tfoot, #cojufgkufr tr, #cojufgkufr td, #cojufgkufr th {
   border-style: none;
 }
 
-#mbnzhsexvh p {
+#cojufgkufr p {
   margin: 0;
   padding: 0;
 }
 
-#mbnzhsexvh .gt_table {
+#cojufgkufr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -451,12 +505,12 @@ z-index: 1000;">
   border-left-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_caption {
+#cojufgkufr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#mbnzhsexvh .gt_title {
+#cojufgkufr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -468,7 +522,7 @@ z-index: 1000;">
   border-bottom-width: 0;
 }
 
-#mbnzhsexvh .gt_subtitle {
+#cojufgkufr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -480,7 +534,7 @@ z-index: 1000;">
   border-top-width: 0;
 }
 
-#mbnzhsexvh .gt_heading {
+#cojufgkufr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -492,13 +546,13 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_bottom_border {
+#cojufgkufr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_col_headings {
+#cojufgkufr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -513,7 +567,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_col_heading {
+#cojufgkufr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -533,7 +587,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#mbnzhsexvh .gt_column_spanner_outer {
+#cojufgkufr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -545,15 +599,15 @@ z-index: 1000;">
   padding-right: 4px;
 }
 
-#mbnzhsexvh .gt_column_spanner_outer:first-child {
+#cojufgkufr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#mbnzhsexvh .gt_column_spanner_outer:last-child {
+#cojufgkufr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#mbnzhsexvh .gt_column_spanner {
+#cojufgkufr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -565,11 +619,11 @@ z-index: 1000;">
   width: 100%;
 }
 
-#mbnzhsexvh .gt_spanner_row {
+#cojufgkufr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#mbnzhsexvh .gt_group_heading {
+#cojufgkufr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -595,7 +649,7 @@ z-index: 1000;">
   text-align: left;
 }
 
-#mbnzhsexvh .gt_empty_group_heading {
+#cojufgkufr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -610,15 +664,15 @@ z-index: 1000;">
   vertical-align: middle;
 }
 
-#mbnzhsexvh .gt_from_md > :first-child {
+#cojufgkufr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#mbnzhsexvh .gt_from_md > :last-child {
+#cojufgkufr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#mbnzhsexvh .gt_row {
+#cojufgkufr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -637,7 +691,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#mbnzhsexvh .gt_stub {
+#cojufgkufr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -650,7 +704,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#mbnzhsexvh .gt_stub_row_group {
+#cojufgkufr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -664,15 +718,15 @@ z-index: 1000;">
   vertical-align: top;
 }
 
-#mbnzhsexvh .gt_row_group_first td {
+#cojufgkufr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#mbnzhsexvh .gt_row_group_first th {
+#cojufgkufr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#mbnzhsexvh .gt_summary_row {
+#cojufgkufr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -682,16 +736,16 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#mbnzhsexvh .gt_first_summary_row {
+#cojufgkufr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_first_summary_row.thick {
+#cojufgkufr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#mbnzhsexvh .gt_last_summary_row {
+#cojufgkufr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -701,7 +755,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_grand_summary_row {
+#cojufgkufr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -711,7 +765,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#mbnzhsexvh .gt_first_grand_summary_row {
+#cojufgkufr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -721,7 +775,7 @@ z-index: 1000;">
   border-top-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_last_grand_summary_row_top {
+#cojufgkufr .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -731,11 +785,11 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_striped {
+#cojufgkufr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#mbnzhsexvh .gt_table_body {
+#cojufgkufr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -744,7 +798,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_footnotes {
+#cojufgkufr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -758,7 +812,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_footnote {
+#cojufgkufr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -767,7 +821,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#mbnzhsexvh .gt_sourcenotes {
+#cojufgkufr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -781,7 +835,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#mbnzhsexvh .gt_sourcenote {
+#cojufgkufr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -789,72 +843,72 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#mbnzhsexvh .gt_left {
+#cojufgkufr .gt_left {
   text-align: left;
 }
 
-#mbnzhsexvh .gt_center {
+#cojufgkufr .gt_center {
   text-align: center;
 }
 
-#mbnzhsexvh .gt_right {
+#cojufgkufr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#mbnzhsexvh .gt_font_normal {
+#cojufgkufr .gt_font_normal {
   font-weight: normal;
 }
 
-#mbnzhsexvh .gt_font_bold {
+#cojufgkufr .gt_font_bold {
   font-weight: bold;
 }
 
-#mbnzhsexvh .gt_font_italic {
+#cojufgkufr .gt_font_italic {
   font-style: italic;
 }
 
-#mbnzhsexvh .gt_super {
+#cojufgkufr .gt_super {
   font-size: 65%;
 }
 
-#mbnzhsexvh .gt_footnote_marks {
+#cojufgkufr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#mbnzhsexvh .gt_asterisk {
+#cojufgkufr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#mbnzhsexvh .gt_indent_1 {
+#cojufgkufr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#mbnzhsexvh .gt_indent_2 {
+#cojufgkufr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#mbnzhsexvh .gt_indent_3 {
+#cojufgkufr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#mbnzhsexvh .gt_indent_4 {
+#cojufgkufr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#mbnzhsexvh .gt_indent_5 {
+#cojufgkufr .gt_indent_5 {
   text-indent: 25px;
 }
 
-#mbnzhsexvh .katex-display {
+#cojufgkufr .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#mbnzhsexvh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#cojufgkufr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -905,131 +959,168 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-<h3 id="cif曲线">6.3.3 CIF曲线</h3>
-<p>竞争风险累积发生概率（Cumulative Incidence Function, CIF）曲线: 直观比较各结局的累积风险随时间的变化</p>
+<h3 id="cif曲线">6.3.4 CIF曲线</h3>
+<h4 id="survminerggcompetingrisks">survminer::ggcompetingrisks()</h4>
+<p>比较各种结局的累积发生率随时间的变化</p>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="co"># 绘制竞争风险累积发生概率（Cumulative Incidence Function, CIF）曲线</span></span>
-<span id="cb8-2"><a></a></span>
-<span id="cb8-3"><a></a>survminer<span class="sc">::</span><span class="fu">ggcompetingrisks</span>(</span>
-<span id="cb8-4"><a></a>  <span class="at">fit =</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma),</span>
-<span id="cb8-5"><a></a>  <span class="at">data =</span> Melanoma,</span>
-<span id="cb8-6"><a></a>  <span class="at">palette =</span> <span class="st">"jco"</span></span>
-<span id="cb8-7"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="L6slide_files/figure-revealjs/unnamed-chunk-6-1.png" width="960"></p>
-</figure>
-</div>
-</div>
-</div>
-<ul>
-<li><p>蓝色：未发生事件。</p></li>
-<li><p>黄色：事件 1。</p></li>
-<li><p>灰色：事件 2。</p></li>
-<li><p>蓝色面积 = 1 - CIF(1) - CIF(2)。</p></li>
-<li><p>每个时间点，黄色和灰色部分的高度叠加，代表“某事件已发生”的总比例。</p></li>
-<li><p>蓝色区域 = 1 − CIF(事件1) − CIF(事件2) 即尚未发生任何事件的比例。</p></li>
-<li><p>随着时间推移，蓝色面积减少，说明越来越多个体发生了某种类型的事件。</p></li>
-<li><p>展示了在存在两种竞争事件的前提下，不同事件在随访期间的累积发生概率如何随时间上升，同时显示有多少个体仍未发生任何事件。</p></li>
-</ul>
-<h4 id="目标事件1cif曲线">目标事件1CIF曲线</h4>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="co">#绘制 Failure type "1"（也就是 type 1，对应 status==1 的事件）的累积发生概率</span></span>
-<span id="cb9-2"><a></a><span class="co"># 绘制无分组的CIF曲线，添加置信区间和风险表</span></span>
-<span id="cb9-3"><a></a></span>
-<span id="cb9-4"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-5"><a></a>  <span class="fu">ggcuminc</span>() <span class="sc">+</span> </span>
-<span id="cb9-6"><a></a>  <span class="fu">labs</span>(</span>
-<span id="cb9-7"><a></a>    <span class="at">x =</span> <span class="st">"Days"</span></span>
-<span id="cb9-8"><a></a>  ) <span class="sc">+</span> </span>
-<span id="cb9-9"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
-<span id="cb9-10"><a></a>  <span class="fu">add_risktable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="L6slide_files/figure-revealjs/unnamed-chunk-7-1.png" width="960"></p>
-</figure>
-</div>
-</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">library</span>(survminer)</span>
+<span id="cb10-2"><a></a><span class="fu">library</span>(survival)</span>
+<span id="cb10-3"><a></a><span class="fu">ggcompetingrisks</span>(</span>
+<span id="cb10-4"><a></a>  <span class="at">fit =</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma),</span>
+<span id="cb10-5"><a></a>  <span class="at">data =</span> Melanoma,</span>
+<span id="cb10-6"><a></a>  <span class="at">palette =</span> <span class="st">"jco"</span></span>
+<span id="cb10-7"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section class="slide level2">
 
-<h4 id="竞争事件2cif曲线">竞争事件2CIF曲线</h4>
+
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"><ul>
+<li><p>蓝色：未发生事件; 黄色：事件 1; 灰色：事件 2。</p></li>
+<li><p>每个时间点，黄色和灰色部分的高度叠加，代表“某事件已发生”的总比例。</p></li>
+<li><p>随着时间推移，蓝色面积减少，说明越来越多个体发生了某种类型的事件。</p></li>
+<li><p>不同事件在随访期间的累积发生概率如何随时间上升，同时显示有多少比例的事件仍未发生任何事件。</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<ul>
+<li><p>科研期刊 palette</p>
+<ul>
+<li><p>jco: Journal of Clinical Oncology</p></li>
+<li><p>jama: Journal of the American Medical Association</p></li>
+<li><p>lancet: The Lancet</p></li>
+<li><p>nejm: The New England Journal of Medicine</p></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb11-2"><a></a></span>
+<span id="cb11-3"><a></a><span class="co"># 查看所有调色板名称及类型</span></span>
+<span id="cb11-4"><a></a><span class="fu">display.brewer.all</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>修改图形配色风格</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="co"># 绘制 Failure type "2"的累积发生概率（CIF）曲线</span></span>
-<span id="cb10-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="st">"2"</span>) <span class="sc">+</span> </span>
-<span id="cb10-4"><a></a>  <span class="fu">labs</span>(</span>
-<span id="cb10-5"><a></a>    <span class="at">x =</span> <span class="st">"Days"</span></span>
-<span id="cb10-6"><a></a>  ) <span class="sc">+</span> </span>
-<span id="cb10-7"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
-<span id="cb10-8"><a></a>  <span class="fu">add_risktable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="co"># 使用palette = "Set3"</span></span>
+<span id="cb12-2"><a></a><span class="fu">ggcompetingrisks</span>(</span>
+<span id="cb12-3"><a></a>  <span class="at">fit =</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma),</span>
+<span id="cb12-4"><a></a>  <span class="at">data =</span> Melanoma,</span>
+<span id="cb12-5"><a></a>  <span class="at">palette =</span> <span class="st">"Set3"</span></span>
+<span id="cb12-6"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
-<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-<h4 id="多结局cif曲线">多结局CIF曲线</h4>
+<h4 id="ggsurvfitggcumic">ggsurvfit::ggcumic()</h4>
+<h5 id="目标事件1的cif曲线">目标事件1的CIF曲线</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co">#绘制 Failure type "1"（也就是 type 1，对应 status==1 的事件）的累积发生概率</span></span>
+<span id="cb13-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">col =</span> <span class="st">"#B3D4FC"</span>) <span class="sc">+</span> </span>
+<span id="cb13-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
+<span id="cb13-5"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span> <span class="co"># 添加置信区间</span></span>
+<span id="cb13-6"><a></a>  <span class="fu">add_risktable</span>() <span class="co"># 风险表</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h5 id="竞争事件2cif曲线">竞争事件2CIF曲线</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="co"># 绘制 Failure type "2"的累积发生概率（CIF）曲线</span></span>
+<span id="cb14-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="st">"2"</span>, <span class="at">color =</span> <span class="st">"#D7B9D5"</span>) <span class="sc">+</span> </span>
+<span id="cb14-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
+<span id="cb14-5"><a></a>  <span class="co">#add_confidence_interval() +</span></span>
+<span id="cb14-6"><a></a>  <span class="fu">add_risktable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h5 id="多结局cif曲线">多结局CIF曲线</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="co"># 同时展示多种结局（outcome=1,2）的CIF曲线，设置y轴范围</span></span>
+<span id="cb15-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span></span>
+<span id="cb15-4"><a></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb15-5"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h5 id="自定义线条颜色">自定义线条颜色</h5>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="co"># 同时展示多种结局（outcome=1,2）的CIF曲线，设置y轴范围</span></span>
-<span id="cb11-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span></span>
-<span id="cb11-4"><a></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span> </span>
-<span id="cb11-5"><a></a>  <span class="fu">labs</span>(</span>
-<span id="cb11-6"><a></a>    <span class="at">x =</span> <span class="st">"Days"</span></span>
-<span id="cb11-7"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a></a><span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span></span>
+<span id="cb16-3"><a></a>  <span class="fu">aes</span>(<span class="at">color =</span> outcome) <span class="sc">+</span>       <span class="co"># 强制美学映射</span></span>
+<span id="cb16-4"><a></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"1"</span> <span class="ot">=</span> <span class="st">"#B3D4FC"</span>, </span>
+<span id="cb16-5"><a></a>                                <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"#F4C2C2"</span>),</span>
+<span id="cb16-6"><a></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"death form Melanoma"</span>, </span>
+<span id="cb16-7"><a></a>                                <span class="st">"death from other cause"</span>)) <span class="sc">+</span></span>
+<span id="cb16-8"><a></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb16-9"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span></span>
+<span id="cb16-10"><a></a>  <span class="fu">add_risktable</span>() <span class="sc">+</span></span>
+<span id="cb16-11"><a></a>  <span class="fu">scale_ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
-<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-9-1.png" width="960" class="r-stretch"></section>
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-14-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-<h3 id="gray-test-灰色检验">6.3.5 Gray Test 灰色检验</h3>
+<h5 id="分组多结局cif曲线">分组多结局CIF曲线</h5>
+<p>按ulcer分组，绘制多结局CIF曲线</p>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="co">#  Gray 检验</span></span>
-<span id="cb12-2"><a></a><span class="co">#使用 tbl_cuminc 和 add_p 进行 Gray 检验</span></span>
-<span id="cb12-3"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-4"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
-<span id="cb12-5"><a></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="fl">365.25</span>, <span class="fl">1826.25</span>, <span class="fl">3652.5</span>),  <span class="co"># 1年、5年、10年</span></span>
-<span id="cb12-6"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span></span>
-<span id="cb12-7"><a></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-8"><a></a>  <span class="fu">add_p</span>(</span>
-<span id="cb12-9"><a></a>    <span class="at">pvalue_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_pvalue</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)  <span class="co"># 用 function 语法</span></span>
-<span id="cb12-10"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a><span class="co"># 按ulcer分组，绘制多结局CIF曲线，添加置信区间和风险表</span></span>
+<span id="cb17-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span> </span>
+<span id="cb17-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
+<span id="cb17-5"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
+<span id="cb17-6"><a></a>  <span class="fu">add_risktable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-15-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="灰色检验gray-test">6.3.5 灰色检验Gray Test</h3>
+<p>Gray检验：比较两个或多个组在特定结局（某一竞争风险事件）上的累积发生率是否存在显著差异。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-2"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
+<span id="cb18-3"><a></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="fl">365.25</span>, <span class="fl">1826.25</span>, <span class="fl">3652.5</span>),  <span class="co"># 1年、5年、10年</span></span>
+<span id="cb18-4"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span></span>
+<span id="cb18-5"><a></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-6"><a></a>  <span class="fu">add_p</span>(</span>
+<span id="cb18-7"><a></a>    <span class="at">pvalue_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_pvalue</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb18-8"><a></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="auvqvmdwfk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#auvqvmdwfk table {
+<div id="uwpugwchkn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#uwpugwchkn table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#auvqvmdwfk thead, #auvqvmdwfk tbody, #auvqvmdwfk tfoot, #auvqvmdwfk tr, #auvqvmdwfk td, #auvqvmdwfk th {
+#uwpugwchkn thead, #uwpugwchkn tbody, #uwpugwchkn tfoot, #uwpugwchkn tr, #uwpugwchkn td, #uwpugwchkn th {
   border-style: none;
 }
 
-#auvqvmdwfk p {
+#uwpugwchkn p {
   margin: 0;
   padding: 0;
 }
 
-#auvqvmdwfk .gt_table {
+#uwpugwchkn .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1055,12 +1146,12 @@ z-index: 1000;">
   border-left-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_caption {
+#uwpugwchkn .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#auvqvmdwfk .gt_title {
+#uwpugwchkn .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1072,7 +1163,7 @@ z-index: 1000;">
   border-bottom-width: 0;
 }
 
-#auvqvmdwfk .gt_subtitle {
+#uwpugwchkn .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1084,7 +1175,7 @@ z-index: 1000;">
   border-top-width: 0;
 }
 
-#auvqvmdwfk .gt_heading {
+#uwpugwchkn .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1096,13 +1187,13 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_bottom_border {
+#uwpugwchkn .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_col_headings {
+#uwpugwchkn .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1117,7 +1208,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_col_heading {
+#uwpugwchkn .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1137,7 +1228,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#auvqvmdwfk .gt_column_spanner_outer {
+#uwpugwchkn .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1149,15 +1240,15 @@ z-index: 1000;">
   padding-right: 4px;
 }
 
-#auvqvmdwfk .gt_column_spanner_outer:first-child {
+#uwpugwchkn .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#auvqvmdwfk .gt_column_spanner_outer:last-child {
+#uwpugwchkn .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#auvqvmdwfk .gt_column_spanner {
+#uwpugwchkn .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1169,11 +1260,11 @@ z-index: 1000;">
   width: 100%;
 }
 
-#auvqvmdwfk .gt_spanner_row {
+#uwpugwchkn .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#auvqvmdwfk .gt_group_heading {
+#uwpugwchkn .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1199,7 +1290,7 @@ z-index: 1000;">
   text-align: left;
 }
 
-#auvqvmdwfk .gt_empty_group_heading {
+#uwpugwchkn .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1214,15 +1305,15 @@ z-index: 1000;">
   vertical-align: middle;
 }
 
-#auvqvmdwfk .gt_from_md > :first-child {
+#uwpugwchkn .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#auvqvmdwfk .gt_from_md > :last-child {
+#uwpugwchkn .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#auvqvmdwfk .gt_row {
+#uwpugwchkn .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1241,7 +1332,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#auvqvmdwfk .gt_stub {
+#uwpugwchkn .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1254,7 +1345,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#auvqvmdwfk .gt_stub_row_group {
+#uwpugwchkn .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1268,15 +1359,15 @@ z-index: 1000;">
   vertical-align: top;
 }
 
-#auvqvmdwfk .gt_row_group_first td {
+#uwpugwchkn .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#auvqvmdwfk .gt_row_group_first th {
+#uwpugwchkn .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#auvqvmdwfk .gt_summary_row {
+#uwpugwchkn .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1286,16 +1377,16 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#auvqvmdwfk .gt_first_summary_row {
+#uwpugwchkn .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_first_summary_row.thick {
+#uwpugwchkn .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#auvqvmdwfk .gt_last_summary_row {
+#uwpugwchkn .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1305,7 +1396,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_grand_summary_row {
+#uwpugwchkn .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1315,7 +1406,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#auvqvmdwfk .gt_first_grand_summary_row {
+#uwpugwchkn .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1325,7 +1416,7 @@ z-index: 1000;">
   border-top-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_last_grand_summary_row_top {
+#uwpugwchkn .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1335,11 +1426,11 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_striped {
+#uwpugwchkn .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#auvqvmdwfk .gt_table_body {
+#uwpugwchkn .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1348,7 +1439,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_footnotes {
+#uwpugwchkn .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1362,7 +1453,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_footnote {
+#uwpugwchkn .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1371,7 +1462,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#auvqvmdwfk .gt_sourcenotes {
+#uwpugwchkn .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1385,7 +1476,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#auvqvmdwfk .gt_sourcenote {
+#uwpugwchkn .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1393,72 +1484,72 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#auvqvmdwfk .gt_left {
+#uwpugwchkn .gt_left {
   text-align: left;
 }
 
-#auvqvmdwfk .gt_center {
+#uwpugwchkn .gt_center {
   text-align: center;
 }
 
-#auvqvmdwfk .gt_right {
+#uwpugwchkn .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#auvqvmdwfk .gt_font_normal {
+#uwpugwchkn .gt_font_normal {
   font-weight: normal;
 }
 
-#auvqvmdwfk .gt_font_bold {
+#uwpugwchkn .gt_font_bold {
   font-weight: bold;
 }
 
-#auvqvmdwfk .gt_font_italic {
+#uwpugwchkn .gt_font_italic {
   font-style: italic;
 }
 
-#auvqvmdwfk .gt_super {
+#uwpugwchkn .gt_super {
   font-size: 65%;
 }
 
-#auvqvmdwfk .gt_footnote_marks {
+#uwpugwchkn .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#auvqvmdwfk .gt_asterisk {
+#uwpugwchkn .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#auvqvmdwfk .gt_indent_1 {
+#uwpugwchkn .gt_indent_1 {
   text-indent: 5px;
 }
 
-#auvqvmdwfk .gt_indent_2 {
+#uwpugwchkn .gt_indent_2 {
   text-indent: 10px;
 }
 
-#auvqvmdwfk .gt_indent_3 {
+#uwpugwchkn .gt_indent_3 {
   text-indent: 15px;
 }
 
-#auvqvmdwfk .gt_indent_4 {
+#uwpugwchkn .gt_indent_4 {
   text-indent: 20px;
 }
 
-#auvqvmdwfk .gt_indent_5 {
+#uwpugwchkn .gt_indent_5 {
   text-indent: 25px;
 }
 
-#auvqvmdwfk .katex-display {
+#uwpugwchkn .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#auvqvmdwfk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#uwpugwchkn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1524,11 +1615,26 @@ z-index: 1000;">
 <h3 id="估计竞争风险回归">6.3.6 估计竞争风险回归</h3>
 <h4 id="fine-gray-模型估计结果">Fine-Gray 模型估计结果</h4>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co"># 竞争风险回归，分析 sex 和 age 对结局的影响</span></span>
-<span id="cb13-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="co"># 竞争风险回归，分析 sex 和 age 对结局的影响</span></span>
+<span id="cb19-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Variable   Coef    SE      HR     95% CI       p-value    
+sex        0.588   0.272   1.80   1.06, 3.07   0.030      
+age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
+</div>
+</div>
+<p>估计结果解释</p>
+<ul>
+<li><p>sex: HR = 1.80, p-value = 0.03</p></li>
+<li><p>与参考组相比（sex=0为女性，sex=1为男性），男性发生type1结局（因黑色素瘤死亡）的亚分风险比为1.80。</p></li>
+<li><p>男性发生该结局的风险是女性的1.8倍。p值小于0.05，说明性别的影响具有统计学意义。</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Variable   Coef    SE      HR     95% CI       p-value    
@@ -1537,46 +1643,43 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 </div>
 </div>
 <ul>
-<li><p>sex: HR = 1.80, p-value = 0.03 解释：与参考组相比（sex=0为女性，sex=1为男性），男性发生type 1结局（因黑色素瘤死亡）的亚分风险比为1.80，即男性发生该结局的风险是女性的1.8倍。p值小于0.05，说明性别的影响具有统计学意义。</p></li>
-<li><p>age: HR = 1.01, p-value = 0.18 每增加一岁，type 1结局的亚分风险比增加1%（1.01倍），但p值为0.18，不具有统计学显著性（即年龄对type 1结局风险的影响不显著）。这可能因年龄范围较窄或竞争事件掩盖了效应。</p></li>
+<li><p>age: HR = 1.01, p-value = 0.18</p></li>
+<li><p>每增加一岁，type1结局的亚分风险比增加1%（1.01倍），但p值为0.18，不具有统计学显著性（即年龄对type1结局风险的影响不显著）。</p></li>
+<li><p>这可能因年龄范围较窄或竞争事件掩盖了效应。</p></li>
 </ul>
 </section>
 <section class="slide level2">
 
 <p>Fine-Gray 竞争风险回归模型（subdistribution hazard model）</p>
 <p>Fine-Gray 竞争风险回归模型型的估计结果： <span class="math display">\[h_1(t | X) = h_{01}(t) \exp\left(0.588 \cdot \text{sex} + 0.013 \cdot \text{age}\right)\]</span> 变量定义</p>
-<p>sex：通常编码为 0（男性）或 1（女性），需确认 Melanoma 数据中的具体编码。若 sex = 0 为参考组（女性），则 $ = 1 $ 表示男性。</p>
+<p>sex：sex = 0 为女性(参考组)，sex = 0 表示男性。</p>
 <p>age：连续变量，表示年龄（单位：年）。</p>
-<p>$ h_{01}(t) $：基线子分布危险率，依赖于时间 $ t $ 和数据，但 crr() 不直接提供其解析形式，通常通过非参数方法估计。</p>
+<p><span class="math inline">\(h_{01}(t)\)</span>：基线子分布危险率，依赖于时间 <span class="math inline">\(t\)</span>和数据，但 crr()没有直接估计<span class="math inline">\(h_{01}(t)\)</span>，需要通过非参数方法估计。</p>
 </section>
 <section class="slide level2">
 
 <h4 id="表格化输出fine-gray-估计结果">表格化输出Fine-Gray 估计结果</h4>
 <div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="co"># 竞争风险回归结果整理为回归表（exp=TRUE 输出HR及置信区间）</span></span>
-<span id="cb15-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-3"><a></a>  <span class="fu">tbl_regression</span>(<span class="at">exp =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a></a>  <span class="fu">tbl_regression</span>(<span class="at">exp =</span> <span class="cn">TRUE</span>) <span class="co"># exp=TRUE 输出HR</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="spgmausxfo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#spgmausxfo table {
+<div id="cjtqsduxik" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cjtqsduxik table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#spgmausxfo thead, #spgmausxfo tbody, #spgmausxfo tfoot, #spgmausxfo tr, #spgmausxfo td, #spgmausxfo th {
+#cjtqsduxik thead, #cjtqsduxik tbody, #cjtqsduxik tfoot, #cjtqsduxik tr, #cjtqsduxik td, #cjtqsduxik th {
   border-style: none;
 }
 
-#spgmausxfo p {
+#cjtqsduxik p {
   margin: 0;
   padding: 0;
 }
 
-#spgmausxfo .gt_table {
+#cjtqsduxik .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1602,12 +1705,12 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-left-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_caption {
+#cjtqsduxik .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#spgmausxfo .gt_title {
+#cjtqsduxik .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1619,7 +1722,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-width: 0;
 }
 
-#spgmausxfo .gt_subtitle {
+#cjtqsduxik .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1631,7 +1734,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-width: 0;
 }
 
-#spgmausxfo .gt_heading {
+#cjtqsduxik .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1643,13 +1746,13 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_bottom_border {
+#cjtqsduxik .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_col_headings {
+#cjtqsduxik .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1664,7 +1767,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_col_heading {
+#cjtqsduxik .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1684,7 +1787,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#spgmausxfo .gt_column_spanner_outer {
+#cjtqsduxik .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1696,15 +1799,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 4px;
 }
 
-#spgmausxfo .gt_column_spanner_outer:first-child {
+#cjtqsduxik .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#spgmausxfo .gt_column_spanner_outer:last-child {
+#cjtqsduxik .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#spgmausxfo .gt_column_spanner {
+#cjtqsduxik .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1716,11 +1819,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   width: 100%;
 }
 
-#spgmausxfo .gt_spanner_row {
+#cjtqsduxik .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#spgmausxfo .gt_group_heading {
+#cjtqsduxik .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1746,7 +1849,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   text-align: left;
 }
 
-#spgmausxfo .gt_empty_group_heading {
+#cjtqsduxik .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1761,15 +1864,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: middle;
 }
 
-#spgmausxfo .gt_from_md > :first-child {
+#cjtqsduxik .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#spgmausxfo .gt_from_md > :last-child {
+#cjtqsduxik .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#spgmausxfo .gt_row {
+#cjtqsduxik .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1788,7 +1891,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#spgmausxfo .gt_stub {
+#cjtqsduxik .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1801,7 +1904,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#spgmausxfo .gt_stub_row_group {
+#cjtqsduxik .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1815,15 +1918,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: top;
 }
 
-#spgmausxfo .gt_row_group_first td {
+#cjtqsduxik .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#spgmausxfo .gt_row_group_first th {
+#cjtqsduxik .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#spgmausxfo .gt_summary_row {
+#cjtqsduxik .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1833,16 +1936,16 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#spgmausxfo .gt_first_summary_row {
+#cjtqsduxik .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_first_summary_row.thick {
+#cjtqsduxik .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#spgmausxfo .gt_last_summary_row {
+#cjtqsduxik .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1852,7 +1955,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_grand_summary_row {
+#cjtqsduxik .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1862,7 +1965,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#spgmausxfo .gt_first_grand_summary_row {
+#cjtqsduxik .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1872,7 +1975,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_last_grand_summary_row_top {
+#cjtqsduxik .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1882,11 +1985,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_striped {
+#cjtqsduxik .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#spgmausxfo .gt_table_body {
+#cjtqsduxik .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1895,7 +1998,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_footnotes {
+#cjtqsduxik .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1909,7 +2012,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_footnote {
+#cjtqsduxik .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1918,7 +2021,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#spgmausxfo .gt_sourcenotes {
+#cjtqsduxik .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1932,7 +2035,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#spgmausxfo .gt_sourcenote {
+#cjtqsduxik .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1940,72 +2043,72 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#spgmausxfo .gt_left {
+#cjtqsduxik .gt_left {
   text-align: left;
 }
 
-#spgmausxfo .gt_center {
+#cjtqsduxik .gt_center {
   text-align: center;
 }
 
-#spgmausxfo .gt_right {
+#cjtqsduxik .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#spgmausxfo .gt_font_normal {
+#cjtqsduxik .gt_font_normal {
   font-weight: normal;
 }
 
-#spgmausxfo .gt_font_bold {
+#cjtqsduxik .gt_font_bold {
   font-weight: bold;
 }
 
-#spgmausxfo .gt_font_italic {
+#cjtqsduxik .gt_font_italic {
   font-style: italic;
 }
 
-#spgmausxfo .gt_super {
+#cjtqsduxik .gt_super {
   font-size: 65%;
 }
 
-#spgmausxfo .gt_footnote_marks {
+#cjtqsduxik .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#spgmausxfo .gt_asterisk {
+#cjtqsduxik .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#spgmausxfo .gt_indent_1 {
+#cjtqsduxik .gt_indent_1 {
   text-indent: 5px;
 }
 
-#spgmausxfo .gt_indent_2 {
+#cjtqsduxik .gt_indent_2 {
   text-indent: 10px;
 }
 
-#spgmausxfo .gt_indent_3 {
+#cjtqsduxik .gt_indent_3 {
   text-indent: 15px;
 }
 
-#spgmausxfo .gt_indent_4 {
+#cjtqsduxik .gt_indent_4 {
   text-indent: 20px;
 }
 
-#spgmausxfo .gt_indent_5 {
+#cjtqsduxik .gt_indent_5 {
   text-indent: 25px;
 }
 
-#spgmausxfo .katex-display {
+#cjtqsduxik .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#spgmausxfo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#cjtqsduxik div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2046,50 +2149,47 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 </section>
 <section class="slide level2">
 
-<h3 id="对比竞争风险回归和cox回归">6.3.7 对比竞争风险回归和Cox回归</h3>
-<ul>
-<li><p>Fine-Gray回归（SHR）： 评估变量对实际累计发生概率（CIF）的影响，适合临床决策。</p></li>
-<li><p>Cox回归（HR）： 评估变量对即时发病风险的影响，适合机制探索。</p></li>
-<li><p>建议： 两者结合分析，结果更全面。</p></li>
-</ul>
+<h4 id="表格化输出3个模型的估计结果">表格化输出3个模型的估计结果</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="co"># 竞争风险回归（Fine-Gray模型）</span></span>
-<span id="cb16-2"><a></a>fit_fg <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
-<span id="cb16-3"><a></a>tbl_fg <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit_fg, <span class="at">exp =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="fu">list</span>(<span class="at">sex =</span> <span class="st">"Sex"</span>, <span class="at">age =</span> <span class="st">"Age"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb16-4"><a></a>  <span class="fu">modify_header</span>(<span class="at">label =</span> <span class="st">"**变量**"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb16-5"><a></a>  <span class="fu">modify_caption</span>(<span class="st">"**Fine-Gray 竞争风险回归**"</span>)</span>
-<span id="cb16-6"><a></a></span>
-<span id="cb16-7"><a></a><span class="co"># Cox回归</span></span>
-<span id="cb16-8"><a></a>fit_cox <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, <span class="fu">ifelse</span>(status <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
-<span id="cb16-9"><a></a>tbl_cox <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit_cox, <span class="at">exp =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="fu">list</span>(<span class="at">sex =</span> <span class="st">"Sex"</span>, <span class="at">age =</span> <span class="st">"Age"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb16-10"><a></a>  <span class="fu">modify_header</span>(<span class="at">label =</span> <span class="st">"**变量**"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb16-11"><a></a>  <span class="fu">modify_caption</span>(<span class="st">"**Cox 比例风险模型**"</span>)</span>
-<span id="cb16-12"><a></a></span>
-<span id="cb16-13"><a></a><span class="fu">tbl_merge</span>(</span>
-<span id="cb16-14"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl_fg, tbl_cox),</span>
-<span id="cb16-15"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Fine-Gray 竞争风险回归**"</span>, <span class="st">"**Cox 比例风险模型**"</span>)</span>
-<span id="cb16-16"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a>fit1 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
+<span id="cb24-2"><a></a>fit2 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age  <span class="sc">+</span> year <span class="sc">+</span> thickness, <span class="at">data =</span> Melanoma)</span>
+<span id="cb24-3"><a></a>fit3 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age  <span class="sc">+</span> year <span class="sc">+</span> thickness <span class="sc">+</span> ulcer, <span class="at">data =</span> Melanoma)</span>
+<span id="cb24-4"><a></a></span>
+<span id="cb24-5"><a></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb24-6"><a></a></span>
+<span id="cb24-7"><a></a>tbl1 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit1, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-8"><a></a>tbl2 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit2, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-9"><a></a>tbl3 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit3, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-10"><a></a></span>
+<span id="cb24-11"><a></a></span>
+<span id="cb24-12"><a></a><span class="co"># 合并报告</span></span>
+<span id="cb24-13"><a></a>merged_tbl <span class="ot">&lt;-</span> <span class="fu">tbl_merge</span>(</span>
+<span id="cb24-14"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2, tbl3),</span>
+<span id="cb24-15"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>, <span class="st">"**Model 3**"</span>)</span>
+<span id="cb24-16"><a></a>)</span>
+<span id="cb24-17"><a></a></span>
+<span id="cb24-18"><a></a>merged_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="hraddwugdh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#hraddwugdh table {
+<div id="jpzhsjfylk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#jpzhsjfylk table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#hraddwugdh thead, #hraddwugdh tbody, #hraddwugdh tfoot, #hraddwugdh tr, #hraddwugdh td, #hraddwugdh th {
+#jpzhsjfylk thead, #jpzhsjfylk tbody, #jpzhsjfylk tfoot, #jpzhsjfylk tr, #jpzhsjfylk td, #jpzhsjfylk th {
   border-style: none;
 }
 
-#hraddwugdh p {
+#jpzhsjfylk p {
   margin: 0;
   padding: 0;
 }
 
-#hraddwugdh .gt_table {
+#jpzhsjfylk .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2115,12 +2215,12 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-left-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_caption {
+#jpzhsjfylk .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#hraddwugdh .gt_title {
+#jpzhsjfylk .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2132,7 +2232,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-width: 0;
 }
 
-#hraddwugdh .gt_subtitle {
+#jpzhsjfylk .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2144,7 +2244,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-width: 0;
 }
 
-#hraddwugdh .gt_heading {
+#jpzhsjfylk .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2156,13 +2256,13 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_bottom_border {
+#jpzhsjfylk .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_col_headings {
+#jpzhsjfylk .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2177,7 +2277,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_col_heading {
+#jpzhsjfylk .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2197,7 +2297,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#hraddwugdh .gt_column_spanner_outer {
+#jpzhsjfylk .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2209,15 +2309,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 4px;
 }
 
-#hraddwugdh .gt_column_spanner_outer:first-child {
+#jpzhsjfylk .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#hraddwugdh .gt_column_spanner_outer:last-child {
+#jpzhsjfylk .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#hraddwugdh .gt_column_spanner {
+#jpzhsjfylk .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2229,11 +2329,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   width: 100%;
 }
 
-#hraddwugdh .gt_spanner_row {
+#jpzhsjfylk .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#hraddwugdh .gt_group_heading {
+#jpzhsjfylk .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2259,7 +2359,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   text-align: left;
 }
 
-#hraddwugdh .gt_empty_group_heading {
+#jpzhsjfylk .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2274,15 +2374,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: middle;
 }
 
-#hraddwugdh .gt_from_md > :first-child {
+#jpzhsjfylk .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#hraddwugdh .gt_from_md > :last-child {
+#jpzhsjfylk .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#hraddwugdh .gt_row {
+#jpzhsjfylk .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2301,7 +2401,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#hraddwugdh .gt_stub {
+#jpzhsjfylk .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2314,7 +2414,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#hraddwugdh .gt_stub_row_group {
+#jpzhsjfylk .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2328,15 +2428,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: top;
 }
 
-#hraddwugdh .gt_row_group_first td {
+#jpzhsjfylk .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#hraddwugdh .gt_row_group_first th {
+#jpzhsjfylk .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#hraddwugdh .gt_summary_row {
+#jpzhsjfylk .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2346,16 +2446,16 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#hraddwugdh .gt_first_summary_row {
+#jpzhsjfylk .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_first_summary_row.thick {
+#jpzhsjfylk .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#hraddwugdh .gt_last_summary_row {
+#jpzhsjfylk .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2365,7 +2465,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_grand_summary_row {
+#jpzhsjfylk .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2375,7 +2475,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#hraddwugdh .gt_first_grand_summary_row {
+#jpzhsjfylk .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2385,7 +2485,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_last_grand_summary_row_top {
+#jpzhsjfylk .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2395,11 +2495,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_striped {
+#jpzhsjfylk .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#hraddwugdh .gt_table_body {
+#jpzhsjfylk .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2408,7 +2508,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_footnotes {
+#jpzhsjfylk .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2422,7 +2522,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_footnote {
+#jpzhsjfylk .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2431,7 +2531,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#hraddwugdh .gt_sourcenotes {
+#jpzhsjfylk .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2445,7 +2545,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#hraddwugdh .gt_sourcenote {
+#jpzhsjfylk .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2453,72 +2553,702 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#hraddwugdh .gt_left {
+#jpzhsjfylk .gt_left {
   text-align: left;
 }
 
-#hraddwugdh .gt_center {
+#jpzhsjfylk .gt_center {
   text-align: center;
 }
 
-#hraddwugdh .gt_right {
+#jpzhsjfylk .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#hraddwugdh .gt_font_normal {
+#jpzhsjfylk .gt_font_normal {
   font-weight: normal;
 }
 
-#hraddwugdh .gt_font_bold {
+#jpzhsjfylk .gt_font_bold {
   font-weight: bold;
 }
 
-#hraddwugdh .gt_font_italic {
+#jpzhsjfylk .gt_font_italic {
   font-style: italic;
 }
 
-#hraddwugdh .gt_super {
+#jpzhsjfylk .gt_super {
   font-size: 65%;
 }
 
-#hraddwugdh .gt_footnote_marks {
+#jpzhsjfylk .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#hraddwugdh .gt_asterisk {
+#jpzhsjfylk .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#hraddwugdh .gt_indent_1 {
+#jpzhsjfylk .gt_indent_1 {
   text-indent: 5px;
 }
 
-#hraddwugdh .gt_indent_2 {
+#jpzhsjfylk .gt_indent_2 {
   text-indent: 10px;
 }
 
-#hraddwugdh .gt_indent_3 {
+#jpzhsjfylk .gt_indent_3 {
   text-indent: 15px;
 }
 
-#hraddwugdh .gt_indent_4 {
+#jpzhsjfylk .gt_indent_4 {
   text-indent: 20px;
 }
 
-#hraddwugdh .gt_indent_5 {
+#jpzhsjfylk .gt_indent_5 {
   text-indent: 25px;
 }
 
-#hraddwugdh .katex-display {
+#jpzhsjfylk .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#hraddwugdh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#jpzhsjfylk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" style="width:100%;" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="gt_col_headings gt_spanner_row header">
+<th rowspan="2" id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th colspan="3" id="level 1; estimate_1" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+<strong>Model 1</strong>
+</div></th>
+<th colspan="3" id="level 1; estimate_2" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+<strong>Model 2</strong>
+</div></th>
+<th colspan="3" id="level 1; estimate_3" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+<strong>Model 3</strong>
+</div></th>
+</tr>
+<tr class="gt_col_headings even">
+<th id="estimate_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>HR</strong></th>
+<th id="conf.low_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+<th id="estimate_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>HR</strong></th>
+<th id="conf.low_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+<th id="estimate_3" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>HR</strong></th>
+<th id="conf.low_3" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value_3" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">sex</td>
+<td class="gt_row gt_center" headers="estimate_1">1.80</td>
+<td class="gt_row gt_center" headers="conf.low_1">1.06, 3.07</td>
+<td class="gt_row gt_center" headers="p.value_1">0.030</td>
+<td class="gt_row gt_center" headers="estimate_2">1.66</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.97, 2.82</td>
+<td class="gt_row gt_center" headers="p.value_2">0.063</td>
+<td class="gt_row gt_center" headers="estimate_3">1.56</td>
+<td class="gt_row gt_center" headers="conf.low_3">0.91, 2.68</td>
+<td class="gt_row gt_center" headers="p.value_3">0.11</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">age</td>
+<td class="gt_row gt_center" headers="estimate_1">1.01</td>
+<td class="gt_row gt_center" headers="conf.low_1">0.99, 1.03</td>
+<td class="gt_row gt_center" headers="p.value_1">0.2</td>
+<td class="gt_row gt_center" headers="estimate_2">1.01</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.99, 1.03</td>
+<td class="gt_row gt_center" headers="p.value_2">0.3</td>
+<td class="gt_row gt_center" headers="estimate_3">1.01</td>
+<td class="gt_row gt_center" headers="conf.low_3">0.99, 1.03</td>
+<td class="gt_row gt_center" headers="p.value_3">0.3</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">year</td>
+<td class="gt_row gt_center" headers="estimate_1"><br>
+</td>
+<td class="gt_row gt_center" headers="conf.low_1"><br>
+</td>
+<td class="gt_row gt_center" headers="p.value_1"><br>
+</td>
+<td class="gt_row gt_center" headers="estimate_2">0.92</td>
+<td class="gt_row gt_center" headers="conf.low_2">0.82, 1.03</td>
+<td class="gt_row gt_center" headers="p.value_2">0.2</td>
+<td class="gt_row gt_center" headers="estimate_3">0.90</td>
+<td class="gt_row gt_center" headers="conf.low_3">0.80, 1.02</td>
+<td class="gt_row gt_center" headers="p.value_3">0.091</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">thickness</td>
+<td class="gt_row gt_center" headers="estimate_1"><br>
+</td>
+<td class="gt_row gt_center" headers="conf.low_1"><br>
+</td>
+<td class="gt_row gt_center" headers="p.value_1"><br>
+</td>
+<td class="gt_row gt_center" headers="estimate_2">1.14</td>
+<td class="gt_row gt_center" headers="conf.low_2">1.07, 1.21</td>
+<td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
+<td class="gt_row gt_center" headers="estimate_3">1.08</td>
+<td class="gt_row gt_center" headers="conf.low_3">1.01, 1.17</td>
+<td class="gt_row gt_center" headers="p.value_3">0.035</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">ulcer</td>
+<td class="gt_row gt_center" headers="estimate_1"><br>
+</td>
+<td class="gt_row gt_center" headers="conf.low_1"><br>
+</td>
+<td class="gt_row gt_center" headers="p.value_1"><br>
+</td>
+<td class="gt_row gt_center" headers="estimate_2"><br>
+</td>
+<td class="gt_row gt_center" headers="conf.low_2"><br>
+</td>
+<td class="gt_row gt_center" headers="p.value_2"><br>
+</td>
+<td class="gt_row gt_center" headers="estimate_3">3.20</td>
+<td class="gt_row gt_center" headers="conf.low_3">1.79, 5.73</td>
+<td class="gt_row gt_center" headers="p.value_3">&lt;0.001</td>
+</tr>
+</tbody><tfoot class="gt_sourcenotes">
+<tr class="odd">
+<td colspan="10" class="gt_sourcenote">Abbreviations: CI = Confidence Interval, HR = Hazard Ratio</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="系数森林图">6.3.7 系数森林图</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="fu">library</span>(tidycmprsk)</span>
+<span id="cb25-2"><a></a><span class="fu">library</span>(broom)</span>
+<span id="cb25-3"><a></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb25-4"><a></a></span>
+<span id="cb25-5"><a></a>fit <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age <span class="sc">+</span> </span>
+<span id="cb25-6"><a></a>                         year <span class="sc">+</span> thickness <span class="sc">+</span> ulcer, <span class="at">data =</span> Melanoma)</span>
+<span id="cb25-7"><a></a>tbl <span class="ot">&lt;-</span> broom<span class="sc">::</span><span class="fu">tidy</span>(fit, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-8"><a></a><span class="fu">names</span>(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "term"      "estimate"  "std.error" "statistic" "conf.low"  "conf.high"
+[7] "p.value"  </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="fu">ggplot</span>(tbl, <span class="fu">aes</span>(<span class="at">y =</span> term, <span class="at">x =</span> estimate)) <span class="sc">+</span></span>
+<span id="cb27-2"><a></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb27-3"><a></a>  <span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high), <span class="at">height =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb27-4"><a></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray"</span>) <span class="sc">+</span></span>
+<span id="cb27-5"><a></a>  <span class="fu">xlab</span>(<span class="st">"Subdistribution Hazard Ratio (HR)"</span>) <span class="sc">+</span></span>
+<span id="cb27-6"><a></a>  <span class="fu">ylab</span>(<span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb27-7"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-21-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="对比竞争风险模型和cox模型">6.3.8 对比竞争风险模型和Cox模型</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="co"># 竞争风险回归（Fine-Gray模型）</span></span>
+<span id="cb28-2"><a></a>fit_fg <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
+<span id="cb28-3"><a></a></span>
+<span id="cb28-4"><a></a>tbl_fg <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit_fg, <span class="at">exp =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="fu">list</span>(<span class="at">sex =</span> <span class="st">"Sex"</span>, <span class="at">age =</span> <span class="st">"Age"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-5"><a></a>  <span class="fu">modify_header</span>(<span class="at">label =</span> <span class="st">"**变量**"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-6"><a></a>  <span class="fu">modify_caption</span>(<span class="st">"**Fine-Gray 竞争风险回归**"</span>)</span>
+<span id="cb28-7"><a></a></span>
+<span id="cb28-8"><a></a><span class="co"># Cox回归</span></span>
+<span id="cb28-9"><a></a>fit_cox <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, <span class="fu">ifelse</span>(status <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
+<span id="cb28-10"><a></a>tbl_cox <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit_cox, <span class="at">exp =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="fu">list</span>(<span class="at">sex =</span> <span class="st">"Sex"</span>, <span class="at">age =</span> <span class="st">"Age"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-11"><a></a>  <span class="fu">modify_header</span>(<span class="at">label =</span> <span class="st">"**变量**"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-12"><a></a>  <span class="fu">modify_caption</span>(<span class="st">"**Cox 比例风险模型**"</span>)</span>
+<span id="cb28-13"><a></a></span>
+<span id="cb28-14"><a></a><span class="fu">tbl_merge</span>(</span>
+<span id="cb28-15"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl_fg, tbl_cox),</span>
+<span id="cb28-16"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Fine-Gray 竞争风险回归**"</span>, <span class="st">"**Cox 比例风险模型**"</span>)</span>
+<span id="cb28-17"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="puvwgvfmdf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#puvwgvfmdf table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#puvwgvfmdf thead, #puvwgvfmdf tbody, #puvwgvfmdf tfoot, #puvwgvfmdf tr, #puvwgvfmdf td, #puvwgvfmdf th {
+  border-style: none;
+}
+
+#puvwgvfmdf p {
+  margin: 0;
+  padding: 0;
+}
+
+#puvwgvfmdf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#puvwgvfmdf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#puvwgvfmdf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#puvwgvfmdf .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#puvwgvfmdf .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#puvwgvfmdf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#puvwgvfmdf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#puvwgvfmdf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#puvwgvfmdf .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#puvwgvfmdf .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#puvwgvfmdf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#puvwgvfmdf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#puvwgvfmdf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#puvwgvfmdf .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#puvwgvfmdf .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#puvwgvfmdf .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#puvwgvfmdf .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#puvwgvfmdf .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#puvwgvfmdf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#puvwgvfmdf .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#puvwgvfmdf .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#puvwgvfmdf .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#puvwgvfmdf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#puvwgvfmdf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#puvwgvfmdf .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#puvwgvfmdf .gt_left {
+  text-align: left;
+}
+
+#puvwgvfmdf .gt_center {
+  text-align: center;
+}
+
+#puvwgvfmdf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#puvwgvfmdf .gt_font_normal {
+  font-weight: normal;
+}
+
+#puvwgvfmdf .gt_font_bold {
+  font-weight: bold;
+}
+
+#puvwgvfmdf .gt_font_italic {
+  font-style: italic;
+}
+
+#puvwgvfmdf .gt_super {
+  font-size: 65%;
+}
+
+#puvwgvfmdf .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#puvwgvfmdf .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#puvwgvfmdf .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#puvwgvfmdf .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#puvwgvfmdf .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#puvwgvfmdf .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#puvwgvfmdf .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#puvwgvfmdf .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#puvwgvfmdf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2588,17 +3318,34 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 <li><p>而年龄虽然在Cox模型下接近显著，但在Fine-Gray模型下未见统计学意义，提示在存在竞争风险时年龄的影响被削弱。</p></li>
 </ul>
 </section>
+<section class="slide level2">
+
+<h4 id="研究场景对比">研究场景对比</h4>
+<ul>
+<li><p>Fine-Gray回归(SHR):评估变量对实际累计发生概率（CIF）的影响，适合临床决策。</p></li>
+<li><p>Cox回归(HR):评估变量对即时发病风险的影响，适合机制探索。</p></li>
+<li><p>建议: 两者结合分析，结果更全面。</p></li>
+<li><p>Fine-Gray模型适合预后研究</p>
+<ul>
+<li>竞争风险模型（Competing Risks Model），关注的是SHR（Subdistribution Hazard Ratio，亚分布风险比）, 研究某因素对目标事件（比如特定死亡原因）累积发生率（Cumulative Incidence Function, CIF）的影响。因为它考虑了竞争风险，能预测患者未来发生某事件的风险，更适合用于预后研究。</li>
+</ul></li>
+<li><p>Cox (HR)适合机制研究</p>
+<ul>
+<li>Cox比例风险模型（Cox model）计算的是HR（Hazard Ratio，风险比），研究的是某变量对特定事件瞬时发生率的影响，探讨某因素如何影响疾病发生的本质过程，更适合机制研究。</li>
+</ul></li>
+</ul>
+</section>
 <section id="总结" class="slide level2">
 <h2>总结</h2>
 <ul>
-<li><p>竞争风险简介：解决目标事件受竞争事件干扰的生存分析，适用于医疗、工程等领域。</p></li>
-<li><p>核心概念：CIF 衡量发生概率，Fine-Gray 模型和 Gray 检验分析影响。</p></li>
-<li><p>工具：tidycmprsk 提供 cuminc 和 crr，优于 cmprsk。</p></li>
-<li><p>方法对比：Fine-Gray (SHR) 适合预后，Cox (HR) 适合机制研究，互为补充。</p></li>
+<li><p>竞争风险模型：解决目标事件受竞争事件干扰的生存分析。</p></li>
+<li><p>CIF曲线, Gray 检验, Fine-Gray模型</p></li>
+<li><p>tidycmprsk::cuminc 和 tidycmprsk::cuminccrr</p></li>
+<li><p>Fine-Gray (SHR) 适合预后, Cox (HR)适合机制研究</p></li>
 </ul>
 
 
-</section>
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

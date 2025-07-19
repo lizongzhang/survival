@@ -310,9 +310,9 @@
   {
     "objectID": "L7slide.html#大纲",
     "href": "L7slide.html#大纲",
-    "title": "L7 随机生存森林",
+    "title": "L7 机器学习在生存分析中的应用",
     "section": "大纲",
-    "text": "大纲\n\n7.1 Cox模型简介\n7.2 Cox模型的数据结构\n7.3 Cox模型的估计\n7.4 Cox模型的检验"
+    "text": "大纲\n\n7.1 随机生存森林模型简介\n7.2 梯度提升生存模型实操：从建模到可视化\n7.3 梯度提升生存模型简介\n7.4 梯度提升生存模型实操：从建模到可视化"
   },
   {
     "objectID": "L7slide.html#随机生存森林-rsf-简介",
@@ -331,14 +331,14 @@
   {
     "objectID": "L7slide.html#梯度提升生存模型-gbm-survival",
     "href": "L7slide.html#梯度提升生存模型-gbm-survival",
-    "title": "L7 随机生存森林",
+    "title": "L7 机器学习在生存分析中的应用",
     "section": "7.3 梯度提升生存模型 (GBM-Survival)",
     "text": "7.3 梯度提升生存模型 (GBM-Survival)\n概念：GBM-Survival 使用梯度提升技术（类似 XGBoost）构建多个弱生存模型，逐步优化预测。目标是最小化损失函数（如负对数似然）。 优点： 捕捉复杂非线性关系。 通过调整参数（如学习率、树数）实现灵活性。 提供变量重要性和部分依赖图。 R 实现：使用 gbm 或 survivalmodels 包，结合 ggplot2 进行可视化。 适合人群：对提升方法有兴趣的初学者，稍复杂但直观。 2. 数据集介绍 我们使用 GBSG2 数据集（TH.data 包），包含 686 名乳腺癌患者的生存数据。\n变量： time：生存时间（天）。 cens：删失状态（1=事件发生，0=删失）。 horTh：激素治疗（yes/no）。 age：年龄。 menostat：绝经状态（Pre/Post）。 tsize：肿瘤大小（毫米）。 tgrade：肿瘤分级（I/II/III）。 pnodes：淋巴结数量。 progrec：孕激素受体。 estrec：雌激素受体。 目标：预测生存时间，评估协变量对生存的影响。 3. 随机生存森林 (RSF) 示例 3.1 方法介绍 RSF 通过构建多棵树，预测每个患者的生存概率或风险分数。变量重要性帮助识别关键因素，如淋巴结数量（pnodes）。"
   },
   {
     "objectID": "L7slide.html#gbm-survival应用举例gbsg2",
     "href": "L7slide.html#gbm-survival应用举例gbsg2",
-    "title": "L7 随机生存森林",
+    "title": "L7 机器学习在生存分析中的应用",
     "section": "7.1 GBM-Survival应用举例：GBSG2",
     "text": "7.1 GBM-Survival应用举例：GBSG2"
   },
@@ -1180,14 +1180,14 @@
     "href": "L6slide.html#竞争风险模型简介",
     "title": "L6 竞争风险模型",
     "section": "6.1 竞争风险模型简介",
-    "text": "6.1 竞争风险模型简介\n\n竞争风险分析（Competing Risks Analysis）是生存分析的分支，处理目标事件受其他“竞争事件”干扰的情况，后者可能先发生并阻止目标事件。\n示例：研究癌症患者因病死亡时，其他原因（如心血管病）死亡为竞争事件。"
+    "text": "6.1 竞争风险模型简介\n\n竞争风险模型（Competing Risks Model）在存在多种互斥结局时，用于分析和比较特定结局发生概率及影响因素的统计方法。\n\n竞争风险Competing Risks()：是指在随访或观察期间，研究对象有可能因为多种不同且互斥的原因发生终点事件，一旦发生其中一种事件，就无法再经历其他事件。\n各种终点事件“竞争”着谁先发生\n这些事件互相排斥，每个对象只能经历其中之一。\n\n传统的生存分析（如Kaplan-Meier、Cox回归）往往只关注单一结局，忽略了其他风险事件的影响，可能导致结果偏倚。"
   },
   {
     "objectID": "L6slide.html#tidycmprsk-和-cmprsk",
     "href": "L6slide.html#tidycmprsk-和-cmprsk",
     "title": "L6 竞争风险模型",
     "section": "6.2 tidycmprsk 和 cmprsk",
-    "text": "6.2 tidycmprsk 和 cmprsk\n推荐使用：tidycmprsk::cuminc(…)\n\ntidycmprsk::cuminc()\n\n支持公式接口，输出tidy数据框，便于与tidyverse/ggplot2配合，可用于可视化。\n\ncmprsk::cuminc()\n\n不支持公式接口，返回S3对象，适合基础分析。\n\n\n\n\nCode\nfind(\"cuminc\")\n\n\ncharacter(0)"
+    "text": "6.2 tidycmprsk 和 cmprsk\n推荐使用：tidycmprsk::cuminc(…)\n明确声明调用tidycmprsk中的cuminc(), 避免使用其它函数如ggcuminc()时报错。\n\ntidycmprsk::cuminc()\n\n支持公式接口，输出tidy数据框，便于与tidyverse/ggplot2配合，可用于可视化。\n\ncmprsk::cuminc()\n\n不支持公式接口，返回S3对象，适合基础分析。\n\n\n\nfind(\"cuminc\")\n\n[1] \"package:cmprsk\"     \"package:tidycmprsk\""
   },
   {
     "objectID": "L6slide.html#应用举例竞争风险fine-gray模型",
@@ -1201,7 +1201,7 @@
     "href": "L6slide.html#总结",
     "title": "L6 竞争风险模型",
     "section": "总结",
-    "text": "总结\n\n竞争风险简介：解决目标事件受竞争事件干扰的生存分析，适用于医疗、工程等领域。\n核心概念：CIF 衡量发生概率，Fine-Gray 模型和 Gray 检验分析影响。\n工具：tidycmprsk 提供 cuminc 和 crr，优于 cmprsk。\n方法对比：Fine-Gray (SHR) 适合预后，Cox (HR) 适合机制研究，互为补充。"
+    "text": "总结\n\n竞争风险模型：解决目标事件受竞争事件干扰的生存分析。\nCIF曲线, Gray 检验, Fine-Gray模型\ntidycmprsk::cuminc 和 tidycmprsk::cuminccrr\nFine-Gray (SHR) 适合预后, Cox (HR)适合机制研究"
   },
   {
     "objectID": "L3.html",
@@ -1538,5 +1538,54 @@
     "title": "L5 AFT模型",
     "section": "如何选择？",
     "text": "如何选择？\nExponential（指数模型）\n假设风险率（hazard）是恒定的，即事件发生的速率不随时间变化。适合于“记忆无关”的寿命过程，如某些电子零件的寿命。\nWeibull（韦布尔模型）\n适合于大多数工程、医学寿命数据。\nLognormal（对数正态模型） 事件发生时间的对数服从正态分布。 当生存时间分布右偏、风险率呈现先增后减（非单调）时适用。适合于某些生物学和社会学过程。\n\n\n\n\n\n\n检查 $ (T) $ 的分布：\n\n\n指数分布：$ (T) $ 偏斜，符合极值分布。 Weibull 分布：$ (T) $ 符合极值分布，形状由 $ k = 1/$ 决定。 对数正态分布：$ (T) $ 近似正态分布（对称、钟形）。\n\n\n\n拟合三种分布，比较 AIC 或 BIC，选择值最低的模型。"
+  },
+  {
+    "objectID": "L7slide.html#随机生存森林-rsf模型-简介",
+    "href": "L7slide.html#随机生存森林-rsf模型-简介",
+    "title": "L7 机器学习在生存分析中的应用",
+    "section": "7.1 随机生存森林 (RSF)模型 简介",
+    "text": "7.1 随机生存森林 (RSF)模型 简介\n\n随机生存森林 (Random Survival Forest) 模型：随机森林 (Random Forest)在生存分析中的扩展，结合了决策树和集成学习的思想，适用于处理生存时间数据。\nRSF是一种基于随机森林的扩展，结合多棵生存树预测生存时间或风险。每个树基于随机样本和特征子集构建，输出累积风险函数（CHF）或生存概率。"
+  },
+  {
+    "objectID": "L7slide.html#随机生存森林模型实操从建模到可视化",
+    "href": "L7slide.html#随机生存森林模型实操从建模到可视化",
+    "title": "L7 机器学习在生存分析中的应用",
+    "section": "7.2 随机生存森林模型实操：从建模到可视化",
+    "text": "7.2 随机生存森林模型实操：从建模到可视化\n7.2.1 数据背景\nGBSG2{TH.data} 686 名乳腺癌患者\ntime：生存时间（天）。\ncens：删失状态（1=事件发生，0=删失）\nhorTh：激素治疗（yes/no）\nage：年龄\nmenostat：绝经状态（Pre/Post）\ntsize：肿瘤大小（毫米）\ntgrade：肿瘤分级（I/II/III）\npnodes：淋巴结数量\nprogrec：孕激素受体\nestrec：雌激素受体"
+  },
+  {
+    "objectID": "L7slide.html#随机生存森林-rsf模型简介",
+    "href": "L7slide.html#随机生存森林-rsf模型简介",
+    "title": "L7 机器学习在生存分析中的应用",
+    "section": "7.1 随机生存森林 (RSF)模型简介",
+    "text": "7.1 随机生存森林 (RSF)模型简介\n\n随机生存森林 (Random Survival Forest) 模型：随机森林 (Random Forest)在生存分析中的扩展，结合了决策树和集成学习的思想，适用于处理生存时间数据。\nRSF是一种基于随机森林的扩展，结合多棵生存树预测生存时间或风险。每个树基于随机样本和特征子集构建，输出累积风险函数（CHF）或生存概率。"
+  },
+  {
+    "objectID": "L7slide.html#梯度提升生存模型-gbm-survival简介",
+    "href": "L7slide.html#梯度提升生存模型-gbm-survival简介",
+    "title": "L7 机器学习在生存分析中的应用",
+    "section": "7.3 梯度提升生存模型 (GBM-Survival)简介",
+    "text": "7.3 梯度提升生存模型 (GBM-Survival)简介\n7.3.1 GBM-Survival建模思想\n\n梯度提升机（Gradient Boosting Machine, GBM）是一类强大的集成学习方法：\n\n\n通过迭代训练多个弱学习器（通常为回归树），每一轮模型都修正前一轮的误差，从而逼近真实目标函数。\n\n\n在生存分析中，GBM 可用于优化多种生存目标函数，包括：\n\nCox 部分似然函数：适用于比例风险假设；\n排序损失函数：如负对数似然、C-index、pairwise loss，用于优化风险排序或生存预测精度。"
+  },
+  {
+    "objectID": "L7slide.html#gbm-survival模型实操",
+    "href": "L7slide.html#gbm-survival模型实操",
+    "title": "L7 机器学习在生存分析中的应用",
+    "section": "7.4 GBM-Survival模型实操",
+    "text": "7.4 GBM-Survival模型实操\n7.4.1 数据背景\nGBSG2{TH.data} 686 名乳腺癌患者\ntime：生存时间（天）。\ncens：删失状态（1=事件发生，0=删失）\nhorTh：激素治疗（yes/no）\nage：年龄\nmenostat：绝经状态（Pre/Post）\ntsize：肿瘤大小（毫米）\ntgrade：肿瘤分级（I/II/III）\npnodes：淋巴结数量\nprogrec：孕激素受体\nestrec：雌激素受体"
+  },
+  {
+    "objectID": "L6slide.html#竞争风险fine-gray模型实操",
+    "href": "L6slide.html#竞争风险fine-gray模型实操",
+    "title": "L6 竞争风险模型",
+    "section": "6.3 竞争风险Fine-Gray模型实操",
+    "text": "6.3 竞争风险Fine-Gray模型实操\n6.3.1 数据背景\n{MASS} 包中的 Melanoma 黑色素瘤数据\n\ntime：生存时间（天），可能为删失数据。\nstatus：1 表示因黑色素瘤死亡，2 表示存活，3 表示因其他原因死亡\nsex：1 = 男性，0 = 女性\nage：年龄（岁）\nyear：手术年份\nthickness：肿瘤厚度（毫米）\nulcer：1 = 有溃疡，0 = 无溃疡"
+  },
+  {
+    "objectID": "L6slide.html#竞争风险模型数据要求",
+    "href": "L6slide.html#竞争风险模型数据要求",
+    "title": "L6 竞争风险模型",
+    "section": "6.1.4 竞争风险模型数据要求",
+    "text": "6.1.4 竞争风险模型数据要求\n对样本容量的要求\n\n事件数而非总样本数更关键\n\n竞争风险分析的统计效能主要取决于每种结局（即每类事件类型）的实际发生数，而不是总样本数。\n\n每类（目标）竞争事件的发生例数越多越好，建议每个自变量对应的目标事件数≥10。\n每类（目标）竞争事件的发生例数越多越好，建议每个自变量对应的目标事件数≥10。\n目标事件的发生概率明显高于竞争事件的发生概率。\n某些竞争事件发生率极低时，模型参数可能估计不稳定，建议合并类别或减少变量数量。\n\n对变量个数的要求\n\n通用经验：“事件数/变量数比”建议≥10"
   }
 ]

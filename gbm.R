@@ -5,8 +5,10 @@ install.packages("gbm")
 library(survival)        # 生存分析工具
 library(TH.data)         # GBSG2 数据集
 library(tidyverse)       # 数据处理和可视化
-library(survivalmodels)  # GBM-Survival 模型
-library(gbm)
+#library(survivalmodels)  # GBM-Survival 模型
+library(gbm)             # Generalized Boosted Regression Modeling
+library(pdp)
+
 # 加载数据
 data(GBSG2, package = "TH.data")
 
@@ -82,26 +84,12 @@ ggplot(pd_data, aes(x = pnodes, y = S)) +
   theme_minimal()
 
 
-
-
-# 绘制部分依赖图
-ggplot(pd_data, aes(x = pnodes, y = CIF)) +
-  geom_line(color = "purple") +
-  labs(title = "pnodes 的部分依赖图", x = "淋巴结数量", y = "CIF") +
-  theme_minimal() +
-  # 可选：添加平滑曲线
-  geom_smooth(method = "loess", color = "blue", se = FALSE) +
-  # 限制 y 轴范围（根据数据调整）
-  ylim(min(y_values), max(y_values))
-
-
 # partial dependence plots
-install.packages("pdp")
 library(pdp)
 pdp_obj <- partial(gbm_model, 
                    pred.var = "pnodes",
                    n.trees = 100)
-# Y轴代表 log(相对风险)，模型预测的“线性风险分数”（log hazard ratio）的平均值（
+# Y轴代表预测的“对数风险比”（log hazard ratio）
 autoplot(pdp_obj, rug = TRUE, train = gbsg2)
 
 
@@ -112,7 +100,14 @@ autoplot(pdp_obj, rug = TRUE, train = gbsg2)
 # rug 标记：横轴上的小标记表示训练数据 pnodes 的分布，注意曲线在数据稀疏区域（标记少）的外推风险。
 pd_1d <- partial(gbm_model, pred.var = "pnodes", 
                  n.trees = 100, train = GBSG2)
-autoplot(pd_1d, pdp.color = "purple", rug = TRUE, train = gbsg2)
+autoplot(pd_1d, rug = TRUE, train = gbsg2) +
+  geom_line(color="navy") +
+  geom_smooth(color = "lightblue",
+              se = FALSE)
+
+
+
+
 
 ## 多变量部分依赖图 (2D PDP)
 # 描述：展示两个预测变量（如 pnodes 和 age）的联合边际效应，通常以伪彩色级别图或等高线图形式。
@@ -142,7 +137,10 @@ autoplot(pd_2d, contour = TRUE, legend.title = "Log Hazard")
 # 使用 partial() 设置 ice = TRUE。
 # 使用 plotPartial() 或 autoplot() 绘制。
 
-ice_curves <- partial(gbm_model, pred.var = "pnodes", ice = TRUE, n.trees = 100)
+ice_curves <- partial(gbm_model, 
+                      pred.var = "pnodes", 
+                      ice = TRUE, 
+                      n.trees = 100)
 plotPartial(ice_curves, alpha = 0.1, rug = TRUE, train = gbsg2)
 # 或者
 autoplot(ice_curves, center = FALSE, alpha = 0.1, pdp.color = "red")
@@ -166,9 +164,13 @@ autoplot(cice_curves, alpha = 0.1, pdp.color = "blue")
 # 使用 partial() 计算数据。
 # 使用 plotPartial() 或 autoplot() 设置 smooth = TRUE。
 
-pd_smooth <- partial(gbm_model, pred.var = "pnodes", n.trees = 100)
-plotPartial(pd_smooth, smooth = TRUE, pdp.col = "green")
-
+pd_smooth <- partial(gbm_model, pred.var = "pnodes", 
+                    n.trees = 100, train = gbsg2)
+autoplot(pd_smooth, smooth = TRUE)
+autoplot(pd_smooth, smooth = TRUE) + 
+  geom_line(color="navy") +
+  geom_smooth(color = "lightblue",
+              se = FALSE)
 
 
 # pdp package -------------------------------------------------------------

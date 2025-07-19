@@ -9,7 +9,12 @@ format:
     incremental: FALSE
     theme: sky
     slide-number: true
-    code-fold: true
+    code-fold: false
+    execute:
+      echo: true
+      output: true        
+      warning: false
+      message: false
     chalkboard: 
       buttons: true
     preview-links: auto
@@ -44,6 +49,10 @@ library(survival)
 library(ggsurvfit)
 library(gtsummary)
 library(tidyverse)
+library(tidycmprsk)
+library(cmprsk)
+library(RColorBrewer)
+
 ```
 
 ------------------------------------------------------------------------
@@ -60,72 +69,121 @@ library(tidyverse)
 
 ## 6.1 竞争风险模型简介
 
--   竞争风险分析（Competing Risks
-    Analysis）是生存分析的分支，处理目标事件受其他“竞争事件”干扰的情况，后者可能先发生并阻止目标事件。
+-   竞争风险模型（Competing Risks
+    Model）在存在多种互斥结局时，用于分析和比较特定结局发生概率及影响因素的统计方法。
 
--   示例：研究癌症患者因病死亡时，其他原因（如心血管病）死亡为竞争事件。
+    -   竞争风险Competing Risks()：是指在随访或观察期间，研究对象有可能因为多种不同且互斥的原因发生终点事件，一旦发生其中一种事件，就无法再经历其他事件。
+    
+      -   各种终点事件“竞争”着谁先发生
+      
+      -   这些事件互相排斥，每个对象只能经历其中之一。
 
-------------------------------------------------------------------------
 
-### 为什么需要竞争风险分析？
+-   传统的生存分析（如Kaplan-Meier、Cox回归）往往只关注单一结局，忽略了其他风险事件的影响，可能导致结果偏倚。
 
--   传统生存分析（如Kaplan-Meier、Cox模型）假设删失是独立的，与目标事件风险无关。
+----------
 
--   现实中，竞争事件（如其他原因死亡）会阻止目标事件，导致删失不独立，传统方法可能低估风险。
+# 6.1.1 竞争风险模型设定
 
-------------------------------------------------------------------------
+竞争风险模型假设每个研究对象在随访期间仅会经历一种事件（如死亡、复发、失访等），事件之间相互排斥。
 
-### 应用场景
+-   **累积发生率函数（Cumulative Incidence Function,
+    CIF）**：估计特定结局在给定时间发生的概率。
+-   **Fine-Gray模型**：Fine-Gray模型就是在多种互斥结局同时可能发生时，用来分析特定结局风险和影响因素的工具。。
+-   **Cause-specific
+    Hazard模型**：分别对每种结局建模，主要用于机制解释。
 
--   医学：分析特定疾病死亡概率，考虑其他死亡原因。
+模型设定需明确每类事件的定义，并正确标注事件类型（如status=0为无事件，1为事件A，2为事件B等）。
 
--   工程：分析设备特定故障失效时间，考虑其他故障。
+--------
 
--   社会学：分析失业人员找到工作的概率，竞争事件如退出劳动力市场。
+#### 竞争风险分析核心概念
 
-------------------------------------------------------------------------
+竞争风险分析通过累积发生概率或亚分布风险来估计目标事件的概率。
 
-### 竞争风险分析核心概念
+-   累积发生率函数(Cumulative Incidence Function, CIF):
+    在某时间点前，目标事件发生的累积概率。
 
-竞争风险分析通过累积发生概率（Cumulative Incidence Function,
-CIF）或亚分布风险（Subdistribution Hazard）来估计目标事件的概率。
+-   亚分布风险(Subdistribution Hazard)：在所有样本中，某一特定事件（如目标事件）在某时刻尚未发生的情况下，单位时间内首次发生该事件的速率，即便有些样本已经因为其他事件（竞争事件）而“失去观察”也要“留在分母里”。
 
--   累积发生概率（Cumulative Incidence Function, CIF）:
-    在某时间点前，目标事件发生的概率，考虑了竞争事件的影响。
-
--   亚分布风险：针对目标事件的特定风险函数，用于建模协变量对 CIF
-    的影响。
+  -   传统风险率（如Cox模型）只考虑还没发生任何事件的个体。
+  
+  -   亚分布风险则把已经发生了竞争事件的人继续留在统计基数中（虽然这些人实际上不会再发生目标事件），以便更准确地反映实际发生概率。
 
 Fine-Gray模型：一种常用的竞争风险回归模型，基于亚分布风险，估计协变量对目标事件累积发生概率的影响。
 
-Gray 检验：比较不同组的CIF，适用于竞争风险。
+Gray 检验：比较在存在竞争风险时，不同组的CIF是否存在显著差异。
 
-------------------------------------------------------------------------
+----------
 
-### 竞争风险模型数学框架
+#### 竞争风险模型数学框架
 
 累积发生概率（CIF） 对于目标事件 $k$
-$，CIF 定义为：$$CIF_k(t) = P(T \leq t, \text{事件类型} = k)$\$ 其中 \$
-T \$ 是事件发生时间，CIF 考虑了所有竞争事件的发生概率。
-
-Fine-Gray 模型
+$，CIF 定义为：$$CIF_k(t) = P(T \leq t, \text{事件类型} = k)$\$ 其中 $T$ 是事件发生时间，CIF 考虑了所有竞争事件的发生概率。
 
 Fine-Gray
-模型基于亚分布风险函数，假设协变量对目标事件的亚分布风险有比例效应：
+模型基于亚分布风险函数(Subdistribution Hazard)，假设协变量对目标事件的亚分布风险有比例效应：
 $$h_k(t | X) = h_{k0}(t) \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)$$
-其中：
 
-\$ h_k(t \| X) \$：目标事件 \$ k \$ 的亚分布风险。
+$h_k(t\|X)$：目标事件$k$的亚分布风险。
 
-\$ h\_{k0}(t) \$：基线亚分布风险。
+$h_{k0}(t)$：基线亚分布风险。
 
-\$ \beta\_i \$：协变量 \$ X_i \$ 的回归系数，解释变量对 CIF 的影响
+$\beta\_i$：协变量$X_i$ 的回归系数，解释变量对 CIF 的影响。
 
-------------------------------------------------------------------------
+------
+
+# 6.1.2 竞争风险模型优势
+
+-   **真实反映多结局过程**：同时考虑各类风险事件，避免高估单一结局的发生率。
+
+-   **避免传统生存分析偏倚**：Kaplan-Meier等方法在存在竞争风险时会高估目标事件概率，竞争风险模型能准确估计。
+
+-   **可比较不同组别累计发生率**：通过CIF曲线和Gray检验比较不同亚组的特定事件概率。
+
+-   **可回归分析协变量影响**：Fine-Gray模型可分析协变量对特定结局的影响，更适用于临床风险分层。
+
+---------
+
+# 6.1.3 竞争风险模型适用场景
+
+-   **医学随访研究**：如肿瘤患者因肿瘤死亡与非肿瘤死亡是竞争风险。
+
+-   **器官移植**：移植失败和患者死亡互为竞争风险。
+
+-   **流行病学队列**：多种排他性结局（如多种疾病的首次发作）分析。
+
+-   **失访/退出研究**：失访与终点事件互为竞争风险时。
+
+------
+
+## 6.1.4 竞争风险模型数据要求
+
+### 对样本容量的要求
+
+-   事件数而非总样本数更关键
+
+    -   竞争风险分析的统计效能主要取决于每种结局（即每类事件类型）的实际发生数，而不是总样本数。
+
+-   每类（目标）竞争事件的发生例数越多越好，建议每个自变量对应的目标事件数≥10。
+
+-   每类（目标）竞争事件的发生例数越多越好，建议每个自变量对应的目标事件数≥10。
+
+-   目标事件的发生概率明显高于竞争事件的发生概率。
+
+-   某些竞争事件发生率极低时，模型参数可能估计不稳定，建议合并类别或减少变量数量。
+
+### 对变量个数的要求
+
+-   通用经验：“事件数/变量数比”建议≥10
+
+------
 
 ## 6.2 `tidycmprsk` 和 `cmprsk`
 
 推荐使用：tidycmprsk::cuminc(...)
+
+明确声明调用tidycmprsk中的cuminc(), 避免使用其它函数如`ggcuminc()`时报错。
 
 -   tidycmprsk::cuminc()
 
@@ -140,9 +198,11 @@ $$h_k(t | X) = h_{k0}(t) \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)$$
 find("cuminc")
 ```
 
-------------------------------------------------------------------------
+---------
 
-## 6.3 应用举例：竞争风险Fine-Gray模型
+## 6.3 竞争风险Fine-Gray模型实操
+
+### 6.3.1 数据背景
 
 {MASS} 包中的 Melanoma 黑色素瘤数据
 
@@ -160,9 +220,9 @@ find("cuminc")
 
 -   ulcer：1 = 有溃疡，0 = 无溃疡
 
-------------------------------------------------------------------------
+--------
 
-### 6.3.1 数据准备
+### 6.3.2 数据准备
 
 编码：0=删失，1=目标事件，2=竞争事件
 
@@ -171,27 +231,29 @@ find("cuminc")
 data(Melanoma, package = "MASS")
 
 # Melanoma 中的status：1 表示因黑色素瘤死亡，2 表示存活，3 表示因其他原因死亡
-# 重编码 status（将2存活改为0，1因黑色素瘤死亡保持为1，3因其他原因死亡改为2），并转换为因子型
+# 重编码 status，并转换为因子型
 Melanoma <- 
   Melanoma %>% 
   mutate(
     status = as.factor(recode(status, `2` = 0, `1` = 1, `3` = 2))
   )
 
+```
+
+---
+
+```{r}
 head(Melanoma) # 查看数据前6行，检查数据结构
 ```
 
-------------------------------------------------------------------------
+------
 
-------------------------------------------------------------------------
+### 6.3.3 计算CIF
 
-### 6.3.2 计算CIF
-
-#### 计算无分组CIF
+计算观测到到目标事件/竞争事件的累积发生率
 
 ```{r}
-#| echo: true
-# 计算无分组的竞争风险累积发生概率（CIF）
+# 计算目标事件/竞争事件的累积发生概率（CIF）
 cif <- tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma)
 cif
 ```
@@ -209,12 +271,13 @@ cif
 解读：1000 天时，type 1 CIF = 12.7%；5000 天时，type 1 CIF = 33.9% (95%
 CI: 26.0%-41.9%)，type 2 CIF = 10.6% (95% CI: 5.3%-17.9%)。
 
-------------------------------------------------------------------------
+----------
 
 #### 计算分组CIF
 
+按照是否有溃疡(ulcer)分为两组，计算这两个组别的CIF
+
 ```{r}
-#| echo: true
 # 按ulcer分组，计算并展示5年（1826.25天）时点的CIF表，并进行组间比较
 tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
   tidycmprsk::tbl_cuminc(
@@ -224,19 +287,20 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
 
 ```
 
-------------------------------------------------------------------------
+-------------
 
-### 6.3.3 CIF曲线
+### 6.3.4 CIF曲线
 
-竞争风险累积发生概率（Cumulative Incidence Function, CIF）曲线:
-直观比较各结局的累积风险随时间的变化
+#### survminer::ggcompetingrisks() 
+
+比较各种结局的累积发生率随时间的变化
 
 ```{r}
-#| echo: true
-
-# 绘制竞争风险累积发生概率（Cumulative Incidence Function, CIF）曲线
-
-survminer::ggcompetingrisks(
+#| eval: false
+#| include: true
+library(survminer)
+library(survival)
+ggcompetingrisks(
   fit = survfit(Surv(time, status) ~ 1, data = Melanoma),
   data = Melanoma,
   palette = "jco"
@@ -244,119 +308,194 @@ survminer::ggcompetingrisks(
 
 ```
 
--   蓝色：未发生事件。
 
--   黄色：事件 1。
+-----
 
--   灰色：事件 2。
+```{r}
+#| echo: false
+library(survminer)
+library(survival)
+ggcompetingrisks(
+  fit = survfit(Surv(time, status) ~ 1, data = Melanoma),
+  data = Melanoma,
+  palette = "jco"
+)
+```
 
--   蓝色面积 = 1 - CIF(1) - CIF(2)。
+
+-   蓝色：未发生事件; 黄色：事件 1; 灰色：事件 2。
 
 -   每个时间点，黄色和灰色部分的高度叠加，代表“某事件已发生”的总比例。
 
--   蓝色区域 = 1 − CIF(事件1) − CIF(事件2) 即尚未发生任何事件的比例。
-
 -   随着时间推移，蓝色面积减少，说明越来越多个体发生了某种类型的事件。
 
--   展示了在存在两种竞争事件的前提下，不同事件在随访期间的累积发生概率如何随时间上升，同时显示有多少个体仍未发生任何事件。
+-   不同事件在随访期间的累积发生概率如何随时间上升，同时显示有多少比例的事件仍未发生任何事件。
 
-#### 目标事件1CIF曲线
+-----
+
+-   科研期刊 palette
+
+    -   jco: Journal of Clinical Oncology
+
+    -   jama: Journal of the American Medical Association
+
+    -   lancet: The Lancet
+
+    -   nejm: The New England Journal of Medicine
+
 
 ```{r}
-#| echo: true
+#| eval: false
+#| include: true
+library(RColorBrewer)
 
+# 查看所有调色板名称及类型
+display.brewer.all()
+```
+
+----
+
+修改图形配色风格
+
+```{r}
+#| code-fold: true
+# 使用palette = "Set3"
+ggcompetingrisks(
+  fit = survfit(Surv(time, status) ~ 1, data = Melanoma),
+  data = Melanoma,
+  palette = "Set3"
+)
+```
+
+------
+
+#### ggsurvfit::ggcumic() 
+
+
+##### 目标事件1的CIF曲线
+
+```{r}
 #绘制 Failure type "1"（也就是 type 1，对应 status==1 的事件）的累积发生概率
-# 绘制无分组的CIF曲线，添加置信区间和风险表
-
 tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
-  ggcuminc() + 
-  labs(
-    x = "Days"
-  ) + 
-  add_confidence_interval() +
-  add_risktable()
+  ggcuminc(col = "#B3D4FC") + 
+  labs(x = "Days") + 
+  add_confidence_interval() + # 添加置信区间
+  add_risktable() # 风险表
 
 ```
 
-------------------------------------------------------------------------
+------
 
-#### 竞争事件2CIF曲线
+##### 竞争事件2CIF曲线
 
 ```{r}
-#| echo: true
-
 # 绘制 Failure type "2"的累积发生概率（CIF）曲线
 tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
-  ggcuminc(outcome = "2") + 
-  labs(
-    x = "Days"
-  ) + 
-  add_confidence_interval() +
+  ggcuminc(outcome = "2", color = "#D7B9D5") + 
+  labs(x = "Days") + 
+  #add_confidence_interval() +
   add_risktable()
-
 ```
 
-------------------------------------------------------------------------
+-----
 
-#### 多结局CIF曲线
+##### 多结局CIF曲线
 
 ```{r}
-#| echo: true
-
 # 同时展示多种结局（outcome=1,2）的CIF曲线，设置y轴范围
 tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
   ggcuminc(outcome = c("1", "2")) +
   ylim(c(0, 1)) + 
-  labs(
-    x = "Days"
-  )
+  labs(x = "Days")
 
 ```
 
-------------------------------------------------------------------------
+----
 
-### 6.3.5 Gray Test 灰色检验
+##### 自定义线条颜色
 
 ```{r}
-#| echo: true
+#| code-fold: true
 
-#  Gray 检验
-#使用 tbl_cuminc 和 add_p 进行 Gray 检验
+tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
+ggcuminc(outcome = c("1", "2")) +
+  aes(color = outcome) +       # 强制美学映射
+  scale_color_manual(values = c("1" = "#B3D4FC", 
+                                "2" = "#F4C2C2"),
+                     labels = c("death form Melanoma", 
+                                "death from other cause")) +
+  ylim(0, 1) +
+  labs(x = "Days") +
+  add_risktable() +
+  scale_ggsurvfit()
+```
+
+----
+
+##### 分组多结局CIF曲线
+
+按ulcer分组，绘制多结局CIF曲线
+
+```{r}
+# 按ulcer分组，绘制多结局CIF曲线，添加置信区间和风险表
+tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
+  ggcuminc(outcome = c("1", "2")) + 
+  labs(x = "Days") + 
+  add_confidence_interval() +
+  add_risktable()
+```
+
+
+------
+
+### 6.3.5 灰色检验Gray Test
+
+Gray检验：比较两个或多个组在特定结局（某一竞争风险事件）上的累积发生率是否存在显著差异。
+
+```{r}
 tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
   tidycmprsk::tbl_cuminc(
     times = c(365.25, 1826.25, 3652.5),  # 1年、5年、10年
     label_header = "**{time/365.25}-year cuminc**"
   ) %>% 
   add_p(
-    pvalue_fun = function(x) style_pvalue(x, digits = 3)  # 用 function 语法
-  )
-
-
+    pvalue_fun = function(x) style_pvalue(x, digits = 3)
+    )
 ```
 
-------------------------------------------------------------------------
+----------
 
 ### 6.3.6 估计竞争风险回归
 
 #### Fine-Gray 模型估计结果
 
 ```{r}
-#| echo: true
-
 # 竞争风险回归，分析 sex 和 age 对结局的影响
+tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
+```
+
+估计结果解释
+
+-   sex: HR = 1.80, p-value = 0.03
+
+-   与参考组相比（sex=0为女性，sex=1为男性），男性发生type1结局（因黑色素瘤死亡）的亚分风险比为1.80。
+
+-   男性发生该结局的风险是女性的1.8倍。p值小于0.05，说明性别的影响具有统计学意义。
+
+---
+
+```{r}
 tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
 
 ```
 
--   sex: HR = 1.80, p-value = 0.03
-    解释：与参考组相比（sex=0为女性，sex=1为男性），男性发生type
-    1结局（因黑色素瘤死亡）的亚分风险比为1.80，即男性发生该结局的风险是女性的1.8倍。p值小于0.05，说明性别的影响具有统计学意义。
+-   age: HR = 1.01, p-value = 0.18
 
--   age: HR = 1.01, p-value = 0.18 每增加一岁，type
-    1结局的亚分风险比增加1%（1.01倍），但p值为0.18，不具有统计学显著性（即年龄对type
-    1结局风险的影响不显著）。这可能因年龄范围较窄或竞争事件掩盖了效应。
+-   每增加一岁，type1结局的亚分风险比增加1%（1.01倍），但p值为0.18，不具有统计学显著性（即年龄对type1结局风险的影响不显著）。
 
-------------------------------------------------------------------------
+-   这可能因年龄范围较窄或竞争事件掩盖了效应。
+
+--------------
 
 Fine-Gray 竞争风险回归模型（subdistribution hazard model）
 
@@ -364,44 +503,88 @@ Fine-Gray 竞争风险回归模型型的估计结果：
 $$h_1(t | X) = h_{01}(t) \exp\left(0.588 \cdot \text{sex} + 0.013 \cdot \text{age}\right)$$
 变量定义
 
-sex：通常编码为 0（男性）或 1（女性），需确认 Melanoma
-数据中的具体编码。若 sex = 0 为参考组（女性），则 \$ \text{sex} = 1 \$
-表示男性。
+sex：sex = 0 为女性(参考组)，sex = 0 表示男性。
 
 age：连续变量，表示年龄（单位：年）。
 
-\$ h\_{01}(t) \$：基线子分布危险率，依赖于时间 \$ t \$ 和数据，但 crr()
-不直接提供其解析形式，通常通过非参数方法估计。
+$h_{01}(t)$：基线子分布危险率，依赖于时间 $t$和数据，但 crr()没有直接估计$h_{01}(t)$，需要通过非参数方法估计。
 
-------------------------------------------------------------------------
+----------
 
 #### 表格化输出Fine-Gray 估计结果
 
 ```{r}
-#| echo: true
-
-# 竞争风险回归结果整理为回归表（exp=TRUE 输出HR及置信区间）
 tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma) %>% 
-  tbl_regression(exp = TRUE)
+  tbl_regression(exp = TRUE) # exp=TRUE 输出HR
 
 ```
 
-------------------------------------------------------------------------
+---
 
-### 6.3.7 对比竞争风险回归和Cox回归
+#### 表格化输出3个模型的估计结果
 
--   Fine-Gray回归（SHR）：
-    评估变量对实际累计发生概率（CIF）的影响，适合临床决策。
-
--   Cox回归（HR）： 评估变量对即时发病风险的影响，适合机制探索。
-
--   建议： 两者结合分析，结果更全面。
 
 ```{r}
-#| echo: true
+#| code-fold: true
+
+
+fit1 <- tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
+fit2 <- tidycmprsk::crr(Surv(time, status) ~ sex + age  + year + thickness, data = Melanoma)
+fit3 <- tidycmprsk::crr(Surv(time, status) ~ sex + age  + year + thickness + ulcer, data = Melanoma)
+
+library(gtsummary)
+
+tbl1 <- tbl_regression(fit1, exponentiate = TRUE)
+tbl2 <- tbl_regression(fit2, exponentiate = TRUE)
+tbl3 <- tbl_regression(fit3, exponentiate = TRUE)
+
+
+# 合并报告
+merged_tbl <- tbl_merge(
+  tbls = list(tbl1, tbl2, tbl3),
+  tab_spanner = c("**Model 1**", "**Model 2**", "**Model 3**")
+)
+
+merged_tbl
+```
+
+
+-----
+
+### 6.3.7 系数森林图
+
+```{r}
+#| code-fold: true
+
+library(tidycmprsk)
+library(broom)
+library(ggplot2)
+
+fit <- tidycmprsk::crr(Surv(time, status) ~ sex + age + 
+                         year + thickness + ulcer, data = Melanoma)
+tbl <- broom::tidy(fit, exponentiate = TRUE, conf.int = TRUE)
+names(tbl)
+
+ggplot(tbl, aes(y = term, x = estimate)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray") +
+  xlab("Subdistribution Hazard Ratio (HR)") +
+  ylab("") +
+  theme_minimal()
+```
+
+
+----------
+
+### 6.3.8 对比竞争风险模型和Cox模型
+
+```{r}
+#| code-fold: true
 
 # 竞争风险回归（Fine-Gray模型）
 fit_fg <- tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
+
 tbl_fg <- tbl_regression(fit_fg, exp = TRUE, label = list(sex = "Sex", age = "Age")) %>%
   modify_header(label = "**变量**") %>%
   modify_caption("**Fine-Gray 竞争风险回归**")
@@ -423,15 +606,38 @@ tbl_merge(
 
 -   而年龄虽然在Cox模型下接近显著，但在Fine-Gray模型下未见统计学意义，提示在存在竞争风险时年龄的影响被削弱。
 
-------------------------------------------------------------------------
+--------
+
+#### 研究场景对比
+
+-   Fine-Gray回归(SHR):评估变量对实际累计发生概率（CIF）的影响，适合临床决策。
+
+-   Cox回归(HR):评估变量对即时发病风险的影响，适合机制探索。
+
+-   建议: 两者结合分析，结果更全面。
+
+-   Fine-Gray模型适合预后研究
+
+    -   竞争风险模型（Competing Risks
+        Model），关注的是SHR（Subdistribution Hazard
+        Ratio，亚分布风险比）,
+        研究某因素对目标事件（比如特定死亡原因）累积发生率（Cumulative
+        Incidence Function,
+        CIF）的影响。因为它考虑了竞争风险，能预测患者未来发生某事件的风险，更适合用于预后研究。
+
+-   Cox (HR)适合机制研究
+
+    -   Cox比例风险模型（Cox model）计算的是HR（Hazard
+        Ratio，风险比），研究的是某变量对特定事件瞬时发生率的影响，探讨某因素如何影响疾病发生的本质过程，更适合机制研究。
+
+-----------
 
 ## 总结
 
--   竞争风险简介：解决目标事件受竞争事件干扰的生存分析，适用于医疗、工程等领域。
+-   竞争风险模型：解决目标事件受竞争事件干扰的生存分析。
 
--   核心概念：CIF 衡量发生概率，Fine-Gray 模型和 Gray 检验分析影响。
+-   CIF曲线, Gray 检验, Fine-Gray模型
 
--   工具：tidycmprsk 提供 cuminc 和 crr，优于 cmprsk。
+-   tidycmprsk::cuminc 和 tidycmprsk::cuminccrr
 
--   方法对比：Fine-Gray (SHR) 适合预后，Cox (HR)
-    适合机制研究，互为补充。
+-   Fine-Gray (SHR) 适合预后, Cox (HR)适合机制研究

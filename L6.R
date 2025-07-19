@@ -51,6 +51,13 @@ ggcompetingrisks(
   palette = "jco"
 )
 
+ggcompetingrisks(
+  fit = survfit(Surv(time, status) ~ 1, data = Melanoma),
+  data = Melanoma,
+  palette = "Set3"
+)
+
+
 
 
 # 计算无分组的竞争风险累积发生概率（CIF）
@@ -85,9 +92,28 @@ tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>%
 tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
   ggcuminc(outcome = c("1", "2")) +
   ylim(c(0, 1)) + 
-  labs(
-    x = "Days"
-  )
+  labs(x = "Days")
+
+# 同时展示多种结局（outcome=1,2）的CIF曲线，设置y轴范围
+tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
+  ggcuminc(outcome = c("1", "2")) +
+  ylim(c(0, 1)) + 
+  labs(x = "Days") +
+  add_risktable() +
+  scale_ggsurvfit()
+
+tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
+  ggcuminc(outcome = c("1", "2")) +
+  aes(color = outcome) +       # 强制美学映射
+  scale_color_manual(values = c("1" = "#B3D4FC", 
+                                "2" = "#D7B9D5"),
+                     labels = c("death form Melanoma", 
+                                "death from other cause")) +
+  ylim(0, 1) +
+  labs(x = "Days") +
+  add_risktable() +
+  scale_ggsurvfit()
+
 
 # 按ulcer分组，计算并展示5年（1826.25天）时点的CIF表，并进行组间比较
 tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
@@ -99,11 +125,20 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
 # 按ulcer分组，绘制CIF曲线，添加置信区间和风险表
 tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
   ggcuminc() + 
-  labs(
-    x = "Days"
-  ) + 
+  labs(x = "Days") + 
   add_confidence_interval() +
   add_risktable()
+
+# 按ulcer分组，绘制多结局CIF曲线，添加置信区间和风险表
+tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
+  ggcuminc(outcome = c("1", "2")) + 
+  labs(x = "Days") + 
+  add_confidence_interval() +
+  add_risktable()
+
+
+fit <- tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma)
+
 
 
 #  Gray 检验
@@ -117,14 +152,42 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
     pvalue_fun = function(x) style_pvalue(x, digits = 3)  # 用 function 语法
   )
 
-
-
 # 竞争风险回归，分析 sex 和 age 对结局的影响
 tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
 
 # 竞争风险回归结果整理为回归表（exp=TRUE 输出HR及置信区间）
 tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma) %>% 
   tbl_regression(exp = TRUE)
+
+
+
+# 多个模型报告在同一个表格中 -----------------------------------------------------------
+
+library(tidycmprsk)
+
+fit1 <- crr(Surv(time, status) ~ sex + age, data = Melanoma)
+fit2 <- crr(Surv(time, status) ~ sex + age  + year + thickness, data = Melanoma)
+fit3 <- crr(Surv(time, status) ~ sex + age  + year + thickness + ulcer, data = Melanoma)
+
+library(gtsummary)
+
+tbl1 <- tbl_regression(fit1, exponentiate = TRUE)
+tbl2 <- tbl_regression(fit2, exponentiate = TRUE)
+tbl3 <- tbl_regression(fit3, exponentiate = TRUE)
+
+
+# 合并报告
+merged_tbl <- tbl_merge(
+  tbls = list(tbl1, tbl2, tbl3),
+  tab_spanner = c("**Model 1**", "**Model 2**", "**Model 3**")
+)
+
+merged_tbl
+
+
+
+
+
 
 # COX回归，仅以 status==1 为结局，分析 sex 和 age 的影响，并整理输出
 coxph(
@@ -162,14 +225,29 @@ tbl_merge(
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+# 预测得到波浪起伏的CIF， 难以解释 ------------------------------------------------------
+
+
+
+
 # 拟合 Fine-Gray 模型
 crr_model <- tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
 
 # 查看模型摘要
 crr_model %>%
-  tidy(conf.int = TRUE) %>%
-  select(term, estimate, conf.low, conf.high, p.value) %>%
-  print()
+  tidy(conf.int = TRUE)
 
 # 准备个体数据（示例：三个个体）
 # 准备个体数据（包含 time 和 status 列）
@@ -180,7 +258,7 @@ newdata <- data.frame(
   status = c(0, 0, 0)                # 占位符，值不影响预测
 )
 
-# 指定预测时间点（1000 和 2000 天）
+# 指定预测时间点
 times <- seq(500, 3000, 100)
 
 # 预测个体 CIF
@@ -212,6 +290,24 @@ ggplot(cif_data, aes(x = time, y = CIF, color = Individual)) +
   theme_minimal() +
   ylim(0, 0.4)  # 限制 y 轴范围以更好地显示
 
+  
 
+models <- list(
+  Model1 = fit1,
+  Model2 = fit2,
+  Model3 = fit3
+)
+
+library(devtools)
+install_github("tagteam/riskRegression")
+
+
+Cindex(
+  object = models,
+  formula = Surv(time, status == 1) ~ 1,
+  data = Melanoma,
+  splitMethod = "cvKfold",
+  folds = 5
+)
 
 
