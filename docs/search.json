@@ -1201,7 +1201,7 @@
     "href": "L6slide.html#总结",
     "title": "L6 竞争风险模型",
     "section": "总结",
-    "text": "总结\n\n竞争风险模型：解决目标事件受竞争事件干扰的生存分析。\nCIF曲线, Gray 检验, Fine-Gray模型\ntidycmprsk::cuminc 和 tidycmprsk::cuminccrr\nFine-Gray (SHR) 适合预后, Cox (HR)适合机制研究"
+    "text": "总结\n\n竞争风险模型：解决目标事件受竞争事件干扰的生存分析。\nCIF曲线, Gray 检验, Fine-Gray模型\ntidycmprsk::cuminc(), tidycmprsk::crr()\nsurvminer::ggcompetingrisks(), ggsurvfit::ggcumic()\nFine-Gray (SHR) 适合预后, Cox (HR)适合机制研究"
   },
   {
     "objectID": "L3.html",

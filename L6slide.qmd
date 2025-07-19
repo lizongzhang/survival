@@ -298,9 +298,8 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
 ```{r}
 #| eval: false
 #| include: true
-library(survminer)
-library(survival)
-ggcompetingrisks(
+
+survminer::ggcompetingrisks(
   fit = survfit(Surv(time, status) ~ 1, data = Melanoma),
   data = Melanoma,
   palette = "jco"
@@ -377,7 +376,7 @@ ggcompetingrisks(
 ```{r}
 #绘制 Failure type "1"（也就是 type 1，对应 status==1 的事件）的累积发生概率
 tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
-  ggcuminc(col = "#B3D4FC") + 
+  ggsurvfit::ggcuminc(col = "#B3D4FC") + 
   labs(x = "Days") + 
   add_confidence_interval() + # 添加置信区间
   add_risktable() # 风险表
@@ -402,7 +401,7 @@ tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>%
 ##### 多结局CIF曲线
 
 ```{r}
-# 同时展示多种结局（outcome=1,2）的CIF曲线，设置y轴范围
+# 多种结局（outcome=1,2）的CIF曲线
 tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
   ggcuminc(outcome = c("1", "2")) +
   ylim(c(0, 1)) + 
@@ -465,7 +464,7 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
 
 ----------
 
-### 6.3.6 估计竞争风险回归
+### 6.3.6 估计Fine-Gray 模型
 
 #### Fine-Gray 模型估计结果
 
@@ -548,8 +547,30 @@ merged_tbl <- tbl_merge(
 merged_tbl
 ```
 
+----
+
+#### 表格导出到WORD文档
+
+
+```{r}
+#| eval: false
+
+library(flextable)
+library(officer)
+
+# 将表格转换为 flextable 对象
+ft <- as_flex_table(merged_tbl)
+
+# 创建Word文档并写入表格
+doc <- read_docx() %>%
+  body_add_flextable(ft)
+
+# 保存Word文件
+print(doc, target = "FineGray_models.docx")
+```
 
 -----
+
 
 ### 6.3.7 系数森林图
 
@@ -638,6 +659,9 @@ tbl_merge(
 
 -   CIF曲线, Gray 检验, Fine-Gray模型
 
--   tidycmprsk::cuminc 和 tidycmprsk::cuminccrr
+-   `tidycmprsk::cuminc()`, `tidycmprsk::crr()`
+
+-   `survminer::ggcompetingrisks()`, `ggsurvfit::ggcumic()`
+
 
 -   Fine-Gray (SHR) 适合预后, Cox (HR)适合机制研究
