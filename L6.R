@@ -210,7 +210,15 @@ print(doc, target = "FineGray_models.docx")
 
 fit <- tidycmprsk::crr(Surv(time, status) ~ sex + age + 
                          year + thickness + ulcer, data = Melanoma)
+
 tbl <- broom::tidy(fit, exponentiate = TRUE, conf.int = TRUE)
+
+tbl$term <- reorder(tbl$term, 
+                    tbl$estimate, 
+                    decreasing = FALSE)
+
+tbl %>% arrange(-estimate)
+
 names(tbl)
 
 ggplot(tbl, aes(y = term, x = estimate)) +

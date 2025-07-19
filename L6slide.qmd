@@ -129,7 +129,7 @@ $h_k(t\|X)$：目标事件$k$的亚分布风险。
 
 $h_{k0}(t)$：基线亚分布风险。
 
-$\beta\_i$：协变量$X_i$ 的回归系数，解释变量对 CIF 的影响。
+$\beta_i$：协变量$X_i$ 的回归系数，解释变量对 CIF 的影响。
 
 ------
 
@@ -499,14 +499,19 @@ tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
 Fine-Gray 竞争风险回归模型（subdistribution hazard model）
 
 Fine-Gray 竞争风险回归模型型的估计结果：
-$$h_1(t | X) = h_{01}(t) \exp\left(0.588 \cdot \text{sex} + 0.013 \cdot \text{age}\right)$$
-变量定义
+$$h_1(t | X) = h_{10}(t) \exp\left(0.588 \cdot \text{sex} + 0.013 \cdot \text{age}\right)$$
+
+也可以表达成：
+
+$log(\text{HR}) = log\left(\frac{h_{1}(t)}{h_{10}(t)}\right)= 0.588 \cdot \text{sex} + 0.013 \cdot \text{age}$
+
+
 
 sex：sex = 0 为女性(参考组)，sex = 0 表示男性。
 
 age：连续变量，表示年龄（单位：年）。
 
-$h_{01}(t)$：基线子分布危险率，依赖于时间 $t$和数据，但 crr()没有直接估计$h_{01}(t)$，需要通过非参数方法估计。
+$h_{01}(t)$：基线子分布危险率，依赖于时间 $t$和数据，但 crr()没有直接估计$h_{10}(t)$，需要通过非参数方法估计。
 
 ----------
 
@@ -574,18 +579,31 @@ print(doc, target = "FineGray_models.docx")
 
 ### 6.3.7 系数森林图
 
+#### 构造画森林图的数据框
+
 ```{r}
 #| code-fold: true
 
 library(tidycmprsk)
 library(broom)
-library(ggplot2)
 
 fit <- tidycmprsk::crr(Surv(time, status) ~ sex + age + 
                          year + thickness + ulcer, data = Melanoma)
 tbl <- broom::tidy(fit, exponentiate = TRUE, conf.int = TRUE)
-names(tbl)
+tbl$term <- reorder(tbl$term, 
+                    tbl$estimate, 
+                    decreasing = FALSE)
 
+tbl %>% arrange(-estimate)
+```
+
+----
+
+#### 画森林图
+
+
+```{r}
+#| code-fold: true
 ggplot(tbl, aes(y = term, x = estimate)) +
   geom_point() +
   geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
