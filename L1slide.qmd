@@ -281,22 +281,22 @@ library(tidyverse)
 
   Step 3:结合上面两式：
      
-     $$
+$$
      h(t) = \frac{f(t)}{S(t)} = \frac{ -\frac{dS(t)}{dt} }{ S(t) } = -\frac{d}{dt} \log S(t)
-     $$
+$$
      
 ---
 
 Step 4: 积分得到生存函数公式
 
 - 两边积分，得：
-  $$
+$$
   \frac{d}{dt}\ln S(t) = -h(t)
-  $$
+$$
   
-  $$
+$$
   \int_0^t \frac{d}{du}\ln S(u)\,du = -\int_0^t h(u)\,du
-  $$
+$$
 ---
 
 - 左边是 $\ln S(t) - \ln S(0)$，而 $S(0) = 1$：

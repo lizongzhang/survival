@@ -445,22 +445,21 @@ h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T &lt; t+\Delta t \mid T \geq t)}{\D
 <section class="slide level2">
 
 <p>Step 3:结合上面两式：</p>
-<pre><code> $$
- h(t) = \frac{f(t)}{S(t)} = \frac{ -\frac{dS(t)}{dt} }{ S(t) } = -\frac{d}{dt} \log S(t)
- $$
- </code></pre>
+<p><span class="math display">\[
+     h(t) = \frac{f(t)}{S(t)} = \frac{ -\frac{dS(t)}{dt} }{ S(t) } = -\frac{d}{dt} \log S(t)
+\]</span></p>
 </section>
 <section class="slide level2">
 
 <p>Step 4: 积分得到生存函数公式</p>
 <ul>
-<li><p>两边积分，得： <span class="math display">\[
+<li>两边积分，得： <span class="math display">\[
 \frac{d}{dt}\ln S(t) = -h(t)
-\]</span></p>
-<p><span class="math display">\[
-\int_0^t \frac{d}{du}\ln S(u)\,du = -\int_0^t h(u)\,du
-\]</span></p></li>
+\]</span></li>
 </ul>
+<p><span class="math display">\[
+  \int_0^t \frac{d}{du}\ln S(u)\,du = -\int_0^t h(u)\,du
+\]</span></p>
 </section>
 <section class="slide level2">
 
