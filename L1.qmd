@@ -11,27 +11,6 @@ title:  "L1 生存分析简介"
 <img src="img/teacher.png" style="width: 24px; height: 24px;margin-right: 10px">[L1 生存分析简介](https://lizongzhang.github.io/survival/L1slide.html){target="_blank"}
 
 
-# R代码
-
-<a href="https://github.com/lizongzhang/survival/raw/main/L4.R" 
-   target="_blank" 
-   style="text-decoration: none; display: inline-flex; align-items: center;">
-  <img src="img/download.png" 
-       alt="Download icon" 
-       style="width: 24px; height: 24px; margin-right: 8px;">
-  点击下载代码文件: L4.R
-</a>
-
-# 数据文件
-
-<a href="https://github.com/lizongzhang/survival/raw/main/L4.R" 
-   target="_blank" 
-   style="text-decoration: none; display: inline-flex; align-items: center;">
-  <img src="img/download.png" 
-       alt="Download icon" 
-       style="width: 24px; height: 24px; margin-right: 8px;">
-  点击下载数据文件: L4.R
-</a>
 
 
 

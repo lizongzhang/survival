@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.6.42">
 
   <meta name="author" content="Lzz">
-  <meta name="dcterms.date" content="2025-07-18">
+  <meta name="dcterms.date" content="2025-07-22">
   <title>R生存分析 – L3 Kaplan-Meier分析</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -190,6 +190,15 @@
       margin-right: 0; 
     }
   </style>
+  <link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+  <script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+  <script src="site_libs/plotly-binding-4.11.0/plotly.js"></script>
+  <script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+  <script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+  <link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+  <script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+  <link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+  <script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
   <script>
     document.querySelectorAll('a').forEach(function(link) {
       link.setAttribute('target', '_blank');
@@ -248,16 +257,16 @@ z-index: 1000;">
 </div>
 </div>
 
-  <p class="date">2025-07-18</p>
+  <p class="date">2025-07-22</p>
 </section>
 <section id="大纲" class="slide level2">
 <h2>大纲</h2>
 <ul>
 <li><p>3.1 Kaplan-Meier分析简介</p></li>
 <li><p>3.2 一个简单的例子</p></li>
-<li><p>3.3 R代码：绘制Kaplan-Meier</p></li>
-<li><p>3.4 组间比较检验：Log-rank 检验</p></li>
-<li><p>3.5 多组生存曲线并列对比</p></li>
+<li><p>3.3 survminer</p></li>
+<li><p>3.4 ggsurvfit</p></li>
+<li><p>3.5 survRM2</p></li>
 </ul>
 </section>
 <section id="什么是kaplan-meier-分析" class="slide level2">
@@ -336,6 +345,12 @@ z-index: 1000;">
 <ul>
 <li>Kaplan-Meier分析假设删失数据与最终事件无关。如果删失与结局有关（比如身体状况差的人更容易失访），结果可能有偏。</li>
 </ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<p>Kaplan-Meier分析局限性</p>
+<ul>
 <li><p>要求样本量足够</p>
 <ul>
 <li>若随时间推移，样本量迅速减少（如大量删失），后期的生存率估计会非常不稳定、可信度下降。</li>
@@ -431,13 +446,38 @@ z-index: 1000;">
 <section class="slide level2">
 
 <h3 id="绘制kaplan-meier曲线">绘制Kaplan-Meier曲线</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="co"># 绘制Kaplan-Meier曲线</span></span>
+<span id="cb5-2"><a></a><span class="fu">ggsurvplot</span>(km, <span class="at">data =</span> df, </span>
+<span id="cb5-3"><a></a>           <span class="at">palette =</span> <span class="st">"blue"</span>,</span>
+<span id="cb5-4"><a></a>           <span class="at">conf.int =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb5-5"><a></a>           <span class="at">risk.table =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
+</div>
 <img data-src="L3slide_files/figure-revealjs/unnamed-chunk-4-1.png" width="960" class="r-stretch"></section>
-<section id="绘制kaplan-meier曲线方法一survminerggsurvplot" class="slide level2">
-<h2>3.3 绘制Kaplan-Meier曲线方法一：survminer::ggsurvplot()</h2>
-<h3 id="第1步创建生存对象survial-object">第1步：创建生存对象survial object</h3>
+<section id="survminer" class="slide level2">
+<h2>3.3 <code>survminer</code></h2>
+<h3 id="lung数据集简介">lung数据集简介</h3>
+<p><code>lung</code>是<code>survival</code>包的内置数据集，包含228名肺癌患者的生存数据，主要变量包括：</p>
+<ul>
+<li><p><strong><code>inst</code></strong>：医疗机构编号</p></li>
+<li><p><strong><code>time</code></strong>：生存时间（天）</p></li>
+<li><p><strong><code>status</code></strong>：生存状态。1 = 删失（censored），2 = 死亡（event</p></li>
+<li><p><strong><code>age</code></strong>：年龄（岁）</p></li>
+<li><p><strong><code>sex</code></strong>：性别, 1 = 男，2 = 女</p></li>
+<li><p><strong><code>ph.ecog</code></strong>：ECOG（医生评估的体能评分），评分从 0（无症状）到 4（卧床）</p></li>
+<li><p><strong><code>ph.karno</code></strong>：医生评估Karnofsky评分, 0–100, 数值越高表示功能越好</p></li>
+<li><p><strong><code>pat.karno</code></strong>：患者评估Karnofsky评分</p></li>
+<li><p><strong><code>meal.cal</code></strong>：每餐摄入热量 (calories)</p></li>
+<li><p><strong><code>wt.loss</code></strong>：最近 6个月内体重下降的数值(磅)</p></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="绘制km曲线">3.3.1 绘制KM曲线</h3>
+<h4 id="第1步创建生存对象survial-object">第1步：创建生存对象survial object</h4>
 <div class="{rcode}">
-<p>library(survival) Surv(time, event)</p>
+<p>library(survival) Surv(time, status)</p>
 </div>
 <ul>
 <li><p>time：一个数值向量，表示每个观测对象的生存时间（如观察到死亡的时间，或随访截止时未死亡的时间）</p></li>
@@ -452,15 +492,31 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-<h3 id="第2步计算生存概率">第2步：计算生存概率</h3>
+<h4 id="第2步计算生存概率">第2步：计算生存概率</h4>
+<h4 id="变量重新编码">变量重新编码</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="co"># 计算生存概率</span></span>
-<span id="cb5-2"><a></a>km <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> lung)</span>
-<span id="cb5-3"><a></a></span>
-<span id="cb5-4"><a></a><span class="co"># 显示对象的内部结构</span></span>
-<span id="cb5-5"><a></a><span class="fu">str</span>(km)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="do">## 加载数据, cancer列表list中的lung数据框</span></span>
+<span id="cb6-2"><a></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb6-3"><a></a><span class="fu">data</span>(cancer, <span class="at">package=</span><span class="st">"survival"</span>)</span>
+<span id="cb6-4"><a></a>lung <span class="ot">&lt;-</span> lung <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-6"><a></a>    <span class="at">status =</span> <span class="fu">recode</span>(status, <span class="st">"1"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"2"</span> <span class="ot">=</span> <span class="dv">1</span>),   <span class="co"># 删失 = 0, 死亡 = 1</span></span>
+<span id="cb6-7"><a></a>    <span class="at">female =</span> <span class="fu">recode</span>(sex, <span class="st">"1"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"2"</span> <span class="ot">=</span> <span class="dv">1</span>))    <span class="co">#   男 = 0, 女 = 1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># 波浪号（~）后的 1 表示拟合一个不含分层变量的Kaplan-Meier模型</span></span>
+<span id="cb7-2"><a></a>km <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> lung)</span>
+<span id="cb7-3"><a></a></span>
+<span id="cb7-4"><a></a><span class="co"># 显示对象的内部结构</span></span>
+<span id="cb7-5"><a></a><span class="fu">str</span>(km)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 17
@@ -483,12 +539,17 @@ z-index: 1000;">
  $ call     : language survfit(formula = Surv(time, status) ~ 1, data = lung)
  - attr(*, "class")= chr "survfit"</code></pre>
 </div>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="co"># 对生存分析结果km进行数据整洁化，并显示前6行</span></span>
-<span id="cb7-2"><a></a>km <span class="sc">%&gt;%</span>         <span class="co"># Kaplan-Meier生存分析对象</span></span>
-<span id="cb7-3"><a></a>  <span class="fu">tidy</span>() <span class="sc">%&gt;%</span>   <span class="co"># 转换为整洁数据框格式（需要broom包）</span></span>
-<span id="cb7-4"><a></a>  <span class="fu">head</span>()       <span class="co"># 显示前6行结果</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="co"># 对生存分析结果km进行数据整洁化，并显示前6行</span></span>
+<span id="cb9-2"><a></a>km <span class="sc">%&gt;%</span>         <span class="co"># Kaplan-Meier生存分析对象</span></span>
+<span id="cb9-3"><a></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">%&gt;%</span>   <span class="co"># 转换为整洁数据框格式（需要broom包）</span></span>
+<span id="cb9-4"><a></a>  <span class="fu">head</span>()       <span class="co"># 显示前6行结果</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 8
@@ -503,9 +564,9 @@ z-index: 1000;">
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>km <span class="sc">%&gt;%</span> </span>
-<span id="cb9-2"><a></a>  <span class="fu">tidy</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb9-3"><a></a>  <span class="fu">tail</span>() <span class="co"># 显示后6行结果</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a>km <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a></a>  <span class="fu">tidy</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a></a>  <span class="fu">tail</span>() <span class="co"># 显示后6行结果</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 8
@@ -522,57 +583,99 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-<h3 id="第3步绘制km曲线">第3步：绘制KM曲线</h3>
+<h4 id="第3步绘制km曲线">第3步：绘制KM曲线</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="co"># 绘制KM曲线</span></span>
-<span id="cb11-2"><a></a><span class="fu">library</span>(survminer)</span>
-<span id="cb11-3"><a></a></span>
-<span id="cb11-4"><a></a><span class="fu">ggsurvplot</span>(</span>
-<span id="cb11-5"><a></a>  km,                <span class="co"># KM拟合对象</span></span>
-<span id="cb11-6"><a></a>  <span class="at">data =</span> lung,       <span class="co"># 数据集</span></span>
-<span id="cb11-7"><a></a>  <span class="at">linetype =</span> <span class="dv">1</span>,      <span class="co"># 实线</span></span>
-<span id="cb11-8"><a></a>  <span class="at">palette =</span> <span class="st">"jco"</span>,   <span class="co"># 颜色方案</span></span>
-<span id="cb11-9"><a></a>  <span class="at">conf.int =</span> <span class="cn">FALSE</span>,  <span class="co"># 不显示置信区间</span></span>
-<span id="cb11-10"><a></a>  <span class="at">surv.median.line =</span> <span class="st">"hv"</span>, <span class="co"># 显示中位生存水平/垂直线</span></span>
-<span id="cb11-11"><a></a>  <span class="co"># risk.table = TRUE,     # 风险表（如需可取消注释）</span></span>
-<span id="cb11-12"><a></a>  <span class="at">cumevents =</span> <span class="cn">TRUE</span>,       <span class="co"># 显示累计事件</span></span>
-<span id="cb11-13"><a></a>  <span class="co"># cumcensor = TRUE,      # 累计删失（如需可取消注释）</span></span>
-<span id="cb11-14"><a></a>  <span class="at">tables.height =</span> <span class="fl">0.2</span>     <span class="co"># 表格高度</span></span>
-<span id="cb11-15"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co"># 绘制KM曲线</span></span>
+<span id="cb13-2"><a></a><span class="fu">library</span>(survminer)</span>
+<span id="cb13-3"><a></a></span>
+<span id="cb13-4"><a></a><span class="fu">ggsurvplot</span>(</span>
+<span id="cb13-5"><a></a>  km,                <span class="co"># KM拟合对象</span></span>
+<span id="cb13-6"><a></a>  <span class="at">data =</span> lung,       <span class="co"># 数据集</span></span>
+<span id="cb13-7"><a></a>  <span class="at">linetype =</span> <span class="dv">1</span>,      <span class="co"># 实线</span></span>
+<span id="cb13-8"><a></a>  <span class="at">palette =</span> <span class="st">"jco"</span>,   <span class="co"># 颜色方案</span></span>
+<span id="cb13-9"><a></a>  <span class="at">conf.int =</span> <span class="cn">FALSE</span>,  <span class="co"># 不显示置信区间</span></span>
+<span id="cb13-10"><a></a>  <span class="at">surv.median.line =</span> <span class="st">"hv"</span>, <span class="co"># 显示中位生存水平/垂直线</span></span>
+<span id="cb13-11"><a></a>  <span class="co"># risk.table = TRUE,     # 风险表（如需可取消注释）</span></span>
+<span id="cb13-12"><a></a>  <span class="at">cumevents =</span> <span class="cn">TRUE</span>,       <span class="co"># 显示累计事件</span></span>
+<span id="cb13-13"><a></a>  <span class="co"># cumcensor = TRUE,      # 累计删失（如需可取消注释）</span></span>
+<span id="cb13-14"><a></a>  <span class="at">tables.height =</span> <span class="fl">0.2</span>     <span class="co"># 表格高度</span></span>
+<span id="cb13-15"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
-<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-<h3 id="第4步预测1年期生存概率">第4步：预测1年期生存概率</h3>
+<h4 id="第4步预测1年期生存概率">第4步：预测1年期生存概率</h4>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="co"># 1年 = 365天 </span></span>
+<span id="cb14-2"><a></a><span class="fu">summary</span>(<span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> lung), <span class="at">times =</span> <span class="dv">365</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call: survfit(formula = Surv(time, status) ~ 1, data = lung)
 
  time n.risk n.event survival std.err lower 95% CI upper 95% CI
   365     65     121    0.409  0.0358        0.345        0.486</code></pre>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="co"># 1年 = 365.25天 考虑闰年效应</span></span>
+<span id="cb16-2"><a></a><span class="fu">summary</span>(<span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> lung), <span class="at">times =</span> <span class="fl">365.25</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: survfit(formula = Surv(time, status) ~ 1, data = lung)
+
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+  365     65     121    0.409  0.0358        0.345        0.486</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="不考虑删失和考虑删失对km曲线的影响">不考虑删失和考虑删失对KM曲线的影响</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a><span class="co"># 不考虑删失的KM曲线</span></span>
+<span id="cb18-2"><a></a>km_wrong <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time) <span class="sc">~</span> <span class="dv">1</span>, lung)</span>
+<span id="cb18-3"><a></a></span>
+<span id="cb18-4"><a></a><span class="co"># 考虑删失的KM曲线</span></span>
+<span id="cb18-5"><a></a>km <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, lung)</span>
+<span id="cb18-6"><a></a></span>
+<span id="cb18-7"><a></a><span class="co"># Plot the two and compare</span></span>
+<span id="cb18-8"><a></a><span class="fu">ggsurvplot_combine</span>(<span class="fu">list</span>(<span class="at">correct =</span> km, <span class="at">wrong =</span> km_wrong))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"></section>
+<section id="生存概率的表格输出" class="slide level2">
+<h2>3.3.2 生存概率的表格输出</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="co"># 表格化输出结果</span></span>
+<span id="cb19-2"><a></a><span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a></a>  gtsummary<span class="sc">::</span><span class="fu">tbl_survfit</span>(</span>
+<span id="cb19-4"><a></a>    <span class="at">times =</span> <span class="fl">365.25</span>,</span>
+<span id="cb19-5"><a></a>    <span class="at">label_header =</span> <span class="st">"**1-year survival (95% CI)**"</span></span>
+<span id="cb19-6"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="ubjjkihjzb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ubjjkihjzb table {
+<div id="hqopclyhtz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hqopclyhtz table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ubjjkihjzb thead, #ubjjkihjzb tbody, #ubjjkihjzb tfoot, #ubjjkihjzb tr, #ubjjkihjzb td, #ubjjkihjzb th {
+#hqopclyhtz thead, #hqopclyhtz tbody, #hqopclyhtz tfoot, #hqopclyhtz tr, #hqopclyhtz td, #hqopclyhtz th {
   border-style: none;
 }
 
-#ubjjkihjzb p {
+#hqopclyhtz p {
   margin: 0;
   padding: 0;
 }
 
-#ubjjkihjzb .gt_table {
+#hqopclyhtz .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -598,12 +701,12 @@ z-index: 1000;">
   border-left-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_caption {
+#hqopclyhtz .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ubjjkihjzb .gt_title {
+#hqopclyhtz .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -615,7 +718,7 @@ z-index: 1000;">
   border-bottom-width: 0;
 }
 
-#ubjjkihjzb .gt_subtitle {
+#hqopclyhtz .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -627,7 +730,7 @@ z-index: 1000;">
   border-top-width: 0;
 }
 
-#ubjjkihjzb .gt_heading {
+#hqopclyhtz .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -639,13 +742,13 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_bottom_border {
+#hqopclyhtz .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_col_headings {
+#hqopclyhtz .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -660,7 +763,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_col_heading {
+#hqopclyhtz .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -680,7 +783,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#ubjjkihjzb .gt_column_spanner_outer {
+#hqopclyhtz .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -692,15 +795,15 @@ z-index: 1000;">
   padding-right: 4px;
 }
 
-#ubjjkihjzb .gt_column_spanner_outer:first-child {
+#hqopclyhtz .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ubjjkihjzb .gt_column_spanner_outer:last-child {
+#hqopclyhtz .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ubjjkihjzb .gt_column_spanner {
+#hqopclyhtz .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -712,11 +815,11 @@ z-index: 1000;">
   width: 100%;
 }
 
-#ubjjkihjzb .gt_spanner_row {
+#hqopclyhtz .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ubjjkihjzb .gt_group_heading {
+#hqopclyhtz .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -742,7 +845,7 @@ z-index: 1000;">
   text-align: left;
 }
 
-#ubjjkihjzb .gt_empty_group_heading {
+#hqopclyhtz .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -757,15 +860,15 @@ z-index: 1000;">
   vertical-align: middle;
 }
 
-#ubjjkihjzb .gt_from_md > :first-child {
+#hqopclyhtz .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ubjjkihjzb .gt_from_md > :last-child {
+#hqopclyhtz .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ubjjkihjzb .gt_row {
+#hqopclyhtz .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -784,7 +887,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#ubjjkihjzb .gt_stub {
+#hqopclyhtz .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -797,7 +900,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#ubjjkihjzb .gt_stub_row_group {
+#hqopclyhtz .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -811,15 +914,15 @@ z-index: 1000;">
   vertical-align: top;
 }
 
-#ubjjkihjzb .gt_row_group_first td {
+#hqopclyhtz .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ubjjkihjzb .gt_row_group_first th {
+#hqopclyhtz .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ubjjkihjzb .gt_summary_row {
+#hqopclyhtz .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -829,16 +932,16 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#ubjjkihjzb .gt_first_summary_row {
+#hqopclyhtz .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_first_summary_row.thick {
+#hqopclyhtz .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ubjjkihjzb .gt_last_summary_row {
+#hqopclyhtz .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -848,7 +951,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_grand_summary_row {
+#hqopclyhtz .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -858,7 +961,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#ubjjkihjzb .gt_first_grand_summary_row {
+#hqopclyhtz .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -868,7 +971,7 @@ z-index: 1000;">
   border-top-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_last_grand_summary_row_top {
+#hqopclyhtz .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -878,11 +981,11 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_striped {
+#hqopclyhtz .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ubjjkihjzb .gt_table_body {
+#hqopclyhtz .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -891,7 +994,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_footnotes {
+#hqopclyhtz .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -905,7 +1008,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_footnote {
+#hqopclyhtz .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -914,7 +1017,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#ubjjkihjzb .gt_sourcenotes {
+#hqopclyhtz .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -928,7 +1031,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#ubjjkihjzb .gt_sourcenote {
+#hqopclyhtz .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -936,72 +1039,72 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#ubjjkihjzb .gt_left {
+#hqopclyhtz .gt_left {
   text-align: left;
 }
 
-#ubjjkihjzb .gt_center {
+#hqopclyhtz .gt_center {
   text-align: center;
 }
 
-#ubjjkihjzb .gt_right {
+#hqopclyhtz .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ubjjkihjzb .gt_font_normal {
+#hqopclyhtz .gt_font_normal {
   font-weight: normal;
 }
 
-#ubjjkihjzb .gt_font_bold {
+#hqopclyhtz .gt_font_bold {
   font-weight: bold;
 }
 
-#ubjjkihjzb .gt_font_italic {
+#hqopclyhtz .gt_font_italic {
   font-style: italic;
 }
 
-#ubjjkihjzb .gt_super {
+#hqopclyhtz .gt_super {
   font-size: 65%;
 }
 
-#ubjjkihjzb .gt_footnote_marks {
+#hqopclyhtz .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ubjjkihjzb .gt_asterisk {
+#hqopclyhtz .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ubjjkihjzb .gt_indent_1 {
+#hqopclyhtz .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ubjjkihjzb .gt_indent_2 {
+#hqopclyhtz .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ubjjkihjzb .gt_indent_3 {
+#hqopclyhtz .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ubjjkihjzb .gt_indent_4 {
+#hqopclyhtz .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ubjjkihjzb .gt_indent_5 {
+#hqopclyhtz .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ubjjkihjzb .katex-display {
+#hqopclyhtz .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ubjjkihjzb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#hqopclyhtz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1025,85 +1128,850 @@ z-index: 1000;">
 </div>
 </div>
 </section>
-<section id="绘制kaplan-meier曲线方法二-ggsurvfitggsurvfit" class="slide level2" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">3.4 绘制Kaplan-Meier曲线方法二: ggsurvfit::ggsurvfit()</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy" data-id="quarto-animate-code"><code class="sourceCode r hljs"><span id="cb13-1" class="hljs-ln-code"><a></a><span class="co"># 加载包</span></span>
-<span id="cb13-2" class="hljs-ln-code"><a></a><span class="fu">library</span>(survival)</span>
-<span id="cb13-3" class="hljs-ln-code"><a></a><span class="fu">library</span>(ggsurvfit)</span>
-<span id="cb13-4" class="hljs-ln-code"><a></a></span>
-<span id="cb13-5" class="hljs-ln-code"><a></a><span class="co"># 创建数据框</span></span>
-<span id="cb13-6" class="hljs-ln-code"><a></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb13-7" class="hljs-ln-code"><a></a>  <span class="at">time =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">4</span>),</span>
-<span id="cb13-8" class="hljs-ln-code"><a></a>  <span class="at">event =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb13-9" class="hljs-ln-code"><a></a>)</span>
-<span id="cb13-10" class="hljs-ln-code"><a></a></span>
-<span id="cb13-11" class="hljs-ln-code"><a></a><span class="co"># 拟合 KM 曲线</span></span>
-<span id="cb13-12" class="hljs-ln-code"><a></a><span class="fu">survfit2</span>(<span class="fu">Surv</span>(time, event) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> df) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-13" class="hljs-ln-code"><a></a>  <span class="fu">ggsurvfit</span>(<span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
-<span id="cb13-14" class="hljs-ln-code"><a></a>  <span class="fu">add_risktable</span>() <span class="sc">+</span></span>
-<span id="cb13-15" class="hljs-ln-code"><a></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-
-</div>
-<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-<h3 id="ggsurvplot和ggsurvfit比较"><code>ggsurvplot()</code>和<code>ggsurvfit()</code>比较</h3>
-<table class="caption-top">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a></a>  gtsummary<span class="sc">::</span><span class="fu">tbl_survfit</span>(<span class="at">times =</span> <span class="fu">c</span>(<span class="dv">180</span>, <span class="dv">365</span>, <span class="dv">730</span>),  <span class="co"># 半年、1年、2年</span></span>
+<span id="cb20-3"><a></a>              <span class="at">label_header =</span> <span class="st">"**Survival at {time} days (95% CI)**"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="digqcdxhem" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#digqcdxhem table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#digqcdxhem thead, #digqcdxhem tbody, #digqcdxhem tfoot, #digqcdxhem tr, #digqcdxhem td, #digqcdxhem th {
+  border-style: none;
+}
+
+#digqcdxhem p {
+  margin: 0;
+  padding: 0;
+}
+
+#digqcdxhem .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#digqcdxhem .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#digqcdxhem .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#digqcdxhem .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#digqcdxhem .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#digqcdxhem .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#digqcdxhem .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#digqcdxhem .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#digqcdxhem .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#digqcdxhem .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#digqcdxhem .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#digqcdxhem .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#digqcdxhem .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#digqcdxhem .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#digqcdxhem .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#digqcdxhem .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#digqcdxhem .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#digqcdxhem .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#digqcdxhem .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#digqcdxhem .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#digqcdxhem .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#digqcdxhem .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#digqcdxhem .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#digqcdxhem .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#digqcdxhem .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#digqcdxhem .gt_left {
+  text-align: left;
+}
+
+#digqcdxhem .gt_center {
+  text-align: center;
+}
+
+#digqcdxhem .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#digqcdxhem .gt_font_normal {
+  font-weight: normal;
+}
+
+#digqcdxhem .gt_font_bold {
+  font-weight: bold;
+}
+
+#digqcdxhem .gt_font_italic {
+  font-style: italic;
+}
+
+#digqcdxhem .gt_super {
+  font-size: 65%;
+}
+
+#digqcdxhem .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#digqcdxhem .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#digqcdxhem .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#digqcdxhem .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#digqcdxhem .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#digqcdxhem .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#digqcdxhem .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#digqcdxhem .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#digqcdxhem div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
 <thead>
-<tr class="header">
-<th>功能</th>
-<th><code>ggsurvplot()</code></th>
-<th><code>ggsurvfit()</code></th>
+<tr class="gt_col_headings header">
+<th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Survival at 180 days (95% CI)</strong></th>
+<th id="stat_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Survival at 365 days (95% CI)</strong></th>
+<th id="stat_3" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Survival at 730 days (95% CI)</strong></th>
 </tr>
 </thead>
-<tbody>
+<tbody class="gt_table_body">
 <tr class="odd">
-<td>快速绘图</td>
-<td>✅</td>
-<td>❌（需多个语句）</td>
+<td class="gt_row gt_left" headers="label">sex</td>
+<td class="gt_row gt_center" headers="stat_1"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_2"><br>
+</td>
+<td class="gt_row gt_center" headers="stat_3"><br>
+</td>
 </tr>
 <tr class="even">
-<td>风格美化与控制</td>
-<td>中等</td>
-<td>✅✅✅ 完全 <code>ggplot2</code> 支持</td>
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;1</td>
+<td class="gt_row gt_center" headers="stat_1">64% (57%, 73%)</td>
+<td class="gt_row gt_center" headers="stat_2">34% (26%, 43%)</td>
+<td class="gt_row gt_center" headers="stat_3">7.8% (3.9%, 16%)</td>
 </tr>
 <tr class="odd">
-<td>风险表（Risk Table）</td>
-<td>✅（内建）</td>
-<td>✅（需 <code>add_risktable()</code>）</td>
-</tr>
-<tr class="even">
-<td>分面支持（Faceting）</td>
-<td>❌</td>
-<td>✅（支持 <code>facet_wrap()</code>）</td>
-</tr>
-<tr class="odd">
-<td>科研级图形输出</td>
-<td>❌ 需二次加工</td>
-<td>✅✅✅ 高度推荐</td>
-</tr>
-<tr class="even">
-<td>初学者友好</td>
-<td>✅✅✅</td>
-<td>❌ 需理解图层语法</td>
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;2</td>
+<td class="gt_row gt_center" headers="stat_1">84% (77%, 92%)</td>
+<td class="gt_row gt_center" headers="stat_2">53% (42%, 66%)</td>
+<td class="gt_row gt_center" headers="stat_3">19% (9.8%, 36%)</td>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>❗️推荐使用 <code>ggsurvfit()</code>，功能更强大、更灵活，更符合学术期刊绘图的风格。</p>
-</blockquote>
+
+</div>
+</div>
+</div>
+</section>
+<section id="处理删失数据的可视化" class="slide level2">
+<h2>3.3.3 处理删失数据的可视化</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a>survminer<span class="sc">::</span><span class="fu">ggsurvplot</span>(km, <span class="at">data =</span> lung, <span class="at">censor =</span> <span class="cn">TRUE</span>, <span class="at">censor.shape =</span> <span class="st">"|"</span>, <span class="at">censor.size =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<section id="分面faceting展示多组km曲线" class="slide level2">
+<h2>3.3.4 分面（faceting）展示多组KM曲线</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="co"># 使用lung数据集按性别进行Log-rank检验</span></span>
+<span id="cb22-2"><a></a>km_by_sex <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female, <span class="at">data =</span> lung)</span>
+<span id="cb22-3"><a></a></span>
+<span id="cb22-4"><a></a><span class="co"># 示例：按性别和治疗类型分面</span></span>
+<span id="cb22-5"><a></a>survminer<span class="sc">::</span><span class="fu">ggsurvplot_facet</span>(</span>
+<span id="cb22-6"><a></a>  km_by_sex, </span>
+<span id="cb22-7"><a></a>  <span class="at">data =</span> lung, </span>
+<span id="cb22-8"><a></a>  <span class="at">facet.by =</span> <span class="st">"ph.ecog"</span>,  <span class="co"># 按ECOG状态分面</span></span>
+<span id="cb22-9"><a></a>  <span class="at">palette =</span> <span class="st">"jco"</span>,</span>
+<span id="cb22-10"><a></a>  <span class="at">conf.int =</span> <span class="cn">TRUE</span></span>
+<span id="cb22-11"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-14-1.png" width="960" class="r-stretch"></section>
+<section id="交互式km曲线plotly" class="slide level2">
+<h2>3.3.5 交互式KM曲线（plotly）</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">library</span>(plotly)</span>
+<span id="cb23-2"><a></a>km <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> lung)</span>
+<span id="cb23-3"><a></a>p <span class="ot">&lt;-</span> <span class="fu">ggsurvplot</span>(km, <span class="at">data =</span> lung)</span>
+<span id="cb23-4"><a></a><span class="fu">ggplotly</span>(p<span class="sc">$</span>plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-dc05125bd2d826631c97" style="width:960px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-dc05125bd2d826631c97">{"x":{"data":[{"x":[0,5,11,12,13,15,26,30,31,53,54,59,60,61,62,65,71,79,81,88,92,93,95,105,107,110,116,118,122,131,132,135,142,144,145,147,153,156,163,166,167,170,173,174,175,176,177,179,180,181,182,183,185,186,188,189,191,192,194,196,197,199,201,202,203,207,208,210,211,212,218,221,222,223,224,225,226,229,230,235,237,239,240,243,245,246,252,259,266,267,268,269,270,272,276,279,283,284,285,286,288,291,292,293,296,300,301,303,305,306,310,315,320,329,332,337,340,345,348,350,351,353,356,361,363,364,371,376,382,384,387,390,394,404,413,426,428,429,433,442,444,450,455,457,458,460,473,477,511,519,520,524,529,533,543,550,551,558,559,567,574,583,588,613,624,641,643,654,655,687,689,705,707,728,731,735,740,765,791,806,814,821,840,883,965,1010,1022],"y":[1,0.99561403508771928,0.98245614035087714,0.97807017543859642,0.96929824561403499,0.96491228070175428,0.96052631578947356,0.95614035087719285,0.95175438596491213,0.94298245614035081,0.9385964912280701,0.93421052631578949,0.92543859649122806,0.92105263157894735,0.91666666666666663,0.9078947368421052,0.90350877192982448,0.89912280701754377,0.89035087719298234,0.88157894736842091,0.87719298245614019,0.87278497751917461,0.86396896764524356,0.85956096270827809,0.85069950948448148,0.84626878287258311,0.84183805626068486,0.8374073296487865,0.83297660303688814,0.82854587642498978,0.81968442320119306,0.81525369658929481,0.81082296997739645,0.80639224336549808,0.79753079014170147,0.79310006352980311,0.78866933691790475,0.77980788369410803,0.76651570385841294,0.75765425063461622,0.75322352402271786,0.7487927974108195,0.7487927974108195,0.7487927974108195,0.74430900820476664,0.73979804451867714,0.73528708083258765,0.72620946255070384,0.721670653409762,0.71259303512787819,0.70805422598693635,0.7035154168459945,0.7035154168459945,0.6989471349184232,0.6989471349184232,0.69434879850448628,0.69434879850448628,0.69434879850448628,0.68968873945412057,0.68968873945412057,0.68499697932177961,0.68027286222300876,0.67082462802546705,0.6661005109266962,0.6661005109266962,0.66130842092002939,0.65651633091336248,0.65172424090669556,0.65172424090669556,0.64689665393701634,0.64206906696733712,0.64206906696733712,0.63720490736909974,0.63230333115856818,0.63230333115856818,0.63230333115856818,0.62728505075254781,0.62226677034652744,0.61724848994050707,0.61724848994050707,0.61724848994050707,0.60704603556132519,0.60704603556132519,0.60704603556132519,0.60185760790695486,0.59666918025258453,0.59666918025258453,0.59666918025258453,0.59666918025258453,0.59134177685747213,0.58601437346235974,0.58068697006724745,0.5753102388629211,0.5753102388629211,0.5753102388629211,0.5753102388629211,0.56977840964308535,0.5642465804232496,0.55307338081090807,0.54748678100473736,0.54190018119856653,0.53631358139239571,0.53631358139239571,0.53060811776056171,0.53060811776056171,0.53060811776056171,0.52477725932363251,0.51888088562336698,0.51291673751275357,0.50695258940214016,0.49502429318091334,0.49502429318091334,0.48898741155675585,0.48295052993259835,0.48295052993259835,0.47683723208535028,0.47072393423810222,0.46461063639085415,0.45849733854360603,0.45238404069635796,0.44627074284910989,0.43404414715461376,0.43404414715461376,0.42784351648097646,0.41544225513370175,0.4092416244600644,0.39664957447667781,0.39664957447667781,0.39664957447667781,0.39664957447667781,0.3900387482353998,0.38342792199412185,0.37681709575284389,0.37681709575284389,0.37681709575284389,0.36996587583006491,0.36311465590728592,0.35626343598450694,0.34941221606172795,0.34256099613894897,0.33570977621616999,0.32871582254499976,0.32172186887382953,0.3147279152026593,0.3147279152026593,0.30757500803896248,0.30042210087526566,0.29326919371156884,0.29326919371156884,0.28574947079588758,0.27822974788020632,0.2631903020488438,0.2631903020488438,0.25544941081211309,0.25544941081211309,0.24746661672423456,0.24746661672423456,0.2392177295000934,0.2392177295000934,0.23067423916080435,0.22213074882151529,0.21358725848222623,0.21358725848222623,0.20468778937880014,0.19578832027537404,0.18688885117194795,0.17798938206852186,0.16908991296509576,0.16019044386166967,0.15129097475824357,0.14239150565481748,0.13349203655139139,0.12459256744796529,0.1156930983445392,0.10679362924111312,0.097894160137687022,0.097894160137687022,0.088104744123918319,0.078315328110149615,0.078315328110149615,0.067127424094413954,0.067127424094413954,0.067127424094413954,0.050345568070810462,0.050345568070810462,0.050345568070810462,0.050345568070810462],"text":["time:    0<br />surv: 1.00000000<br />strata: All","time:    5<br />surv: 0.99561404<br />strata: All","time:   11<br />surv: 0.98245614<br />strata: All","time:   12<br />surv: 0.97807018<br />strata: All","time:   13<br />surv: 0.96929825<br />strata: All","time:   15<br />surv: 0.96491228<br />strata: All","time:   26<br />surv: 0.96052632<br />strata: All","time:   30<br />surv: 0.95614035<br />strata: All","time:   31<br />surv: 0.95175439<br />strata: All","time:   53<br />surv: 0.94298246<br />strata: All","time:   54<br />surv: 0.93859649<br />strata: All","time:   59<br />surv: 0.93421053<br />strata: All","time:   60<br />surv: 0.92543860<br />strata: All","time:   61<br />surv: 0.92105263<br />strata: All","time:   62<br />surv: 0.91666667<br />strata: All","time:   65<br />surv: 0.90789474<br />strata: All","time:   71<br />surv: 0.90350877<br />strata: All","time:   79<br />surv: 0.89912281<br />strata: All","time:   81<br />surv: 0.89035088<br />strata: All","time:   88<br />surv: 0.88157895<br />strata: All","time:   92<br />surv: 0.87719298<br />strata: All","time:   93<br />surv: 0.87278498<br />strata: All","time:   95<br />surv: 0.86396897<br />strata: All","time:  105<br />surv: 0.85956096<br />strata: All","time:  107<br />surv: 0.85069951<br />strata: All","time:  110<br />surv: 0.84626878<br />strata: All","time:  116<br />surv: 0.84183806<br />strata: All","time:  118<br />surv: 0.83740733<br />strata: All","time:  122<br />surv: 0.83297660<br />strata: All","time:  131<br />surv: 0.82854588<br />strata: All","time:  132<br />surv: 0.81968442<br />strata: All","time:  135<br />surv: 0.81525370<br />strata: All","time:  142<br />surv: 0.81082297<br />strata: All","time:  144<br />surv: 0.80639224<br />strata: All","time:  145<br />surv: 0.79753079<br />strata: All","time:  147<br />surv: 0.79310006<br />strata: All","time:  153<br />surv: 0.78866934<br />strata: All","time:  156<br />surv: 0.77980788<br />strata: All","time:  163<br />surv: 0.76651570<br />strata: All","time:  166<br />surv: 0.75765425<br />strata: All","time:  167<br />surv: 0.75322352<br />strata: All","time:  170<br />surv: 0.74879280<br />strata: All","time:  173<br />surv: 0.74879280<br />strata: All","time:  174<br />surv: 0.74879280<br />strata: All","time:  175<br />surv: 0.74430901<br />strata: All","time:  176<br />surv: 0.73979804<br />strata: All","time:  177<br />surv: 0.73528708<br />strata: All","time:  179<br />surv: 0.72620946<br />strata: All","time:  180<br />surv: 0.72167065<br />strata: All","time:  181<br />surv: 0.71259304<br />strata: All","time:  182<br />surv: 0.70805423<br />strata: All","time:  183<br />surv: 0.70351542<br />strata: All","time:  185<br />surv: 0.70351542<br />strata: All","time:  186<br />surv: 0.69894713<br />strata: All","time:  188<br />surv: 0.69894713<br />strata: All","time:  189<br />surv: 0.69434880<br />strata: All","time:  191<br />surv: 0.69434880<br />strata: All","time:  192<br />surv: 0.69434880<br />strata: All","time:  194<br />surv: 0.68968874<br />strata: All","time:  196<br />surv: 0.68968874<br />strata: All","time:  197<br />surv: 0.68499698<br />strata: All","time:  199<br />surv: 0.68027286<br />strata: All","time:  201<br />surv: 0.67082463<br />strata: All","time:  202<br />surv: 0.66610051<br />strata: All","time:  203<br />surv: 0.66610051<br />strata: All","time:  207<br />surv: 0.66130842<br />strata: All","time:  208<br />surv: 0.65651633<br />strata: All","time:  210<br />surv: 0.65172424<br />strata: All","time:  211<br />surv: 0.65172424<br />strata: All","time:  212<br />surv: 0.64689665<br />strata: All","time:  218<br />surv: 0.64206907<br />strata: All","time:  221<br />surv: 0.64206907<br />strata: All","time:  222<br />surv: 0.63720491<br />strata: All","time:  223<br />surv: 0.63230333<br />strata: All","time:  224<br />surv: 0.63230333<br />strata: All","time:  225<br />surv: 0.63230333<br />strata: All","time:  226<br />surv: 0.62728505<br />strata: All","time:  229<br />surv: 0.62226677<br />strata: All","time:  230<br />surv: 0.61724849<br />strata: All","time:  235<br />surv: 0.61724849<br />strata: All","time:  237<br />surv: 0.61724849<br />strata: All","time:  239<br />surv: 0.60704604<br />strata: All","time:  240<br />surv: 0.60704604<br />strata: All","time:  243<br />surv: 0.60704604<br />strata: All","time:  245<br />surv: 0.60185761<br />strata: All","time:  246<br />surv: 0.59666918<br />strata: All","time:  252<br />surv: 0.59666918<br />strata: All","time:  259<br />surv: 0.59666918<br />strata: All","time:  266<br />surv: 0.59666918<br />strata: All","time:  267<br />surv: 0.59134178<br />strata: All","time:  268<br />surv: 0.58601437<br />strata: All","time:  269<br />surv: 0.58068697<br />strata: All","time:  270<br />surv: 0.57531024<br />strata: All","time:  272<br />surv: 0.57531024<br />strata: All","time:  276<br />surv: 0.57531024<br />strata: All","time:  279<br />surv: 0.57531024<br />strata: All","time:  283<br />surv: 0.56977841<br />strata: All","time:  284<br />surv: 0.56424658<br />strata: All","time:  285<br />surv: 0.55307338<br />strata: All","time:  286<br />surv: 0.54748678<br />strata: All","time:  288<br />surv: 0.54190018<br />strata: All","time:  291<br />surv: 0.53631358<br />strata: All","time:  292<br />surv: 0.53631358<br />strata: All","time:  293<br />surv: 0.53060812<br />strata: All","time:  296<br />surv: 0.53060812<br />strata: All","time:  300<br />surv: 0.53060812<br />strata: All","time:  301<br />surv: 0.52477726<br />strata: All","time:  303<br />surv: 0.51888089<br />strata: All","time:  305<br />surv: 0.51291674<br />strata: All","time:  306<br />surv: 0.50695259<br />strata: All","time:  310<br />surv: 0.49502429<br />strata: All","time:  315<br />surv: 0.49502429<br />strata: All","time:  320<br />surv: 0.48898741<br />strata: All","time:  329<br />surv: 0.48295053<br />strata: All","time:  332<br />surv: 0.48295053<br />strata: All","time:  337<br />surv: 0.47683723<br />strata: All","time:  340<br />surv: 0.47072393<br />strata: All","time:  345<br />surv: 0.46461064<br />strata: All","time:  348<br />surv: 0.45849734<br />strata: All","time:  350<br />surv: 0.45238404<br />strata: All","time:  351<br />surv: 0.44627074<br />strata: All","time:  353<br />surv: 0.43404415<br />strata: All","time:  356<br />surv: 0.43404415<br />strata: All","time:  361<br />surv: 0.42784352<br />strata: All","time:  363<br />surv: 0.41544226<br />strata: All","time:  364<br />surv: 0.40924162<br />strata: All","time:  371<br />surv: 0.39664957<br />strata: All","time:  376<br />surv: 0.39664957<br />strata: All","time:  382<br />surv: 0.39664957<br />strata: All","time:  384<br />surv: 0.39664957<br />strata: All","time:  387<br />surv: 0.39003875<br />strata: All","time:  390<br />surv: 0.38342792<br />strata: All","time:  394<br />surv: 0.37681710<br />strata: All","time:  404<br />surv: 0.37681710<br />strata: All","time:  413<br />surv: 0.37681710<br />strata: All","time:  426<br />surv: 0.36996588<br />strata: All","time:  428<br />surv: 0.36311466<br />strata: All","time:  429<br />surv: 0.35626344<br />strata: All","time:  433<br />surv: 0.34941222<br />strata: All","time:  442<br />surv: 0.34256100<br />strata: All","time:  444<br />surv: 0.33570978<br />strata: All","time:  450<br />surv: 0.32871582<br />strata: All","time:  455<br />surv: 0.32172187<br />strata: All","time:  457<br />surv: 0.31472792<br />strata: All","time:  458<br />surv: 0.31472792<br />strata: All","time:  460<br />surv: 0.30757501<br />strata: All","time:  473<br />surv: 0.30042210<br />strata: All","time:  477<br />surv: 0.29326919<br />strata: All","time:  511<br />surv: 0.29326919<br />strata: All","time:  519<br />surv: 0.28574947<br />strata: All","time:  520<br />surv: 0.27822975<br />strata: All","time:  524<br />surv: 0.26319030<br />strata: All","time:  529<br />surv: 0.26319030<br />strata: All","time:  533<br />surv: 0.25544941<br />strata: All","time:  543<br />surv: 0.25544941<br />strata: All","time:  550<br />surv: 0.24746662<br />strata: All","time:  551<br />surv: 0.24746662<br />strata: All","time:  558<br />surv: 0.23921773<br />strata: All","time:  559<br />surv: 0.23921773<br />strata: All","time:  567<br />surv: 0.23067424<br />strata: All","time:  574<br />surv: 0.22213075<br />strata: All","time:  583<br />surv: 0.21358726<br />strata: All","time:  588<br />surv: 0.21358726<br />strata: All","time:  613<br />surv: 0.20468779<br />strata: All","time:  624<br />surv: 0.19578832<br />strata: All","time:  641<br />surv: 0.18688885<br />strata: All","time:  643<br />surv: 0.17798938<br />strata: All","time:  654<br />surv: 0.16908991<br />strata: All","time:  655<br />surv: 0.16019044<br />strata: All","time:  687<br />surv: 0.15129097<br />strata: All","time:  689<br />surv: 0.14239151<br />strata: All","time:  705<br />surv: 0.13349204<br />strata: All","time:  707<br />surv: 0.12459257<br />strata: All","time:  728<br />surv: 0.11569310<br />strata: All","time:  731<br />surv: 0.10679363<br />strata: All","time:  735<br />surv: 0.09789416<br />strata: All","time:  740<br />surv: 0.09789416<br />strata: All","time:  765<br />surv: 0.08810474<br />strata: All","time:  791<br />surv: 0.07831533<br />strata: All","time:  806<br />surv: 0.07831533<br />strata: All","time:  814<br />surv: 0.06712742<br />strata: All","time:  821<br />surv: 0.06712742<br />strata: All","time:  840<br />surv: 0.06712742<br />strata: All","time:  883<br />surv: 0.05034557<br />strata: All","time:  965<br />surv: 0.05034557<br />strata: All","time: 1010<br />surv: 0.05034557<br />strata: All","time: 1022<br />surv: 0.05034557<br />strata: All"],"type":"scatter","mode":"lines","line":{"width":3.7795275590551185,"color":"rgba(248,118,109,1)","dash":"solid","shape":"hv"},"hoveron":"points","name":"(All,1)","legendgroup":"(All,1)","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"visible":false,"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"name":"(All,1)","legendgroup":"(All,1)","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[92,105,173,174,175,177,185,188,191,192,196,197,202,203,211,221,222,224,225,235,237,240,243,252,259,266,269,272,276,279,284,292,296,300,301,303,315,332,356,364,376,382,384,404,413,444,458,511,529,543,551,559,588,740,806,821,840,965,1010,1022],"y":[0.87719298245614019,0.85956096270827809,0.7487927974108195,0.7487927974108195,0.74430900820476664,0.73528708083258765,0.7035154168459945,0.6989471349184232,0.69434879850448628,0.69434879850448628,0.68968873945412057,0.68499697932177961,0.6661005109266962,0.6661005109266962,0.65172424090669556,0.64206906696733712,0.63720490736909974,0.63230333115856818,0.63230333115856818,0.61724848994050707,0.61724848994050707,0.60704603556132519,0.60704603556132519,0.59666918025258453,0.59666918025258453,0.59666918025258453,0.58068697006724745,0.5753102388629211,0.5753102388629211,0.5753102388629211,0.5642465804232496,0.53631358139239571,0.53060811776056171,0.53060811776056171,0.52477725932363251,0.51888088562336698,0.49502429318091334,0.48295052993259835,0.43404414715461376,0.4092416244600644,0.39664957447667781,0.39664957447667781,0.39664957447667781,0.37681709575284389,0.37681709575284389,0.33570977621616999,0.3147279152026593,0.29326919371156884,0.2631903020488438,0.25544941081211309,0.24746661672423456,0.2392177295000934,0.21358725848222623,0.097894160137687022,0.078315328110149615,0.067127424094413954,0.067127424094413954,0.050345568070810462,0.050345568070810462,0.050345568070810462],"text":["time:   92<br />surv: 0.87719298<br />strata: All","time:  105<br />surv: 0.85956096<br />strata: All","time:  173<br />surv: 0.74879280<br />strata: All","time:  174<br />surv: 0.74879280<br />strata: All","time:  175<br />surv: 0.74430901<br />strata: All","time:  177<br />surv: 0.73528708<br />strata: All","time:  185<br />surv: 0.70351542<br />strata: All","time:  188<br />surv: 0.69894713<br />strata: All","time:  191<br />surv: 0.69434880<br />strata: All","time:  192<br />surv: 0.69434880<br />strata: All","time:  196<br />surv: 0.68968874<br />strata: All","time:  197<br />surv: 0.68499698<br />strata: All","time:  202<br />surv: 0.66610051<br />strata: All","time:  203<br />surv: 0.66610051<br />strata: All","time:  211<br />surv: 0.65172424<br />strata: All","time:  221<br />surv: 0.64206907<br />strata: All","time:  222<br />surv: 0.63720491<br />strata: All","time:  224<br />surv: 0.63230333<br />strata: All","time:  225<br />surv: 0.63230333<br />strata: All","time:  235<br />surv: 0.61724849<br />strata: All","time:  237<br />surv: 0.61724849<br />strata: All","time:  240<br />surv: 0.60704604<br />strata: All","time:  243<br />surv: 0.60704604<br />strata: All","time:  252<br />surv: 0.59666918<br />strata: All","time:  259<br />surv: 0.59666918<br />strata: All","time:  266<br />surv: 0.59666918<br />strata: All","time:  269<br />surv: 0.58068697<br />strata: All","time:  272<br />surv: 0.57531024<br />strata: All","time:  276<br />surv: 0.57531024<br />strata: All","time:  279<br />surv: 0.57531024<br />strata: All","time:  284<br />surv: 0.56424658<br />strata: All","time:  292<br />surv: 0.53631358<br />strata: All","time:  296<br />surv: 0.53060812<br />strata: All","time:  300<br />surv: 0.53060812<br />strata: All","time:  301<br />surv: 0.52477726<br />strata: All","time:  303<br />surv: 0.51888089<br />strata: All","time:  315<br />surv: 0.49502429<br />strata: All","time:  332<br />surv: 0.48295053<br />strata: All","time:  356<br />surv: 0.43404415<br />strata: All","time:  364<br />surv: 0.40924162<br />strata: All","time:  376<br />surv: 0.39664957<br />strata: All","time:  382<br />surv: 0.39664957<br />strata: All","time:  384<br />surv: 0.39664957<br />strata: All","time:  404<br />surv: 0.37681710<br />strata: All","time:  413<br />surv: 0.37681710<br />strata: All","time:  444<br />surv: 0.33570978<br />strata: All","time:  458<br />surv: 0.31472792<br />strata: All","time:  511<br />surv: 0.29326919<br />strata: All","time:  529<br />surv: 0.26319030<br />strata: All","time:  543<br />surv: 0.25544941<br />strata: All","time:  551<br />surv: 0.24746662<br />strata: All","time:  559<br />surv: 0.23921773<br />strata: All","time:  588<br />surv: 0.21358726<br />strata: All","time:  740<br />surv: 0.09789416<br />strata: All","time:  806<br />surv: 0.07831533<br />strata: All","time:  821<br />surv: 0.06712742<br />strata: All","time:  840<br />surv: 0.06712742<br />strata: All","time:  965<br />surv: 0.05034557<br />strata: All","time: 1010<br />surv: 0.05034557<br />strata: All","time: 1022<br />surv: 0.05034557<br />strata: All"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":17.007874015748033,"symbol":"cross-thin-open","line":{"width":1.8897637795275593,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"(All,1)","legendgroup":"(All,1)","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":31.940224159402241,"r":7.9701120797011207,"b":54.46243254462432,"l":62.432544624325445},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402241},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-50,1050],"tickmode":"array","ticktext":["0","250","500","750","1000"],"tickvals":[0,250,500,750,1000],"categoryorder":"array","categoryarray":["0","250","500","750","1000"],"nticks":null,"ticks":"outside","tickcolor":"rgba(0,0,0,1)","ticklen":3.9850560398505603,"tickwidth":0.72455564360919278,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402241},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.72455564360919278,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Time","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969279}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.050000000000000003,1.05],"tickmode":"array","ticktext":["0.00","0.25","0.50","0.75","1.00"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0.00","0.25","0.50","0.75","1.00"],"nticks":null,"ticks":"outside","tickcolor":"rgba(0,0,0,1)","ticklen":3.9850560398505603,"tickwidth":0.72455564360919278,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402241},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.72455564360919278,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Survival probability","font":{"color":"rgba(0,0,0,1)","family":"","size":18.596928185969279}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","layer":"below","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":2.0615604867573367,"font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835205},"title":{"text":"Strata","font":{"color":"rgba(0,0,0,1)","family":"","size":13.283520132835205}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"cfe9735cd9a":{"x":{},"y":{},"colour":{},"type":"scatter"},"cfe95d4d3d28":{"x":{},"y":{}},"cfe979ea3cf2":{"x":{},"y":{},"ymin":{},"ymax":{},"fill":{}},"cfe91477266":{"x":{},"y":{},"colour":{}}},"cur_data":"cfe9735cd9a","visdat":{"cfe9735cd9a":["function (y) ","x"],"cfe95d4d3d28":["function (y) ","x"],"cfe979ea3cf2":["function (y) ","x"],"cfe91477266":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="patchwork用于组合多个km曲线图" class="slide level2">
+<h2>3.3.6 patchwork：用于组合多个KM曲线图</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb24-2"><a></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggsurvplot</span>(<span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex, <span class="at">data =</span> lung), <span class="at">risk.table =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-3"><a></a></span>
+<span id="cb24-4"><a></a><span class="co"># 先筛选出ph.ecog为0/1/2的数据</span></span>
+<span id="cb24-5"><a></a>lung_sub <span class="ot">&lt;-</span> <span class="fu">subset</span>(lung, ph.ecog <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb24-6"><a></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggsurvplot</span>(<span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ph.ecog, <span class="at">data =</span> lung_sub), <span class="at">risk.table =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-7"><a></a></span>
+<span id="cb24-8"><a></a>p1<span class="sc">$</span>plot <span class="sc">+</span> p2<span class="sc">$</span>plot  <span class="co"># 使用patchwork组合图形</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-16-1.png" width="960" class="r-stretch"></section>
+<section id="log-rank检验" class="slide level2">
+<h2>3.3.7 Log-rank检验</h2>
+<p>log-rank 检验两组或多组人的生存曲线是否存在显著差异。</p>
+<p>如果 P 值 &lt; 0.05，说明两组生存曲线差异显著</p>
+<p>如果 P 值 &gt; 0.05，说明差异步显著</p>
+</section>
+<section class="slide level2">
+
+<h4 id="两个组别的log-rank检验">两个组别的log-rank检验</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female, <span class="at">data =</span> lung)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+survdiff(formula = Surv(time, status) ~ female, data = lung)
+
+           N Observed Expected (O-E)^2/E (O-E)^2/V
+female=0 138      112     91.6      4.55      10.3
+female=1  90       53     73.4      5.68      10.3
+
+ Chisq= 10.3  on 1 degrees of freedom, p= 0.001 </code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="多组别的log-rank检验">多组别的log-rank检验</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="co"># 先筛选出ph.ecog为0/1/2的数据</span></span>
+<span id="cb27-2"><a></a>lung_sub <span class="ot">&lt;-</span> <span class="fu">subset</span>(lung, ph.ecog <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb27-3"><a></a></span>
+<span id="cb27-4"><a></a><span class="co"># log-rank 检验</span></span>
+<span id="cb27-5"><a></a>survival<span class="sc">::</span><span class="fu">survdiff</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ph.ecog, <span class="at">data =</span> lung_sub)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+survival::survdiff(formula = Surv(time, status) ~ ph.ecog, data = lung_sub)
+
+            N Observed Expected (O-E)^2/E (O-E)^2/V
+ph.ecog=0  63       37     53.9    5.3014    8.0181
+ph.ecog=1 113       82     83.1    0.0144    0.0295
+ph.ecog=2  50       44     26.0   12.4571   14.9754
+
+ Chisq= 18  on 2 degrees of freedom, p= 1e-04 </code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="在km图像中添加log-rank检验">在KM图像中添加log-rank检验</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a><span class="co"># 使用lung数据集按性别进行Log-rank检验</span></span>
+<span id="cb29-2"><a></a>km_by_sex <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex, <span class="at">data =</span> lung)</span>
+<span id="cb29-3"><a></a></span>
+<span id="cb29-4"><a></a><span class="co"># 使用survminer绘制KM曲线并添加Log-rank p值</span></span>
+<span id="cb29-5"><a></a>survminer<span class="sc">::</span><span class="fu">ggsurvplot</span>(km_by_sex, <span class="at">data =</span> lung, </span>
+<span id="cb29-6"><a></a>           <span class="at">pval =</span> <span class="cn">TRUE</span>,  <span class="co"># 显示Log-rank p值</span></span>
+<span id="cb29-7"><a></a>           <span class="at">pval.method =</span> <span class="cn">TRUE</span>,  <span class="co"># 显示检验方法</span></span>
+<span id="cb29-8"><a></a>           <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>),</span>
+<span id="cb29-9"><a></a>           <span class="at">risk.table =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-19-1.png" width="960" class="r-stretch"></section>
+<section id="ggsurvfit" class="slide level2">
+<h2>3.4 <code>ggsurvfit</code></h2>
+<h3 id="全样本km曲线">全样本KM曲线</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a>ggsurvfit<span class="sc">::</span><span class="fu">survfit2</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-2"><a></a>  ggsurvfit<span class="sc">::</span><span class="fu">ggsurvfit</span>(<span class="at">color =</span> <span class="st">"navy"</span>) <span class="sc">+</span></span>
+<span id="cb30-3"><a></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb30-4"><a></a>  <span class="fu">add_risktable</span>(<span class="at">size =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-20-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="绘制男性女性的km曲线">绘制男性/女性的KM曲线</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a></a><span class="fu">survfit2</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span> </span>
+<span id="cb31-2"><a></a>  <span class="fu">ggsurvfit</span>() <span class="sc">+</span></span>
+<span id="cb31-3"><a></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb31-4"><a></a>  <span class="fu">add_risktable</span>(<span class="at">size =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-21-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="按ph.ecog分组的km曲线">按ph.ecog分组的KM曲线</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="co"># ph.ecog 是患者的ECOG体能状态评分</span></span>
+<span id="cb32-2"><a></a><span class="co"># 0代表完全正常</span></span>
+<span id="cb32-3"><a></a><span class="co"># 1代表体力活动受限但能行走和从事轻工作</span></span>
+<span id="cb32-4"><a></a><span class="co"># 2代表能自理，但不能工作，白天一半以上时间能活动</span></span>
+<span id="cb32-5"><a></a><span class="co"># 3仅能部分自理，白天一半以上时间卧床或坐轮椅</span></span>
+<span id="cb32-6"><a></a><span class="co"># 4完全丧失生活自理能力，完全卧床或坐轮椅</span></span>
+<span id="cb32-7"><a></a></span>
+<span id="cb32-8"><a></a><span class="co"># 查看ph.ecog的分布</span></span>
+<span id="cb32-9"><a></a><span class="fu">table</span>(lung<span class="sc">$</span>ph.ecog)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  0   1   2   3 
+ 63 113  50   1 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a></a><span class="do">## 绘制ph.ecog = 0/1/2三个组别的KM曲线</span></span>
+<span id="cb34-2"><a></a>lung <span class="sc">%&gt;%</span></span>
+<span id="cb34-3"><a></a>  <span class="fu">filter</span>(ph.ecog <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>)) <span class="sc">%&gt;%</span>             <span class="co"># 只保留ph.ecog为0、1、2的数据</span></span>
+<span id="cb34-4"><a></a>  <span class="fu">survfit2</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ph.ecog, <span class="at">data =</span> .) <span class="sc">%&gt;%</span></span>
+<span id="cb34-5"><a></a>  <span class="fu">ggsurvfit</span>() <span class="sc">+</span></span>
+<span id="cb34-6"><a></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-22-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="自定义线型和颜色">自定义线型和颜色</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a></a><span class="fu">survfit2</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-2"><a></a>  <span class="fu">ggsurvfit</span>(<span class="at">linetype_aes =</span> <span class="cn">TRUE</span>) <span class="sc">+</span>                            <span class="co"># 启用分组线型</span></span>
+<span id="cb35-3"><a></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"0"</span> <span class="ot">=</span> <span class="st">"#b8c6e6"</span>,              <span class="co"># 男性淡蓝紫</span></span>
+<span id="cb35-4"><a></a>                                <span class="st">"1"</span> <span class="ot">=</span>  <span class="st">"#ffb6b9"</span>),</span>
+<span id="cb35-5"><a></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span> <span class="ot">=</span> <span class="st">"Male"</span>,              <span class="co"># 男性淡蓝紫</span></span>
+<span id="cb35-6"><a></a>                               <span class="st">"1"</span> <span class="ot">=</span>  <span class="st">"Female"</span>)) <span class="sc">+</span>        <span class="co"># 女性淡粉</span></span>
+<span id="cb35-7"><a></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"0"</span> <span class="ot">=</span> <span class="st">"solid"</span>,          <span class="co"># 男性实线</span></span>
+<span id="cb35-8"><a></a>                                   <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"dashed"</span>),</span>
+<span id="cb35-9"><a></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span> <span class="ot">=</span> <span class="st">"Male"</span>,              <span class="co"># 男性淡蓝紫</span></span>
+<span id="cb35-10"><a></a>                                   <span class="st">"1"</span> <span class="ot">=</span>  <span class="st">"Female"</span>)) <span class="sc">+</span>    <span class="co"># 女性虚线</span></span>
+<span id="cb35-11"><a></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span>                                                <span class="co"># 黑白主题</span></span>
+<span id="cb35-12"><a></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-23-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="使用期刊绘图模版">使用期刊绘图模版</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a></a><span class="fu">library</span>(ggsci)</span>
+<span id="cb36-2"><a></a></span>
+<span id="cb36-3"><a></a><span class="fu">survfit2</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> female, <span class="at">data =</span> lung) <span class="sc">%&gt;%</span></span>
+<span id="cb36-4"><a></a>  <span class="fu">ggsurvfit</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span>                        <span class="co"># 绘制KM生存曲线，线宽为1</span></span>
+<span id="cb36-5"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span>                       <span class="co"># 添加置信区间</span></span>
+<span id="cb36-6"><a></a>  <span class="fu">add_risktable</span>() <span class="sc">+</span>                                 <span class="co"># 添加风险表（在险人数）</span></span>
+<span id="cb36-7"><a></a>  <span class="fu">add_quantile</span>(<span class="at">y_value =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"gray50"</span>, <span class="at">linewidth =</span> <span class="fl">0.75</span>) <span class="sc">+</span> <span class="co"># 添加中位生存线</span></span>
+<span id="cb36-8"><a></a>  <span class="fu">scale_color_jama</span>() <span class="sc">+</span>                              <span class="co"># JAMA期刊风格线条配色</span></span>
+<span id="cb36-9"><a></a>  <span class="fu">scale_fill_jama</span>() <span class="sc">+</span>                               <span class="co"># JAMA期刊风格填充色（置信区间）</span></span>
+<span id="cb36-10"><a></a>  <span class="fu">theme_pubr</span>() <span class="sc">+</span>                                      <span class="co"># pubr主题</span></span>
+<span id="cb36-11"><a></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)                 <span class="co"># 图例置于底部</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="L3slide_files/figure-revealjs/unnamed-chunk-24-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="ggsci的期刊模版">ggsci的期刊模版</h3>
+<ul>
+<li><p>“npg” Nature Publishing Group（自然出版集团）</p></li>
+<li><p>“aaas” American Association for the Advancement of Science / Science（美国科学促进会《科学》杂志）</p></li>
+<li><p>“nejm” New England Journal of Medicine（新英格兰医学杂志）</p></li>
+<li><p>“lancet” The Lancet（柳叶刀杂志）</p></li>
+<li><p>“jama” Journal of the American Medical Association（美国医学会杂志）</p></li>
+<li><p>“jco” Journal of Clinical Oncology（临床肿瘤学杂志）</p></li>
+</ul>
+<p>用法只需替换scale_color_xxx()和scale_fill_xxx()即可。</p>
+</section>
+<section id="survrm2" class="slide level2">
+<h2>3.5 <code>survRM2</code></h2>
+<p>survRM2：用于计算限制均生存时间（Restricted Mean Survival Time, RMST），这是KM分析的补充指标。</p>
+<p>限制均生存时间（Restricted Mean Survival Time, RMST）</p>
+<p>限制均时间损失（Restricted Mean Time Lost, RMTL）</p>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a></a><span class="fu">library</span>(survRM2)</span>
+<span id="cb37-2"><a></a>survRM2<span class="sc">::</span><span class="fu">rmst2</span>(<span class="at">time =</span> lung<span class="sc">$</span>time, </span>
+<span id="cb37-3"><a></a>               <span class="at">status =</span> lung<span class="sc">$</span>status, </span>
+<span id="cb37-4"><a></a>               <span class="at">arm =</span> lung<span class="sc">$</span>female)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+The truncation time, tau, was not specified. Thus, the default tau  965  is used. 
+
+Restricted Mean Survival Time (RMST) by arm 
+                Est.     se lower .95 upper .95
+RMST (arm=1) 455.904 32.917   391.387   520.421
+RMST (arm=0) 324.048 22.298   280.345   367.752
+
+
+Restricted Mean Time Lost (RMTL) by arm 
+                Est.     se lower .95 upper .95
+RMTL (arm=1) 509.096 32.917   444.579   573.613
+RMTL (arm=0) 640.952 22.298   597.248   684.655
+
+
+Between-group contrast 
+                        Est. lower .95 upper .95     p
+RMST (arm=1)-(arm=0) 131.856    53.930   209.781 0.001
+RMST (arm=1)/(arm=0)   1.407     1.157     1.711 0.001
+RMTL (arm=1)/(arm=0)   0.794     0.688     0.917 0.002</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>rmst2() 需要指定一个截断时间点 tau，用于计算 RMST 和 RMTL。没有显式指定 tau（即 tau = NULL），函数自动选择了默认值 965天（数据中最大生存时间或接近最大值的合理时间点）</p>
+<p>总结：女性在 965 天内的生存时间显著高于男性，损失时间显著低于男性，p值均小于 0.05。</p>
+</section>
+<section class="slide level2">
+
+<p>实际应用： 临床研究：RMST 是生存分析的直观指标，比传统风险比（hazard ratio）更易解释，适合比较治疗效果或组间差异。</p>
+<p>报告结果：可报告女性在 965 天内的平均生存时间比男性多约 132 天（p = 0.001），并用置信区间支持结论。</p>
+<p>调整 tau：如果 965 天不适合你的研究（例如，想分析 1 年生存），可设置 tau = 365。</p>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a></a><span class="fu">library</span>(survRM2)</span>
+<span id="cb39-2"><a></a>survRM2<span class="sc">::</span><span class="fu">rmst2</span>(<span class="at">time =</span> lung<span class="sc">$</span>time, </span>
+<span id="cb39-3"><a></a>               <span class="at">status =</span> lung<span class="sc">$</span>status, </span>
+<span id="cb39-4"><a></a>               <span class="at">arm =</span> lung<span class="sc">$</span>female,</span>
+<span id="cb39-5"><a></a>               <span class="at">tau =</span> <span class="dv">365</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+The truncation time: tau = 365  was specified. 
+
+Restricted Mean Survival Time (RMST) by arm 
+                Est.     se lower .95 upper .95
+RMST (arm=1) 297.465 10.791   276.315   318.616
+RMST (arm=0) 241.495 10.358   221.193   261.797
+
+
+Restricted Mean Time Lost (RMTL) by arm 
+                Est.     se lower .95 upper .95
+RMTL (arm=1)  67.535 10.791    46.384    88.685
+RMTL (arm=0) 123.505 10.358   103.203   143.807
+
+
+Between-group contrast 
+                       Est. lower .95 upper .95     p
+RMST (arm=1)-(arm=0) 55.970    26.653    85.288 0.000
+RMST (arm=1)/(arm=0)  1.232     1.103     1.375 0.000
+RMTL (arm=1)/(arm=0)  0.547     0.384     0.779 0.001</code></pre>
+</div>
+</div>
 </section>
 <section id="总结" class="slide level2">
 <h2>总结</h2>
 <ul>
-<li><p>Kaplan-Meier分析可处理删失数据</p></li>
-<li><p>survfit() 计算生存概率</p></li>
-<li><p>ggsurvplot()/ggsurvfit() 绘制Kaplan-Meier曲线</p></li>
-<li><p>Log-rank 检验：比较组间生存概率的差异，P &lt; 0.05 表示显著</p></li>
+<li><p>survival::Surv()</p></li>
+<li><p>survival::survfit()</p></li>
+<li><p>survival::survdiff()</p></li>
+<li><p>survminer::ggsurvplot()</p></li>
+<li><p>survminer::ggsurvplot_combine()</p></li>
+<li><p>survminer::ggsurvplot_facet()</p></li>
+</ul>
+</section>
+<section id="总结-1" class="slide level2">
+<h2>总结</h2>
+<ul>
+<li><p>ggsurvfit::survfit2()</p></li>
+<li><p>ggsurvfit::ggsurvfit()</p></li>
+<li><p>ggsurvfit::add_risktable()</p></li>
+<li><p>ggsurvfit::add_confidence_interval()</p></li>
+<li><p>gtsummary::tbl_survfit()</p></li>
 </ul>
 
 
@@ -1111,7 +1979,7 @@ z-index: 1000;">
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-<p><a href="https://lizongzhang.github.io/survival" class="uri">https://lizongzhang.github.io/survival</a><br>© 2025 2025 医咖会 Li Zongzhang</p>
+<p><a href="https://lizongzhang.github.io/survival" class="uri">https://lizongzhang.github.io/survival</a><br>© 2025 医咖会 Li Zongzhang</p>
 </div>
 </div></div>
 

@@ -9,13 +9,18 @@ format:
     incremental: FALSE
     theme: sky
     slide-number: true
-    code-fold: true
+    code-fold: false
+    execute:
+      echo: true
+      output: true        
+      warning: false
+      message: false
     chalkboard: 
       buttons: true
     preview-links: auto
     css: styles.css
     footer: |
-      <https://lizongzhang.github.io/survival><br>© 2025 2025 医咖会 Li Zongzhang 
+      <https://lizongzhang.github.io/survival><br>© 2025 医咖会 Li Zongzhang 
     include-before-body: 
       - header.html
       - fonts.html
@@ -56,11 +61,11 @@ library(broom)
 
 -   3.2 一个简单的例子
 
--   3.3 R代码：绘制Kaplan-Meier
+-   3.3 survminer
 
--   3.4 组间比较检验：Log-rank 检验
+-   3.4 ggsurvfit
 
--   3.5 多组生存曲线并列对比
+-   3.5 survRM2
 
 ------------------------------------------------------------------------
 
@@ -153,6 +158,10 @@ Association\*, 53(282), 457–481. [🔗 DOI:
 
     -   Kaplan-Meier分析假设删失数据与最终事件无关。如果删失与结局有关（比如身体状况差的人更容易失访），结果可能有偏。
 
+------------------------------------------------------------------------
+
+Kaplan-Meier分析局限性
+
 -   要求样本量足够
 
     -   若随时间推移，样本量迅速减少（如大量删失），后期的生存率估计会非常不稳定、可信度下降。
@@ -237,7 +246,7 @@ $$
 ### R代码计算生存概率
 
 ```{r}
-#| echo: true
+#| code-fold: true
 
 # 创建数据框
 df <- data.frame(
@@ -287,12 +296,41 @@ ggsurvplot(km, data = df,
 
 ------------------------------------------------------------------------
 
-## 3.3 绘制Kaplan-Meier曲线方法一：survminer::ggsurvplot()
+## 3.3 `survminer`
 
-### 第1步：创建生存对象survial object
+### lung数据集简介
+
+`lung`是`survival`包的内置数据集，包含228名肺癌患者的生存数据，主要变量包括：
+
+-   **`inst`**：医疗机构编号
+
+-   **`time`**：生存时间（天）
+
+-   **`status`**：生存状态。1 = 删失（censored），2 = 死亡（event
+
+-   **`age`**：年龄（岁）
+
+-   **`sex`**：性别, 1 = 男，2 = 女
+
+-   **`ph.ecog`**：ECOG（医生评估的体能评分），评分从 0（无症状）到
+    4（卧床）
+
+-   **`ph.karno`**：医生评估Karnofsky评分, 0–100, 数值越高表示功能越好
+
+-   **`pat.karno`**：患者评估Karnofsky评分
+
+-   **`meal.cal`**：每餐摄入热量 (calories)
+
+-   **`wt.loss`**：最近 6个月内体重下降的数值(磅)
+
+------------------------------------------------------------------------
+
+### 3.3.1 绘制KM曲线
+
+#### 第1步：创建生存对象survial object
 
 ::: {rcode}
-library(survival) Surv(time, event)
+library(survival) Surv(time, status)
 :::
 
 -   time：一个数值向量，表示每个观测对象的生存时间（如观察到死亡的时间，或随访截止时未死亡的时间）
@@ -311,21 +349,42 @@ library(survival) Surv(time, event)
 
 ------------------------------------------------------------------------
 
-### 第2步：计算生存概率
+#### 第2步：计算生存概率
+
+#### 变量重新编码
 
 ```{r}
-#| echo: true
 #| code-fold: true
 
-# 计算生存概率
+## 加载数据, cancer列表list中的lung数据框
+library(tidyverse)
+data(cancer, package="survival")
+lung <- lung %>%
+  mutate(
+    status = recode(status, "1" = 0, "2" = 1),   # 删失 = 0, 死亡 = 1
+    female = recode(sex, "1" = 0, "2" = 1))    #   男 = 0, 女 = 1
+
+```
+
+----
+
+```{r}
+#| code-fold: true
+# 波浪号（~）后的 1 表示拟合一个不含分层变量的Kaplan-Meier模型
 km <- survfit(Surv(time, status) ~ 1, data = lung)
 
 # 显示对象的内部结构
 str(km)
+```
+
+------------------------------------------------------------------------
+
+```{r}
+#| code-fold: true
 
 # 对生存分析结果km进行数据整洁化，并显示前6行
 km %>%         # Kaplan-Meier生存分析对象
-  tidy() %>%   # 转换为整洁数据框格式（需要broom包）
+  broom::tidy() %>%   # 转换为整洁数据框格式（需要broom包）
   head()       # 显示前6行结果
 
 km %>% 
@@ -333,12 +392,11 @@ km %>%
   tail() # 显示后6行结果
 ```
 
----------
+------------------------------------------------------------------------
 
-### 第3步：绘制KM曲线
+#### 第3步：绘制KM曲线
 
 ```{r}
-#| echo: true
 #| code-fold: true
 
 # 绘制KM曲线
@@ -359,14 +417,40 @@ ggsurvplot(
 
 ```
 
-----
+------------------------------------------------------------------------
 
-### 第4步：预测1年期生存概率
+#### 第4步：预测1年期生存概率
 
 ```{r}
-# 1年 = 365.25天
-summary(survfit(Surv(time, status) ~ 1, data = lung), times = 365.25)
+#| code-fold: true
 
+# 1年 = 365天 
+summary(survfit(Surv(time, status) ~ 1, data = lung), times = 365)
+
+# 1年 = 365.25天 考虑闰年效应
+summary(survfit(Surv(time, status) ~ 1, data = lung), times = 365.25)
+```
+
+------------------------------------------------------------------------
+
+#### 不考虑删失和考虑删失对KM曲线的影响
+
+```{r}
+# 不考虑删失的KM曲线
+km_wrong <- survfit(Surv(time) ~ 1, lung)
+
+# 考虑删失的KM曲线
+km <- survfit(Surv(time, status) ~ 1, lung)
+
+# Plot the two and compare
+ggsurvplot_combine(list(correct = km, wrong = km_wrong))
+```
+
+------------------------------------------------------------------------
+
+## 3.3.2 生存概率的表格输出
+
+```{r}
 # 表格化输出结果
 survfit(Surv(time, status) ~ 1, data = lung) %>% 
   gtsummary::tbl_survfit(
@@ -375,59 +459,309 @@ survfit(Surv(time, status) ~ 1, data = lung) %>%
   )
 ```
 
+------------------------------------------------------------------------
 
+```{r}
+survfit(Surv(time, status) ~ sex, data = lung) %>% 
+  gtsummary::tbl_survfit(times = c(180, 365, 730),  # 半年、1年、2年
+              label_header = "**Survival at {time} days (95% CI)**")
+```
 
 ------------------------------------------------------------------------
 
-## 3.4 绘制Kaplan-Meier曲线方法二: ggsurvfit::ggsurvfit() {auto-animate="true"}
+## 3.3.3 处理删失数据的可视化
 
 ```{r}
-#| echo: true
+survminer::ggsurvplot(km, data = lung, censor = TRUE, censor.shape = "|", censor.size = 4)
+```
+
+------------------------------------------------------------------------
+
+## 3.3.4 分面（faceting）展示多组KM曲线
+
+```{r}
 #| code-fold: true
 
-# 加载包
-library(survival)
-library(ggsurvfit)
+# 使用lung数据集按性别进行Log-rank检验
+km_by_sex <- survfit(Surv(time, status) ~ female, data = lung)
 
-# 创建数据框
-df <- data.frame(
-  time = c(5, 6, 2, 4, 4),
-  event = c(1, 0, 0, 1, 1)
+# 示例：按性别和治疗类型分面
+survminer::ggsurvplot_facet(
+  km_by_sex, 
+  data = lung, 
+  facet.by = "ph.ecog",  # 按ECOG状态分面
+  palette = "jco",
+  conf.int = TRUE
 )
+```
 
-# 拟合 KM 曲线
-survfit2(Surv(time, event) ~ 1, data = df) %>% 
-  ggsurvfit(color = "blue") +
-  add_risktable() +
-  theme_bw()
+------------------------------------------------------------------------
 
+## 3.3.5 交互式KM曲线（plotly）
+
+```{r}
+library(plotly)
+km <- survfit(Surv(time, status) ~ 1, data = lung)
+p <- ggsurvplot(km, data = lung)
+ggplotly(p$plot)
+```
+
+## 3.3.6 patchwork：用于组合多个KM曲线图
+
+```{r}
+#| code-fold: true
+library(patchwork)
+p1 <- ggsurvplot(survfit(Surv(time, status) ~ sex, data = lung), risk.table = TRUE)
+
+# 先筛选出ph.ecog为0/1/2的数据
+lung_sub <- subset(lung, ph.ecog %in% c(0, 1, 2))
+p2 <- ggsurvplot(survfit(Surv(time, status) ~ ph.ecog, data = lung_sub), risk.table = TRUE)
+
+p1$plot + p2$plot  # 使用patchwork组合图形
 
 ```
 
-------------
+------------------------------------------------------------------------
 
-### `ggsurvplot()`和`ggsurvfit()`比较
+## 3.3.7 Log-rank检验
 
-| 功能                 | `ggsurvplot()` | `ggsurvfit()`              |
-|----------------------|----------------|----------------------------|
-| 快速绘图             | ✅             | ❌（需多个语句）           |
-| 风格美化与控制       | 中等           | ✅✅✅ 完全 `ggplot2` 支持 |
-| 风险表（Risk Table） | ✅（内建）     | ✅（需 `add_risktable()`） |
-| 分面支持（Faceting） | ❌             | ✅（支持 `facet_wrap()`）  |
-| 科研级图形输出       | ❌ 需二次加工  | ✅✅✅ 高度推荐            |
-| 初学者友好           | ✅✅✅         | ❌ 需理解图层语法          |
+log-rank 检验两组或多组人的生存曲线是否存在显著差异。
 
-> ❗️推荐使用
-> `ggsurvfit()`，功能更强大、更灵活，更符合学术期刊绘图的风格。
+如果 P 值 \< 0.05，说明两组生存曲线差异显著
+
+如果 P 值 \> 0.05，说明差异步显著
+
+------------------------------------------------------------------------
+
+#### 两个组别的log-rank检验
+
+```{r}
+#| code-fold: true
+
+survdiff(Surv(time, status) ~ female, data = lung)
+
+```
+
+------------------------------------------------------------------------
+
+#### 多组别的log-rank检验
+
+```{r}
+#| code-fold: true
+# 先筛选出ph.ecog为0/1/2的数据
+lung_sub <- subset(lung, ph.ecog %in% c(0, 1, 2))
+
+# log-rank 检验
+survival::survdiff(Surv(time, status) ~ ph.ecog, data = lung_sub)
+
+```
+
+------------------------------------------------------------------------
+
+#### 在KM图像中添加log-rank检验
+
+```{r}
+#| code-fold: true
+# 使用lung数据集按性别进行Log-rank检验
+km_by_sex <- survfit(Surv(time, status) ~ sex, data = lung)
+
+# 使用survminer绘制KM曲线并添加Log-rank p值
+survminer::ggsurvplot(km_by_sex, data = lung, 
+           pval = TRUE,  # 显示Log-rank p值
+           pval.method = TRUE,  # 显示检验方法
+           palette = c("blue", "red"),
+           risk.table = TRUE)
+```
+
+------------------------------------------------------------------------
+
+## 3.4 `ggsurvfit`
+
+### 全样本KM曲线
+
+```{r}
+#| code-fold: true
+
+ggsurvfit::survfit2(Surv(time, status) ~ 1, data = lung) %>% 
+  ggsurvfit::ggsurvfit(color = "navy") +
+  theme_bw() +
+  add_risktable(size = 3)
+```
+
+------------------------------------------------------------------------
+
+### 绘制男性/女性的KM曲线
+
+```{r}
+#| code-fold: true
+survfit2(Surv(time, status) ~ female, data = lung) %>% 
+  ggsurvfit() +
+  theme_bw() +
+  add_risktable(size = 3)
+
+```
+
+------------------------------------------------------------------------
+
+### 按ph.ecog分组的KM曲线
+
+```{r}
+#| code-fold: true
+
+# ph.ecog 是患者的ECOG体能状态评分
+# 0代表完全正常
+# 1代表体力活动受限但能行走和从事轻工作
+# 2代表能自理，但不能工作，白天一半以上时间能活动
+# 3仅能部分自理，白天一半以上时间卧床或坐轮椅
+# 4完全丧失生活自理能力，完全卧床或坐轮椅
+
+# 查看ph.ecog的分布
+table(lung$ph.ecog)
+
+
+## 绘制ph.ecog = 0/1/2三个组别的KM曲线
+lung %>%
+  filter(ph.ecog %in% c(0, 1, 2)) %>%             # 只保留ph.ecog为0、1、2的数据
+  survfit2(Surv(time, status) ~ ph.ecog, data = .) %>%
+  ggsurvfit() +
+  theme_bw()
+
+```
+
+------------------------------------------------------------------------
+
+### 自定义线型和颜色
+
+```{r}
+#| code-fold: true
+survfit2(Surv(time, status) ~ female, data = lung) %>% 
+  ggsurvfit(linetype_aes = TRUE) +                            # 启用分组线型
+  scale_color_manual(values = c("0" = "#b8c6e6",              # 男性淡蓝紫
+                                "1" =  "#ffb6b9"),
+                     labels = c("0" = "Male",              # 男性淡蓝紫
+                               "1" =  "Female")) +        # 女性淡粉
+  scale_linetype_manual(values = c("0" = "solid",          # 男性实线
+                                   "1" = "dashed"),
+                        labels = c("0" = "Male",              # 男性淡蓝紫
+                                   "1" =  "Female")) +    # 女性虚线
+  theme_bw() +                                                # 黑白主题
+  theme(legend.position = "bottom")  
+```
+
+------------------------------------------------------------------------
+
+### 使用期刊绘图模版
+
+```{r}
+#| code-fold: true
+
+library(ggsci)
+
+survfit2(Surv(time, status) ~ female, data = lung) %>%
+  ggsurvfit(linewidth = 1) +                        # 绘制KM生存曲线，线宽为1
+  add_confidence_interval() +                       # 添加置信区间
+  add_risktable() +                                 # 添加风险表（在险人数）
+  add_quantile(y_value = 0.5, color = "gray50", linewidth = 0.75) + # 添加中位生存线
+  scale_color_jama() +                              # JAMA期刊风格线条配色
+  scale_fill_jama() +                               # JAMA期刊风格填充色（置信区间）
+  theme_pubr() +                                      # pubr主题
+  theme(legend.position = "bottom")                 # 图例置于底部
+
+```
+
+------------------------------------------------------------------------
+
+### ggsci的期刊模版
+
+-   "npg" Nature Publishing Group（自然出版集团）
+
+-   "aaas" American Association for the Advancement of Science /
+    Science（美国科学促进会《科学》杂志）
+
+-   "nejm" New England Journal of Medicine（新英格兰医学杂志）
+
+-   "lancet" The Lancet（柳叶刀杂志）
+
+-   "jama" Journal of the American Medical Association（美国医学会杂志）
+
+-   "jco" Journal of Clinical Oncology（临床肿瘤学杂志）
+
+用法只需替换scale_color_xxx()和scale_fill_xxx()即可。
+
+------------------------------------------------------------------------
+
+## 3.5 `survRM2`
+
+survRM2：用于计算限制均生存时间（Restricted Mean Survival Time,
+RMST），这是KM分析的补充指标。
+
+限制均生存时间（Restricted Mean Survival Time, RMST）
+
+限制均时间损失（Restricted Mean Time Lost, RMTL）
+
+---
+
+```{r}
+library(survRM2)
+survRM2::rmst2(time = lung$time, 
+               status = lung$status, 
+               arm = lung$female)
+```
+
+---
+
+rmst2() 需要指定一个截断时间点 tau，用于计算 RMST 和
+RMTL。没有显式指定 tau（即 tau = NULL），函数自动选择了默认值 965天（数据中最大生存时间或接近最大值的合理时间点）
+
+总结：女性在 965 天内的生存时间显著高于男性，损失时间显著低于男性，p值均小于 0.05。
+
+--------
+
+实际应用： 临床研究：RMST 是生存分析的直观指标，比传统风险比（hazard
+ratio）更易解释，适合比较治疗效果或组间差异。
+
+报告结果：可报告女性在 965 天内的平均生存时间比男性多约 132 天（p =
+0.001），并用置信区间支持结论。
+
+调整 tau：如果 965 天不适合你的研究（例如，想分析 1 年生存），可设置 tau
+= 365。
 
 -------
 
+```{r}
+library(survRM2)
+survRM2::rmst2(time = lung$time, 
+               status = lung$status, 
+               arm = lung$female,
+               tau = 365)
+```
+
+---
+
 ## 总结
 
--   Kaplan-Meier分析可处理删失数据
+-   survival::Surv()
 
--   survfit() 计算生存概率
+-   survival::survfit()
 
--   ggsurvplot()/ggsurvfit() 绘制Kaplan-Meier曲线
+-   survival::survdiff()
 
--    Log-rank 检验：比较组间生存概率的差异，P \< 0.05 表示显著
+-   survminer::ggsurvplot()
+
+-   survminer::ggsurvplot_combine()
+
+-   survminer::ggsurvplot_facet()
+
+---
+
+## 总结
+
+-   ggsurvfit::survfit2()
+
+-   ggsurvfit::ggsurvfit()
+
+-   ggsurvfit::add_risktable()
+
+-   ggsurvfit::add_confidence_interval()
+
+-   gtsummary::tbl_survfit()

@@ -2,14 +2,19 @@
 title:  "L2 R数据与环境准备"
 date: today
 author: 
-  name: "Lzz"
+  name: "李宗璋"
   url: https://space.bilibili.com/590872906/
 format: 
   revealjs:
     incremental: FALSE
     theme: sky
     slide-number: true
-    code-fold: true
+    code-fold: false
+    execute:
+      echo: true
+      output: true        
+      warning: false
+      message: false
     chalkboard: 
       buttons: true
     preview-links: auto
@@ -56,7 +61,7 @@ library(tidyverse)
 
 -   2.3 项目的创建与管理
 
--   2.4 数据准备：数据框与变量赋值
+-   2.4 数据准备
 
 ------------------------------------------------------------------------
 
@@ -165,17 +170,17 @@ available.packages()["survminer", "Version"]
 
 --------
 
-## 2.3 项目的创建与管理
+- 项目文件的管理
 
--   数据文件及其导入
-
--   代码
-
--   导出的文件：图片, Word, PDF等
+  -   数据文件及其导入
+  
+  -   代码
+  
+  -   导出的文件：图片, Word, PDF等
 
 ----------
 
-## 2.4 数据结构与变量赋值
+## 2.4 数据准备
 
 -   **数据框（data frame）**：列: 变量，行:个案
 
@@ -188,6 +193,8 @@ available.packages()["survminer", "Version"]
     -   1 = 事件发生（event）
 
     -   0 = 删失（censored）
+
+---
 
 -   解释变量（covariates）
 
@@ -208,6 +215,13 @@ available.packages()["survminer", "Version"]
 
 ## 2.5 学习方法建议
 
+学习代码: 参数项(需要修改的/不需要改动的)
+
+录入代码
+
+查看函数帮助
+
+AI工具的使用
             
 ----
 
@@ -222,13 +236,15 @@ available.packages()["survminer", "Version"]
   - 核心包：`survival` (模型)、`survminer`/`ggsurvfit` (可视化)、`flexsurv` (参数模型)、`cmprsk` (竞争风险)、`tidyverse` (数据处理)。
   - 安装：`install.packages()`，加载后使用，切换镜像提速。
 
-- **2.3 项目的创建与管理**
+---  
+
+- 2.3 项目的创建与管理
   - 好处：统一路径、便于协作。
   - 包含：数据、代码、导出文件 (图片/Word/PDF)。
 
-- **2.4 数据结构与变量赋值**
+- 2.4 数据结构与变量赋值
   - 数据框：列=变量，行=个案。
   - 变量：生存时间 (time)、状态 (1=事件, 0=删失)、解释变量 (如年龄/性别)。
   - 二分类：`female` (1=女, 0=男)、`smoke` (1=吸烟, 0=不吸)。
 
----
+- 2.5 学习方法

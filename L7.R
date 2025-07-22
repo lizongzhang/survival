@@ -4,7 +4,8 @@
 pkgs <- c("survival", "ggsurvfit", "survminer", "rms", 
           "tidyverse", "broom", "glue", "gtsummary", 
           "flextable", "officer", "showtext", "RColorBrewer",
-          "tidycmprsk", "MASS")
+          "tidycmprsk", "MASS",
+          "randomForestSRC", "TH.data", "pec")
 
 # 检查并安装未安装的包
 for (pkg in pkgs) {
@@ -25,12 +26,7 @@ showtext_auto()
 # 设置全局字体为'华文楷体'（STKaiti），适用于基础plot、par等绘图函数
 par(family = 'STKaiti')
 
-
-
-
-# 随机森林 --------------------------------------------------------------------
-
-# 加载必要的包
+# 7.2.2 加载包 --------------------------------------------------------------------
 library(randomForestSRC)  # 随机生存森林
 library(TH.data)         # GBSG2 数据集
 library(tidyverse)       # 数据处理和可视化
@@ -40,27 +36,80 @@ library(pec)             # 生存概率预测
 # 加载数据
 data(GBSG2, package = "TH.data")
 
-# 数据预处理：确保数据格式正确
-gbsg2 <- GBSG2 %>%
+table(GBSG2$cens)
+
+# 7.2.3 数据预处理 --------------------------------------------------------------------
+gbsg2 <- GBSG2 %>% #对象名用小写，方便代码录入
   mutate(
-    horTh = as.factor(horTh),      # 转换为因子
+    horTh = as.factor(horTh),  #在GBSG2中horTh是Factor,此处是示范如何将数值型转换为因子
     menostat = as.factor(menostat),
     tgrade = as.factor(tgrade)
   )
 
-# 拟合随机生存森林模型
-rsf_model <- rfsrc(Surv(time, cens) ~ horTh + age + menostat + tsize + 
-                     tgrade + pnodes + progrec + estrec,
-                   data = GBSG2,
-                   ntree = 500,              # 树的数量
-                   mtry = 3,                 # 每次分裂随机选择的特征数
-                   nodesize = 15,            # 终端节点最小样本数
-                   importance = TRUE)        # 计算变量重要性
+# 7.2.4 拟合RSF模型-------------------------------------------------------------------
+
+## 设置模型参数-------------------------------------------------------------------
+
+set.seed(123)   #让每次运行都能得到相同的结果
+rsf_model <- rfsrc(Surv(time, cens) ~ horTh + age + menostat + 
+                     tsize + tgrade + pnodes + progrec + estrec,
+                   data = gbsg2,
+                   ntree = 500,            # 树的数量
+                   mtry = 3,               # 变量个数的平方根 
+                   nodesize = 15,          # 终端节点最小样本数
+                   importance = TRUE)      # 计算变量重要性
 
 # 查看模型摘要
 print(rsf_model)
 
-# 提取变量重要性
+
+## 计算 C-index-------------------------------------------------------------------
+
+# C-index (判别能力)
+cindex <- 1 - rsf_model$err.rate[length(rsf_model$err.rate)]
+cindex
+
+
+## 循环语句调参-------------------------------------------------------------------
+
+# ntree    # 森林中树的数量，通常500-2000, 主要影响方差收敛，对C-index提升作用不大
+# mtry     # 每次分裂考虑的变量数，可尝试sqrt、log2、全部变量
+# nodesize # 终端节点最小样本数，调小可提升复杂度，防止欠拟合
+
+# 网格搜索
+library(randomForestSRC)
+cindex_list <- c()
+for (m in c(2, 3, 4, 5)) {
+  for (n in c(5, 10, 15, 20)) {
+    set.seed(123) 
+    model <- rfsrc(Surv(time, cens) ~ horTh + age  + menostat + 
+                     tsize + tgrade + pnodes + progrec + estrec,
+                   data = gbsg2, ntree = 500, mtry = m, nodesize = n)
+    cindex <- 1 - model$err.rate[length(model$err.rate)]
+    print(paste("mtry:", m, "nodesize:", n, "C-index:", round(cindex, 3)))
+    cindex_list <- c(cindex_list, cindex)
+  }
+}
+
+# [1] "mtry: 2 nodesize: 15 C-index: 0.698"
+
+set.seed(123)
+rsf_model <- rfsrc(Surv(time, cens) ~ horTh + age + menostat + tsize + tgrade + pnodes + progrec + estrec,
+                   data = gbsg2,
+                   ntree = 500,            # 树的数量
+                   mtry = 2,               # 变量个数的平方根 
+                   nodesize = 15,          # 终端节点最小样本数
+                   importance = TRUE
+                   ) 
+cindex <- 1 - rsf_model$err.rate[length(rsf_model$err.rate)]
+cindex
+
+# 7.2.5 RSF模型估计结果解读 ---------------------------------------------------
+
+# 7.2.6 评估变量重要性 -----------------------------------------------------------
+
+## 计算变量重要性 -----------------------------------------------------------
+
 var_importance <- data.frame(
   Variable = names(rsf_model$importance),
   Importance = rsf_model$importance
@@ -69,52 +118,58 @@ var_importance <- data.frame(
 
 var_importance
 
-# 可视化变量重要性
+
+
+## 绘制变量重要性的条形图 ----------------------------------------------------
+
+# 
 ggplot(var_importance, aes(x = reorder(Variable, Importance), y = Importance)) +
-  geom_bar(stat = "identity", fill = "skyblue") +   # 修正stat参数
+  geom_bar(stat = "identity", fill = "skyblue") +
   coord_flip() +
-  labs(title = "变量重要性（随机生存森林）", x = "变量", y = "重要性") +
+  labs(title = "变量重要性（RSF）", x = "变量", y = "重要性") +
   theme_minimal()
 
-# 预测风险分数（ensemble mortality）
-risk_scores <- predict(rsf_model, newdata = gbsg2)$predicted
-risk_scores
+# 7.2.7 风险分数 ------------------------------------------------------------
+
+## 计算风险分数 ------------------------------------------------------------
+
+gbsg2$risk_score  <- predict(rsf_model, newdata = gbsg2)$predicted
+
+summary(gbsg2$risk_score)
 
 
-# 可视化风险分数的分布
-ggplot(data.frame(risk = risk_scores), aes(x = risk)) +
+## 风险分数直方图 ------------------------------------------------------------
+
+gbsg2 %>% 
+  ggplot(aes(x = risk_score)) +
   geom_histogram(bins = 30, fill = "lightgreen", color = "black") +
-  labs(title = "随机生存森林预测的风险分数分布", x = "风险分数", y = "频数") +
+  labs(title = "RSF 风险分数的分布", x = "风险分数", y = "频数") +
   theme_minimal()
 
-# 风险分数分层
-library(dplyr)
-gbsg2$risk_group <- cut(risk_scores, 
-                        breaks = quantile(risk_scores, 
+## 高中低风险组分层 --------------------------------------------------------------
+
+gbsg2$risk_group <- cut(gbsg2$risk_score, 
+                        breaks = quantile(gbsg2$risk_score, 
                                           probs = c(0, 0.33, 0.66, 1)), 
                         labels = c("Low", "Medium", "High"))
-gbsg2$risk_scores <- risk_scores
+
 table(gbsg2$risk_group)
 
-# 低中高风险组分组箱线图
-library(ggplot2)
-ggplot(subset(gbsg2, !is.na(risk_group)), 
-       aes(x = risk_group, y = risk_scores)) +
-  geom_boxplot(aes(color = risk_group)) + 
-  labs(x = "Risk Group", y = "Risk Score")
+## 高中低风险组风险分数箱线图 --------------------------------------------------------------
 
 gbsg2 %>% 
   filter(!is.na(risk_group)) %>%
-  ggplot(aes(x = risk_group, y = risk_scores, color = risk_group)) +
+  ggplot(aes(risk_group, risk_score, color = risk_group)) +
   geom_boxplot() + 
   labs(x = "Risk Group", y = "Risk Score")
 
-# 低中高风险组分组KM曲线
+# 7.2.8 高中低风险组分组KM曲线 -----------------------------------------------------
 
-# 拟合 Kaplan-Meier 模型
+# Kaplan-Meier估计
 surv_fit <- survfit(Surv(time, cens) ~ risk_group, data = gbsg2)
 
-# 绘制 Kaplan-Meier 曲线
+# 低中高风险组分组KM曲线
+library(survminer)
 ggsurvplot(surv_fit, 
            data = gbsg2,
            palette = "set1",  # 低、中、高风险颜色
@@ -125,23 +180,20 @@ ggsurvplot(surv_fit,
            ylab = "Survival Probability",
            conf.int = TRUE)  # 添加置信区间
 
-#添加 p 值（log-rank 检验）
+#log-rank 检验
 survdiff(Surv(time, cens) ~ risk_group, data = gbsg2)
 
-
-# 预测患者的生存曲线 ---------------------------------------------------------------
+# 7.2.9 预测患者的生存概率 --------------------------------------------------------
 
 library(reshape2)
 library(ggplot2)
 
-
-# 假设 rsf_model 已经训练好，gbsg2[1:5, ] 是5个新样本
+# 假设 rsf_model 已经训练好，将gbsg2[1:5, ]的前五个样本视作 5个新样本
 library(pec)
 times <- seq(0, 2000, 100)
 surv_pred <- predictSurvProb(rsf_model, 
                              newdata = gbsg2[1:5, ], 
                              times = times)
-
 # 转成长数据框
 df_long <- data.frame(
   time = rep(times, 5),
@@ -153,8 +205,9 @@ df_long <- data.frame(
 head(df_long)
 tail(df_long)
 
+# 7.2.10 绘制患者的生存曲线 ---------------------------------------------------------------
 
-# ggplot画多患者曲线
+# 绘制5名患者的生存曲线
 library(ggplot2)
 ggplot(df_long, aes(x = time, y = surv, color = patient)) +
   geom_line(size = 1.2) +
@@ -164,50 +217,109 @@ ggplot(df_long, aes(x = time, y = surv, color = patient)) +
   theme_minimal(base_size = 15) +
   scale_color_brewer(palette = "Set1")
 
+# 7.4.1 GBM-Survival数据背景 ------------------------------------------------------------
 
+data(GBSG2, package = "TH.data")
 
+# 7.4.2 加载包-------------------------------------------------------------------------
 
+# 加载必要的包
+library(survival)        # 生存分析工具
+library(TH.data)         # GBSG2 数据集
+library(tidyverse)       # 数据处理和可视化
+library(gbm)             # Generalized Boosted Regression Modeling
 
+# 7.4.3 数据预处理-------------------------------------------------------------------------
 
+# 数据预处理
+gbsg2 <- GBSG2 %>%             # 保存到一个新的数据框，对象名称小写
+  mutate(
+    horTh = as.factor(horTh),  # R举例如何转成因子
+    menostat = as.factor(menostat),
+    tgrade = as.factor(tgrade)
+  )
 
+# 7.4.4 拟合GBM-Survival模型-------------------------------------------------------------------------
 
+gbm_model <- gbm(Surv(time, cens) ~ horTh + age + menostat + tsize + 
+                   tgrade + pnodes + progrec + estrec,
+                 data = gbsg2,
+                 distribution = "coxph",  # 使用 Cox 似然
+                 n.trees = 100,           # 树的数量
+                 interaction.depth = 3,   # 树的深度
+                 shrinkage = 0.1,         # 学习率
+                 bag.fraction = 0.5,      # 随机采样的比例
+                 verbose = FALSE)
 
+summary(gbm_model)
 
+# 7.4.5 变量重要性评估-------------------------------------------------------------------------
 
+# 计算变量相对影响
+rel_inf <- summary(gbm_model)$rel.inf
 
+rel_inf_df <- data.frame(variable = names(gbsg2)[1:8], 
+                         importance = rel_inf)
 
+rel_inf_df
 
+# 绘制变量相对影响条形图
+ggplot(rel_inf_df, 
+       aes(x = reorder(variable, importance), 
+           y = importance)) +
+  geom_bar(stat = "identity", fill = "#A0D8EF") +
+  coord_flip() +
+  labs(title = "变量相对影响（GBM-Survival）", x = "变量", y = "相对影响") +
+  theme_minimal()
 
-# Melanoma ----------------------------------------------------------------
+# 7.4.6 计算风险分数-------------------------------------------------------------------------
 
-# 查看Melanoma数据集
-data(Melanoma, package = "MASS")
-head(Melanoma)
+gbsg2$risk_score_gbm <- predict(gbm_model, 
+                                newdata = gbsg2, 
+                                n.trees = 100)
 
-# 检查数据结构
-str(Melanoma)
+summary(gbsg2$risk_score_gbm)
 
-# 将status变量转换为生存分析需要的格式
-# status: 1=死亡, 2=死亡, 3=生存
-# 通常我们需要: event=1（死亡），censor=0（生存）
-Melanoma$event <- as.numeric(Melanoma$status != 3)
+# 风险分数的直方图
+gbsg2 %>% 
+  ggplot(aes(risk_score_gbm)) +
+  geom_histogram(bins = 30, fill = "lightblue", color = "black") +
+  labs(title = "GBM-Survival 风险分数的分布", x = "风险分数", y = "频数") +
+  theme_minimal()
 
-# 拟合随机生存森林模型
-rsf_model <- rfsrc(Surv(time, event) ~ ., data = Melanoma, ntree = 1000, 
-                   importance = TRUE, na.action = "na.impute")
-print(rsf_model)
+# 7.4.7 单变量部份依赖图 ----------------------------------------------------------
 
-Melanoma$risk_scores <- predict(rsf_model, newdata = Melanoma)$predicted
-Melanoma$risk_group <- cut(risk_scores, 
-                           breaks = quantile(risk_scores, probs = c(0, 0.33, 0.66, 1)),
-                           labels = c("Low", "Medium", "High"),
-                           include.lowest = TRUE)
+library(pdp)
+pd_1d <- partial(gbm_model, pred.var = "pnodes", 
+                 n.trees = 100, train = gbsg2)
 
-surv_fit <- survfit(Surv(time, event) ~ risk_group, data = Melanoma)
-ggsurvplot(surv_fit, data = Melanoma, 
-           palette ="Set2",
-           ggtheme = theme_minimal(), legend.title = "Risk Group",
-           legend.labs = c("Low", "Medium", "High"),
-           xlab = "Time (Days)", ylab = "Survival Probability",
-           conf.int = TRUE)
-survdiff(Surv(time, status) ~ risk_group, data = Melanoma)
+autoplot(pd_1d, rug = TRUE, train = gbsg2) +
+  geom_line(color="navy") +
+  geom_smooth(color = "lightblue",
+              se = FALSE)
+
+# 7.4.8 多变量部分依赖图 (2D PDP)-------------------------------------------------------------------------
+pd_2d <- partial(gbm_model, 
+                 pred.var = c("pnodes", "age"), 
+                 n.trees = 100, chull = TRUE)
+
+autoplot(pd_2d, contour = TRUE, legend.title = "Log Hazard")
+
+# 7.4.9 个体条件期望曲线ICE Curves-------------------------------------------------------------------------
+
+ice_curves <- partial(gbm_model, 
+                      pred.var = "pnodes", 
+                      ice = TRUE, 
+                      n.trees = 100)
+
+plotPartial(ice_curves, alpha = 0.1, rug = TRUE, train = gbsg2)
+
+autoplot(ice_curves, center = FALSE, alpha = 0.1, pdp.color = "red")
+
+# 7.4.10 中心化个体条件期望曲线 c-ICE Curves-------------------------------------------------------------------------
+cice_curves <- partial(gbm_model, 
+                       pred.var = "pnodes", 
+                       ice = TRUE, 
+                       center = TRUE, 
+                       n.trees = 100)
+autoplot(cice_curves, alpha = 0.1, pdp.color = "blue")

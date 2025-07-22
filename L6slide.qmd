@@ -2,7 +2,7 @@
 title:  "L6 竞争风险模型"
 date: today
 author: 
-  name: "Lzz"
+  name: "李宗璋"
   url: https://space.bilibili.com/590872906/
 format: 
   revealjs:
@@ -65,7 +65,7 @@ library(RColorBrewer)
 
 -   6.3 应用举例：竞争风险模型
 
-------------------------------------------------------------------------
+-----------
 
 ## 6.1 竞争风险模型简介
 
@@ -83,7 +83,7 @@ library(RColorBrewer)
 
 ----------
 
-# 6.1.1 竞争风险模型设定
+### 6.1.1 竞争风险模型设定
 
 竞争风险模型假设每个研究对象在随访期间仅会经历一种事件（如死亡、复发、失访等），事件之间相互排斥。
 
@@ -119,21 +119,21 @@ Gray 检验：比较在存在竞争风险时，不同组的CIF是否存在显著
 #### 竞争风险模型数学框架
 
 累积发生概率（CIF） 对于目标事件 $k$
-$，CIF 定义为：$$CIF_k(t) = P(T \leq t, \text{事件类型} = k)$\$ 其中 $T$ 是事件发生时间，CIF 考虑了所有竞争事件的发生概率。
+$，CIF 定义为：$$CIF_k(t) = P(T \leq t, \text{事件类型} = k)$其中 $T$ 是事件发生时间，CIF 考虑了所有竞争事件的发生概率。
 
 Fine-Gray
 模型基于亚分布风险函数(Subdistribution Hazard)，假设协变量对目标事件的亚分布风险有比例效应：
-$$h_k(t | X) = h_{k0}(t) \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)$$
+$$h_k(t|X) = h_{k0}(t) \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)$$
 
-$h_k(t\|X)$：目标事件$k$的亚分布风险。
+$h_k(t|X)$：目标事件$k$的亚分布风险。
 
-$h_{k0}(t)$：基线亚分布风险。
+$h_{k0}(t)$：目标事件$k$的基线亚分布风险。
 
-$\beta_i$：协变量$X_i$ 的回归系数，解释变量对 CIF 的影响。
+$\beta_i$：协变量$X_i$的回归系数，解释变量对 CIF 的影响。
 
 ------
 
-# 6.1.2 竞争风险模型优势
+### 6.1.2 竞争风险模型优势
 
 -   **真实反映多结局过程**：同时考虑各类风险事件，避免高估单一结局的发生率。
 
@@ -145,7 +145,7 @@ $\beta_i$：协变量$X_i$ 的回归系数，解释变量对 CIF 的影响。
 
 ---------
 
-# 6.1.3 竞争风险模型适用场景
+### 6.1.3 竞争风险模型适用场景
 
 -   **医学随访研究**：如肿瘤患者因肿瘤死亡与非肿瘤死亡是竞争风险。
 
@@ -157,9 +157,9 @@ $\beta_i$：协变量$X_i$ 的回归系数，解释变量对 CIF 的影响。
 
 ------
 
-## 6.1.4 竞争风险模型数据要求
+### 6.1.4 竞争风险模型数据要求
 
-### 对样本容量的要求
+#### 对样本容量的要求
 
 -   事件数而非总样本数更关键
 
@@ -173,7 +173,7 @@ $\beta_i$：协变量$X_i$ 的回归系数，解释变量对 CIF 的影响。
 
 -   某些竞争事件发生率极低时，模型参数可能估计不稳定，建议合并类别或减少变量数量。
 
-### 对变量个数的要求
+#### 对变量个数的要求
 
 -   通用经验：“事件数/变量数比”建议≥10
 
@@ -244,6 +244,12 @@ Melanoma <-
 
 ```{r}
 head(Melanoma) # 查看数据前6行，检查数据结构
+
+# 查看缺失值
+colSums(is.na(Melanoma))
+
+# 查看status的分布
+table(Melanoma$status)
 ```
 
 ------
@@ -368,8 +374,7 @@ ggcompetingrisks(
 
 ------
 
-#### ggsurvfit::ggcumic() 
-
+#### ggsurvfit::ggcuminc() 
 
 ##### 目标事件1的CIF曲线
 
@@ -449,9 +454,13 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
 
 ### 6.3.5 灰色检验Gray Test
 
-Gray检验：比较两个或多个组在特定结局（某一竞争风险事件）上的累积发生率是否存在显著差异。
+- Gray检验：比较不同组之间目标事件累积发生概率(cumulative incidence)的统计检验方法。
+
+- log-rank test：用于比较两组或多组在随访时间内的“生存曲线”是否有显著差异
 
 ```{r}
+#| eval: false
+
 tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
   tidycmprsk::tbl_cuminc(
     times = c(365.25, 1826.25, 3652.5),  # 1年、5年、10年
@@ -461,6 +470,24 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
     pvalue_fun = function(x) style_pvalue(x, digits = 3)
     )
 ```
+
+----
+
+Gray检验
+
+```{r}
+#| code-fold: true
+
+tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
+  tidycmprsk::tbl_cuminc(
+    times = c(365.25, 1826.25, 3652.5),  # 1年、5年、10年
+    label_header = "**{time/365.25}-year cuminc**"
+  ) %>% 
+  add_p(
+    pvalue_fun = function(x) style_pvalue(x, digits = 3)
+    )
+```
+
 
 ----------
 
@@ -477,9 +504,9 @@ tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
 
 -   sex: HR = 1.80, p-value = 0.03
 
--   与参考组相比（sex=0为女性，sex=1为男性），男性发生type1结局（因黑色素瘤死亡）的亚分风险比为1.80。
+-   与参考组相比（sex=0为女性，sex=1为男性），男性发生目标事件结局（因黑色素瘤死亡）的亚分风险比为1.80。
 
--   男性发生该结局的风险是女性的1.8倍。p值小于0.05，说明性别的影响具有统计学意义。
+-   男性发生因黑色素瘤死亡的风险是女性的1.8倍。p值小于0.05，说明性别的影响具有统计学意义。
 
 ---
 
@@ -490,9 +517,9 @@ tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
 
 -   age: HR = 1.01, p-value = 0.18
 
--   每增加一岁，type1结局的亚分风险比增加1%（1.01倍），但p值为0.18，不具有统计学显著性（即年龄对type1结局风险的影响不显著）。
+-   每增加1岁，因黑色素瘤死亡的亚分风险比增加1%（1.01倍），但p值为0.18，不具有统计学显著性（即年龄对type1结局风险的影响不显著）。
 
--   这可能因年龄范围较窄或竞争事件掩盖了效应。
+-   可能是竞争事件掩盖年龄效应。
 
 --------------
 
@@ -530,7 +557,6 @@ tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma) %>%
 
 ```{r}
 #| code-fold: true
-
 
 fit1 <- tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
 fit2 <- tidycmprsk::crr(Surv(time, status) ~ sex + age  + year + thickness, data = Melanoma)
@@ -679,7 +705,7 @@ tbl_merge(
 
 -   `tidycmprsk::cuminc()`, `tidycmprsk::crr()`
 
--   `survminer::ggcompetingrisks()`, `ggsurvfit::ggcumic()`
+-   `survminer::ggcompetingrisks()`, `ggsurvfit::ggcuminc()`
 
 
 -   Fine-Gray (SHR) 适合预后, Cox (HR)适合机制研究

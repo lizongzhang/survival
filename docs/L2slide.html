@@ -9,8 +9,8 @@
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.6.42">
 
-  <meta name="author" content="Lzz">
-  <meta name="dcterms.date" content="2025-07-18">
+  <meta name="author" content="李宗璋">
+  <meta name="dcterms.date" content="2025-07-22">
   <title>R生存分析 – L2 R数据与环境准备</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -243,12 +243,12 @@ z-index: 1000;">
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-<a href="https://space.bilibili.com/590872906/">Lzz</a> 
+<a href="https://space.bilibili.com/590872906/">李宗璋</a> 
 </div>
 </div>
 </div>
 
-  <p class="date">2025-07-18</p>
+  <p class="date">2025-07-22</p>
 </section>
 <section id="大纲" class="slide level2">
 <h2>大纲</h2>
@@ -256,7 +256,7 @@ z-index: 1000;">
 <li><p>2.1 R和R Studio的更新</p></li>
 <li><p>2.2 安装包</p></li>
 <li><p>2.3 项目的创建与管理</p></li>
-<li><p>2.4 数据准备：数据框与变量赋值</p></li>
+<li><p>2.4 数据准备</p></li>
 </ul>
 </section>
 <section id="r和r-studio的更新" class="slide level2">
@@ -345,16 +345,19 @@ z-index: 1000;">
 </ul></li>
 </ul>
 </section>
-<section id="项目的创建与管理-1" class="slide level2">
-<h2>2.3 项目的创建与管理</h2>
+<section class="slide level2">
+
+<ul>
+<li><p>项目文件的管理</p>
 <ul>
 <li><p>数据文件及其导入</p></li>
 <li><p>代码</p></li>
 <li><p>导出的文件：图片, Word, PDF等</p></li>
+</ul></li>
 </ul>
 </section>
-<section id="数据结构与变量赋值" class="slide level2">
-<h2>2.4 数据结构与变量赋值</h2>
+<section id="数据准备" class="slide level2">
+<h2>2.4 数据准备</h2>
 <ul>
 <li><p><strong>数据框（data frame）</strong>：列: 变量，行:个案</p></li>
 <li><p><strong>变量赋值</strong></p></li>
@@ -364,6 +367,11 @@ z-index: 1000;">
 <li><p>1 = 事件发生（event）</p></li>
 <li><p>0 = 删失（censored）</p></li>
 </ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<ul>
 <li><p>解释变量（covariates）</p>
 <ul>
 <li><p>连续型（如年龄、血压）或分类型（如性别、治疗组）</p></li>
@@ -379,6 +387,10 @@ z-index: 1000;">
 </section>
 <section id="学习方法建议" class="slide level2">
 <h2>2.5 学习方法建议</h2>
+<p>学习代码: 参数项(需要修改的/不需要改动的)</p>
+<p>录入代码</p>
+<p>查看函数帮助</p>
+<p>AI工具的使用</p>
 </section>
 <section id="总结" class="slide level2">
 <h2>总结</h2>
@@ -394,21 +406,24 @@ z-index: 1000;">
 <li>核心包：<code>survival</code> (模型)、<code>survminer</code>/<code>ggsurvfit</code> (可视化)、<code>flexsurv</code> (参数模型)、<code>cmprsk</code> (竞争风险)、<code>tidyverse</code> (数据处理)。</li>
 <li>安装：<code>install.packages()</code>，加载后使用，切换镜像提速。</li>
 </ul></li>
-<li><strong>2.3 项目的创建与管理</strong>
+</ul>
+</section>
+<section class="slide level2">
+
+<ul>
+<li>2.3 项目的创建与管理
 <ul>
 <li>好处：统一路径、便于协作。</li>
 <li>包含：数据、代码、导出文件 (图片/Word/PDF)。</li>
 </ul></li>
-<li><strong>2.4 数据结构与变量赋值</strong>
+<li>2.4 数据结构与变量赋值
 <ul>
 <li>数据框：列=变量，行=个案。</li>
 <li>变量：生存时间 (time)、状态 (1=事件, 0=删失)、解释变量 (如年龄/性别)。</li>
 <li>二分类：<code>female</code> (1=女, 0=男)、<code>smoke</code> (1=吸烟, 0=不吸)。</li>
 </ul></li>
+<li>2.5 学习方法</li>
 </ul>
-</section>
-<section class="slide level2">
-
 
 
 </section>

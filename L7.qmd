@@ -19,19 +19,9 @@ title:  "L7 机器学习"
   <img src="img/download.png" 
        alt="Download icon" 
        style="width: 24px; height: 24px; margin-right: 8px;">
-  点击下载代码文件: L4.R
+  点击下载代码文件: L7.R
 </a>
 
-# 数据文件
-
-<a href="https://github.com/lizongzhang/survival/raw/main/L7.R" 
-   target="_blank" 
-   style="text-decoration: none; display: inline-flex; align-items: center;">
-  <img src="img/download.png" 
-       alt="Download icon" 
-       style="width: 24px; height: 24px; margin-right: 8px;">
-  点击下载数据文件: L7.R
-</a>
 
 
 

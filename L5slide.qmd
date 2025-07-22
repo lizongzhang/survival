@@ -2,14 +2,19 @@
 title:  "L5 AFT模型"
 date: today
 author: 
-  name: "Lzz"
+  name: "李宗璋"
   url: https://space.bilibili.com/590872906/
 format: 
   revealjs:
     incremental: FALSE
     theme: sky
     slide-number: true
-    code-fold: true
+    code-fold: false
+    execute:
+      echo: true
+      output: true        
+      warning: false
+      message: false
     chalkboard: 
       buttons: true
     preview-links: auto
@@ -46,12 +51,11 @@ library(gtsummary)
 library(tidyverse)
 ```
 
-
----------
+------------------------------------------------------------------------
 
 ## 大纲
 
--   5.1  AFT模型简介
+-   5.1 AFT模型简介
 
 -   5.2 Weibull基线生存曲线
 
@@ -59,129 +63,167 @@ library(tidyverse)
 
 -   5.4 Weibull模型的预测
 
-
----
+------------------------------------------------------------------------
 
 ## 5.1 AFT模型
 
 ### 5.1.1 AFT模型核心思想
 
-加速失效时间模型（Accelerated Failure Time Model，简称AFT模型）是生存分析中的一种统计工具，用于研究某个事件发生所需的时间，例如患者存活时间或设备使用寿命。AFT模型假设外部因素（称为协变量，如治疗、年龄或环境）会“加速”或“减缓”事件发生的时间，类似于给时间轴按下“快进”或“慢放”键。
+加速失效时间模型(Accelerated Failure Time Model,
+AFT模型)是生存分析中的一种统计方法，AFT模型认为协变量(如治疗、年龄等)会加快或减慢事件发生的速度。
 
-----
+------------------------------------------------------------------------
 
-### AFT模型的优势
+### 5.1.2 AFT模型的优势
 
-AFT模型不依赖比例风险假设，而是假设协变量对生存时间的对数具有线性影响，直接建模生存时间的加速或减速效应。因此，AFT模型适用于风险比随时间变化的数据集。
+-   AFT模型不依赖比例风险假设，而是假设协变量对生存时间的对数具有线性影响。
 
-AFT模型是参数模型，允许用户指定生存时间的分布（如Weibull、指数、对数正态、对数逻辑等）。
+-   AFT模型是参数模型，研究者可指定生存时间的分布(如Weibull、指数、对数正态、对数逻辑等)。
 
-AFT模型通过完全似然（full likelihood）方法，利用生存时间的分布信息，结合删失数据的特性进行建模。在某些数据集（特别是删失比例不高或分布假设明确时），AFT模型可能提供更精确的参数估计。
+-   AFT模型通过完全似然(full
+    likelihood)方法，利用生存时间的分布信息，结合删失数据的特性进行建模。在某些数据集(特别是删失比例不高或分布假设明确时)，AFT模型可能提供更精确的参数估计。
 
-----
+------------------------------------------------------------------------
 
-### 应用场景
+### 5.1.3 应用场景
 
-医疗领域：如果研究某种治疗对患者生存时间的直接延长效果（如延长中位生存时间），AFT模型比CoxPH模型更适合，因为它直接建模生存时间。
+-   医疗领域中，如果研究某种治疗是否能延长患者的生存时间，AFT模型通常比CoxPH模型更合适，因为AFT模型是直接对生存时间进行建模的。
 
-工程可靠性：在分析设备失效时间时，如果失效时间的分布已知（如Weibull分布），AFT模型可以通过明确分布假设提供更精确的预测。
+-   当数据中存在交互作用或协变量效应随时间变化(比如某药物的效果会随着时间推移而减弱)时，AFT模型相比CoxPH模型更加灵活，能更好地适应这类非比例风险的数据。
 
-非比例风险数据：当数据中存在交互效应或时间依赖的协变量效应时（如某药物的效果随时间减弱），AFT模型比CoxPH模型更灵活。
+------------------------------------------------------------------------
 
+### 5.1.4 AFT模型的局限性
 
-局限性与权衡
-虽然AFT模型在上述场景中有优势，但它也有局限性：
+-   AFT模型需要指定生存时间的分布，如果分布假设错误，可能导致模型拟合不佳。
 
-AFT模型需要指定生存时间的分布，如果分布假设错误，可能导致模型拟合不佳。
-AFT模型的计算复杂度通常高于CoxPH模型，尤其在大数据集或复杂分布下。
-CoxPH模型在处理高维协变量或不需要明确分布假设的场景中可能更稳健。
+-   AFT模型的计算复杂度通常高于CoxPH模型，尤其在大数据集或复杂分布下。
 
----
+-   CoxPH模型在处理高维协变量或不需要明确分布假设的场景中可能更稳健。
 
-### 5.1.2 AFT模型的设定
+------------------------------------------------------------------------
+
+### 5.1.5 AFT模型的设定
 
 数学形式为：
 
 $$
-\log(T) = \mu + X^\top \beta + \sigma \epsilon
+\log(T) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p + \sigma \varepsilon
 $$
 
-- $$ T $$：生存时间
-- $$ X $$：协变量向量
-- $$ \beta $$：回归系数，$\beta_j$代表$\x_j$每增加一个单位，log(T)增加$\beta_j$个单位
-  - 当 $$ \beta_j > 0 $$：协变量 $$ x_j $$ 延长生存时间
-  - 当 $$ \beta_j < 0 $$：协变量 $$ x_j $$ 缩短生存时间
-- $$ \epsilon $$：随机误差项，服从某种分布（决定模型类型）
-- $$ \mu $$：截距项
-- $$ \sigma $$：尺度参数
+-   $T$：生存时间
+-   $X$：协变量向量
+-   $\beta$：回归系数，$\beta_j$代表$x_j$每增加一个单位，log(T)增加$\beta_j$个单位
+    -   当 $\beta_j > 0$：协变量$x_j$ 延长生存时间
+    -   当 $\beta_j < 0$：协变量\$ x_j\$缩短生存时间
+-   $\varepsilon$：随机误差项，服从某种分布(这种分布决定了模型的具体类型)
+-   $\beta_0$：截距项, 基线生存时长的对数
+-   $\sigma$：尺度参数
 
-这是一个**对数-线性回归模型**，对数生存时间服从线性模型。
+**对数-线性回归模型**，对数生存时间服从线性模型。
 
-----
+------------------------------------------------------------------------
 
-### 5.1.3 AFT模型：常见的分布类型
+#### AFT模型：常见的分布类型
 
-| 模型类型        | $$ \epsilon $$ 分布     | 生存时间分布     |
-|------------------|------------------------|------------------|
-| Weibull          | Extreme value (EV)    | Weibull分布      |
-| Exponential      | Gumbel (固定 scale)   | 指数分布         |
-| Log-normal       | 正态分布              | 对数正态分布     |
-| Log-logistic     | Logistic分布          | 对数逻辑分布     |
+| 模型类型     | $\epsilon$分布 | 生存时间分布 |
+|--------------|----------------|--------------|
+| Weibull      | Extreme value  | Weibull分布  |
+| Exponential  | Gumbel         | 指数分布     |
+| Log-normal   | 正态分布       | 对数正态分布 |
+| Log-logistic | Logistic分布   | 对数逻辑分布 |
 
-你可以使用 `survreg()` 拟合这些模型。
+使用 `survreg()` 拟合这些模型。
 
----
+------------------------------------------------------------------------
 
-### 5.1.4 AFT模型： 与Cox比例风险模型的比较
+#### 比较：AFT模型 VS. Cox比例风险模型
 
-| 维度           | AFT模型                        | PH模型（Cox）                |
-|----------------|----------------------------------|-------------------------------|
-| 作用方式       | 建模 $$ \log(T) $$              | 建模风险函数 $$ h(t|X) $$     |
-| 参数解释       | 加速或减缓生存时间的倍数        | 改变风险函数的比例            |
-| 分布设定       | 需要指定误差分布                | 无需指定（半参数）            |
-| 拟合方法       | 极大似然                         | 局部偏似然                    |
-| 可预测生存时间 | ✅ 是                            | ❌ 否（只能估风险）           |
+-   建模方式不同
 
----
+    -   AFT模型：直接建模生存时间的对数(log(T))
+
+    -   Cox模型：建模协变量对风险函数的相对影响(比例风险)
+
+-   参数解释不同
+
+    -   AFT模型：参数表示生存时间被“加速”或“减缓”的倍数
+
+    -   Cox模型：参数表示风险函数的相对变化(如风险增加50%)
+
+-   对分布的要求不同
+
+    -   AFT模型：需要指定误差项的分布(如对数正态、Weibull)
+
+    -   Cox模型：无需指定生存时间分布，是半参数模型
+
+-   拟合方法不同
+
+    -   AFT模型：使用极大似然估计(Maximum Likelihood)
+
+    -   Cox模型：使用偏似然估计(Partial Likelihood)
+
+-   预测能力不同
+
+    -   AFT模型：可以预测具体的生存时间
+
+    -   Cox模型：只能估计相对风险，不直接预测时间
+
+------------------------------------------------------------------------
 
 ## 5.2 AFT模型语法结构
 
-```r
+``` r
 library(survival)
-fit_aft <- survreg(Surv(time, status) ~ age + sex, data = lung, dist = "weibull")
-summary(fit_aft)
+survreg(formula, data, dist = "weibull", ...)
 ```
 
-- `dist` 参数指定分布类型：`"weibull"`, `"lognormal"`, `"loglogistic"` 等。
+-   其中 formula 通常写作 Surv(time, status) \~ 变量1 + 变量2 + ...
 
-----
+-   data 指数据框
 
-## 5.3 应用举例: Weibull模型
+-   `dist`
+    指定生存时间的分布："weibull"、"lognormal"、"loglogistic"、"exponential"、"gaussian",
+    默认是"weibull"。
 
-虽然 Kaplan-Meier 方法功能强大，使用广泛，但它主要用于**描述性分析**。
+------------------------------------------------------------------------
 
-🟧 局限性：
+## 5.3 Weibull模型实操
 
-- KM 曲线是**阶梯状**，类似直方图
-- 难以进行协变量调整与推论分析
-
-🟩 Weibull 模型的优势：
-
-- 提供连续、**光滑的生存曲线**
-- 类似于用**线性模型替代直方图**
-- 假设生存时间服从 Weibull 分布，这个假设在许多应用中效果良好
-
----
-
-### 5.3.1 绘制Weibull基线生存曲线
+### 5.3.1 Weibull基线生存曲线
 
 ```{r}
-#| echo: true
-
 library(TH.data)
 data("GBSG2")
+```
 
-# 拟合Weibull分布生存模型（无协变量）
+time：生存时间(天)
+
+cens：删失状态(1=事件发生，0=删失)
+
+horTh：激素治疗hormonal therapy (yes/no)
+
+age：年龄
+
+menostat：绝经状态 menopausal status(绝经前pre和绝经后post)
+
+tsize：肿瘤大小(毫米)
+
+tgrade：肿瘤分级(I/II/III)
+
+pnodes：阳性淋巴结数量 number of positive nodes
+
+progrec：肿瘤组织中孕激素受体的含量(单位：fmol)
+
+estrec：肿瘤组织中雌激素受体的含量(单位：fmol)
+
+------------------------------------------------------------------------
+
+#### 构造绘制基线生存曲线的数据框
+
+```{r}
+
+# 拟合Weibull分布生存模型(无协变量)
 wb <- survreg(Surv(time, cens) ~ 1, data = GBSG2)
 
 # 设置一系列生存概率
@@ -196,256 +238,275 @@ surv_wb <- data.frame(time = t, surv = surv)
 # 查看前几行结果
 head(surv_wb)
 
-# 为可视化准备（添加上下界和标准误占位列，便于ggsurvplot_df绘图）
+# 为可视化准备(添加上下界和标准误占位列，便于ggsurvplot_df绘图)
 surv_wb <- data.frame(time = t, surv = surv, 
                       upper = NA, lower = NA, std.err = NA)
-
-library(survminer)
-# 绘制基线生存曲线
-ggsurvplot_df(fit = surv_wb, surv.geom = geom_line)
 ```
 
+------------------------------------------------------------------------
 
-----
+#### 绘制基线生存曲
 
+```{r}
+library(survminer)
+ggsurvplot_df(fit = surv_wb, surv.geom = geom_line)
+
+```
+
+------------------------------------------------------------------------
+
+#### 比较：Kaplan-Meier 曲线 vs. Weibull 生存曲线
+
+Kaplan-Meier 曲线(KM曲线)
+
+-   呈阶梯状，每当一个事件(如死亡)发生时下降
+
+-   不依赖分布假设，属于非参数方法
+
+-   难以进行协变量的调整与预测性分析
+
+Weibull 模型的生存曲线
+
+-   基于分布假设，构建连续光滑的生存曲线
+
+-   便于纳入协变量，适用于回归分析
+
+-   可视为用参数模型替代非参数估计，提升推断能力
+
+-   Weibull 分布具有灵活性，可模拟不同类型的风险变化
+
+------------------------------------------------------------------------
 
 ### 5.3.2 估计Weibull 模型
 
+#### survreg()
 
 ```{r}
-#| echo: true
 
-wbmod <- survreg(Surv(time, cens) ~ horTh + tsize, data = GBSG2)
+wb_fit <- survreg(Surv(time, cens) ~ horTh + tsize, GBSG2)
 
-summary(wbmod)
+summary(wb_fit)
 ```
 
+------------------------------------------------------------------------
+
+#### 估计结果解读
+
+Weibull模型的表达式
+
+$$
+\log(T) = \mu + \beta_1HorTh + \beta_2tsize + \sigma \epsilon
+$$ 将估计的系数代入上式
+
+sigma = exp(log(scale)) = exp(-0.265) = 0.767
+
+$$
+\log(T) = 7.96070 + 0.31176 \mathrm{horTh} - 0.01218 \mathrm{tsize} + 0.767\epsilon
+$$
+
+-   截距7.960，表示基线人群（未接受激素治疗，肿瘤大小为0）的生存时间是exp(7.960)
+    = 2,864.97天。
+
+-   激素治疗(horThyes)的系数0.312，激素治疗者比未治疗者生存时间延长约
+    exp(0.312) ≈ 1.37倍,
+
+-   肿瘤大小(tsize)系数-0.012，肿瘤每增加 1 毫米，生存时间缩短约
+    exp(-0.012) ≈ 0.988 倍,
+
 ----
 
-#### Weibull模型估计结果解读
+#### log(scale)的解读
 
-
-$$
-\log(T) = 7.96070 + 0.31176 \times \mathrm{horTh(yes)} - 0.01218 \times \mathrm{tsize} + 0.767 \epsilon
-$$
-
-其中 $T$ 为生存时间，$W$ 服从标准极值型（Gumbel）分布。
-
-激素治疗（horThyes）：
-
-系数 $ \beta_1 = 0.31176 $，加速因子为 $ e^{-\beta_1} = e^{-0.31176} \approx 0.732 $。
-含义：接受激素治疗（horThyes=1）使生存时间延长至未接受治疗（horThyes=0）的 $ e^{0.31176} \approx 1.366 $ 倍（即延长约36.6%）。
-
-肿瘤大小（tsize）：
-
-系数 $ \beta_2 = -0.01218 $，加速因子为 $ e^{-\beta_2} = e^{0.01218} \approx 1.012 $。
-含义：肿瘤大小每增加 1 毫米，生存时间缩短至原来的 $ e^{-0.01218} \approx 0.988 $ 倍（即缩短约1.2%）。
-
-Scale=0.767：Weibull分布的形状参数，<1时说明风险随时间增加。
+-   scale 是 Weibull 分布在
+    AFT模型中的尺度参数，影响生存时间的“拉伸程度”。Log(scale) = -0.267,
+    scale = exp(-0.267) = 0.766. Weibull分布的形状参数shape =
+    1/scale，scale\<1, shape \> 1,表示风险随时间递增。
 
 Weibull分布的形状参数shape = 1/scale
-scale < 1, shape > 1，风险随时间递增
-scale > 1, shape < 1，风险随时间递减
 
-----
+-   scale \< 1, shape \> 1，风险随时间递增
+
+-   scale = 1, 风险随时间不变，退化为指数模型
+
+-   scale \> 1, shape \< 1，风险随时间递减
+
+------------------------------------------------------------------------
+
+似然比检验：检验模型的整体显著性
+
+-   Loglik(model)= -2623.2，Loglik(intercept only)=
+    -2637.3：表示含协变量模型 vs. 截距模型的对数似然值。
+
+-   Chisq= 28.17 on 2 degrees of freedom, p=
+    7.6e-07：似然比检验表明两个协变量联合显著（整体模型有效）。
+
+------------------------------------------------------------------------
 
 ### 5.3.3 从 Weibull 模型中计算生存时间指标
 
-#### 计算中位生存时间（p=0.5）
+#### 计算中位生存时间
 
 ```{r}
-#| echo: true
+#| code-fold: true
 
-# 计算tsize的中位数
+# 计算肿瘤大小变量 tsize 的中位数（排除缺失值）
 med_tsize <- median(GBSG2$tsize, na.rm = TRUE)
 
-# 取激素治疗变量的常见取值，例如 "yes" 或 "no"
-# 如果你想只看一组（如“yes”），可以写成：
-your_newdata <- data.frame(horTh = "yes", tsize = med_tsize)
-
-# 如果想看两组（激素治疗和未治疗）都展示：
-your_newdata <- data.frame(
+# 创建一个新的数据框
+new_df <- data.frame(
   horTh = levels(GBSG2$horTh),
   tsize = med_tsize
 )
 
-your_newdata
+new_df
+
+# 预测中位数生存时间（50th percentile）
+pred_median <- predict(wb_fit, newdata = new_df, 
+                       type = "quantile",  #type = "quantile"表示预测的是生存时间的分位数
+                       p = 0.5, 
+                       se.fit = TRUE)
 
 
-# 计算中位生存时间（p=0.5）
-predict(wbmod, type = "quantile", p = 0.5, newdata = your_newdata)
+new_df_pred <- data.frame(
+  horTh = new_df$horTh,
+  tsize = new_df$tsize,
+  median_time = pred_median$fit
+)
+new_df_pred
+
 ```
 
-----
+------------------------------------------------------------------------
 
-#### 计算分位生存时间
-
+#### 计算分位数生存时间
 
 ```{r}
-#| echo: true
+#| code-fold: true
+# 执行预测：0.25, 0.5, 0.75 分位数的生存时间
+pred_mat <- predict(
+  wb_fit,
+  type = "quantile",
+  p = c(0.25, 0.5, 0.75),
+  newdata = new_df
+)
 
-#第25、50、75百分位生存时间
+# 整理为数据框，直接加上变量名
+pred_df <- as.data.frame(pred_mat)
+colnames(pred_df) <- c("q25", "q50", "q75")
+pred_df$horTh <- new_df$horTh  # 添加分组标签
 
-probs <- c(0.25, 0.5, 0.75)
-predict(wbmod, type = "quantile", p = probs, newdata = your_newdata)
+# 查看结果
+pred_df
+
 ```
 
----
-
-#### 计算特定生存概率下的生存时间
-
-```{r}
-#| echo: true
-
-predict(wbmod, type = "quantile", p = 0.8, newdata = your_newdata)
-
-
-```
-
-
-
----
+------------------------------------------------------------------------
 
 ### 5.3.4 绘制不同组别的生存曲线
 
 ```{r}
-#| echo: true
+# 1.拟合模型
+wb_fit <- survreg(Surv(time, cens) ~ horTh + tsize, GBSG2)
 
-# 构造不同激素治疗和肿瘤大小组合的虚拟患者数据
-newdat <- expand.grid(
-  horTh = levels(GBSG2$horTh),
-  tsize = quantile(GBSG2$tsize, probs = c(0.25, 0.5, 0.75)))
-newdat
+# 2.虚拟患者数据
+patients <- expand.grid(
+  horTh = c("no", "yes"),
+  tsize = as.numeric(quantile(GBSG2$tsize, c(0.25, 0.5, 0.75)))
+)
 
-# 生成一组生存概率序列
-surv <- seq(0.99, 0.01, by = -0.01)
+# 3.生存概率
+probs <- seq(0.99, 0.01, -0.01)
 
-# 计算每组组合下的生存时间分位数
-t <- predict(wbmod, type = "quantile", p = 1 - surv,
-             newdata = newdat)
-
-# 查看t的行列数（组合数 × 生存概率数）
-dim(t)
-
-# 合并虚拟患者信息和生存时间
-surv_wbmod_wide <- cbind(newdat, t)
+# 4.计算生存时间
+times <- predict(wb_fit, type = "quantile", p = 1 - probs, newdata = patients)
 ```
 
-----
+------------------------------------------------------------------------
 
 ```{r}
-#| echo: true
+#| code-fold: true
+# 5. 转成长数据
+plotdata <- data.frame(
+  horTh = rep(patients$horTh, each = length(probs)),
+  tsize = rep(patients$tsize, each = length(probs)),
+  time = as.vector(t(times)),
+  surv = rep(probs, times = nrow(patients))
+)
 
+str(plotdata)
 
-# 转换为长格式，便于绘图
-library(reshape2)
-surv_wbmod <- melt(surv_wbmod_wide, id.vars = c("horTh", "tsize"), 
-                   variable.name = "surv_id", value.name = "time")
-
-# 根据surv_id添加对应的生存概率
-surv_wbmod$surv <- surv[as.numeric(surv_wbmod$surv_id)]
-
-# 增加绘图所需的占位列
-surv_wbmod[, c("upper", "lower", "std.err", "strata")] <- NA
-
-# 查看数据结构
-str(surv_wbmod)
-
-# 绘制不同激素治疗和肿瘤大小下的Weibull生存曲线
-ggsurvplot_df(surv_wbmod, surv.geom = geom_line,
-              linetype = "horTh", color = "tsize", 
-              legend.title = NULL)
 ```
 
-----
+------------------------------------------------------------------------
+
+```{r}
+#| code-fold: true
+# 6. 画图
+ggplot(plotdata, aes(x = time, y = surv, color = factor(tsize), linetype = horTh)) +
+  geom_line(size = 1) +
+  labs(x = "Time", y = "Survival probability",
+       color = "Tumor size", linetype = "Hormone therapy",
+       title = "Survival curves for 6 patients") +
+  theme_minimal()
+```
+
+---
 
 ## 5.4 其他AFT模型
 
+### 指数模型(Exponential)
+
 ```{r}
 #| echo: true
 
-# 指数模型（Exponential）
 fit_exp <- survreg(Surv(time, cens) ~ horTh + tsize, data = GBSG2, dist = "exponential")
+
 summary(fit_exp)
+```
 
+--
 
-# 对数正态模型（Lognormal）
+### 对数正态模型(Lognormal)
+
+```{r}
+
 fit_lnorm <- survreg(Surv(time, cens) ~ horTh + tsize, data = GBSG2, dist = "lognormal")
 summary(fit_lnorm)
 
-
 ```
-----
 
-## 如何选择？
+------------------------------------------------------------------------
 
-Exponential（指数模型）
+### 如何选择？
 
-假设风险率（hazard）是恒定的，即事件发生的速率不随时间变化。适合于“记忆无关”的寿命过程，如某些电子零件的寿命。
+检查 $\log(T)$的分布：
 
+-   正态分布：选择Log-Normal模型
 
-Weibull（韦布尔模型）
+-   逻辑斯蒂分布：选择Log-Logistic模型
 
+-   极值分布：选择Weibull模型或Exponential模型
 
-适合于大多数工程、医学寿命数据。
+```{r}
+#| code-fold: true
+# 提取完整观测（未删失）样本
+GBSG2 %>%
+  filter(cens == 1) %>%                # 仅保留未删失数据
+  mutate(logtime = log(time)) %>%     # 计算 log(生存时间)
+  ggplot(aes(x = logtime)) +          # ggplot 不能用 %>% 链接
+  geom_histogram(binwidth = 0.2, fill = "#69b3a2", color = "white") +
+  labs(
+    title = "log(生存时间) 的直方图",
+    x = "log(生存时间)",
+    y = "频数"
+  ) +
+  theme_minimal()
+  
+```
 
-Lognormal（对数正态模型）
-事件发生时间的对数服从正态分布。
-当生存时间分布右偏、风险率呈现先增后减（非单调）时适用。适合于某些生物学和社会学过程。
-
-
----
-检查 $ \log(T) $ 的分布：
-
-指数分布：$ \log(T) $ 偏斜，符合极值分布。
-Weibull 分布：$ \log(T) $ 符合极值分布，形状由 $ k = 1/\sigma $ 决定。
-对数正态分布：$ \log(T) $ 近似正态分布（对称、钟形）。
-
----
+------------------------------------------------------------------------
 
 拟合三种分布，比较 AIC 或 BIC，选择值最低的模型。
-
----
-
-
-
-Weibull 分布
-
-风险函数：灵活，可单调递增（$   k > 1   $）、恒定（$   k = 1   $，等价于指数分布）或递减（$   k < 1   $），其中 $   k = 1/\sigma   $ 是形状参数。
-数学形式：$   \log(T) = \beta_0 + \beta_1 X_1 + \dots + \beta_p X_p + \sigma \epsilon   $，其中 $   \epsilon \sim \text{标准极值分布}   $。
-适用场景：风险随时间单调变化，例如老化系统（风险随时间增加）或早期失效较多的系统（风险随时间减少）。
-特点：比指数分布更灵活，可通过形状参数 $   k   $ 适应多种风险模式。
-
-
----
-
-指数分布 (Exponential)
-
-风险函数：恒定风险（hazard rate），即 $   h(t) = \lambda   $，事件发生概率不随时间变化。
-
-数学形式：在 AFT 框架下，
-$   \log(T) = \beta_0 + \beta_1 X_1 + \dots + \beta_p X_p + \epsilon   $，其中 $   \epsilon \sim \text{标准极值分布}   $，尺度参数 $   \sigma = 1   $
-
-适用场景：事件发生率随时间保持稳定，例如某些机械系统的随机故障，或某些短期随访研究中事件发生概率不随时间变化的情况
-
-特点：最简单的分布，假设“无记忆性”（memoryless property），即过去的时间不影响未来事件概率。
-
----
-
-对数正态分布 (Lognormal)
-
-风险函数：非单调，通常先上升后下降（类似倒 U 形）。
-数学形式：$ \log(T) \sim N(\mu, \sigma^2) $，其中 $ \mu = \beta_0 + \beta_1 X_1 + \dots + \beta_p X_p $，误差项 $ \epsilon \sim N(0, \sigma^2) $。
-适用场景：生存时间呈现偏态分布，事件风险在某一时间段内较高后逐渐下降，例如某些疾病的复发风险或生物学过程（如细胞分裂时间）。
-特点：适合生存时间对数呈正态分布的数据，模型结果易于解释为时间的中位数变化。
-
----
-
-模型拟合与比较
-方法：分别拟合 Exponential、Lognormal 和 Weibull 模型，比较模型拟合优度：
-使用 AIC（赤池信息准则） 或 BIC（贝叶斯信息准则）：值越小的模型拟合更优。
-
-选择AIC最低的模型，若差异不大，再结合理论和解释性选择。
 
 ```{r}
 
@@ -457,11 +518,20 @@ fit_lnorm <- survreg(Surv(time, cens) ~ horTh + tsize, data = GBSG2, dist = "log
 
 AIC(fit_weibull, fit_exp, fit_lnorm)
 
-
 ```
 
+------------------------------------------------------------------------
 
+# 总结
 
+-   模型拟合：使用 survreg(Surv(time, cens) \~ horTh + tsize, data, dist
+    = "weibull") 拟合AFT模型
 
+-   生存曲线：predict(model, type = "quantile")
+    计算时间，ggsurvplot_df() 或 ggplot() 绘制曲线
 
+-   参数解读：回归系数通过 exp(系数) 转换为生存时间倍数，scale
+    决定Weibull形状
 
+-   模型选择：检查 log(time) 分布直方图，比较 AIC()
+    选择最佳分布（如Weibull、指数）

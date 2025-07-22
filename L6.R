@@ -50,7 +50,11 @@ Melanoma <-
 
 head(Melanoma) # 查看数据前6行，检查数据结构
 
+# 查看缺失值
+colSums(is.na(Melanoma))
 
+# 查看status的分布
+table(Melanoma$status)
 
 # ### 6.3.3 计算CIF ---------------------------------------------------------
 
@@ -75,7 +79,7 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
 survminer::ggcompetingrisks(
   fit = survfit(Surv(time, status) ~ 1, data = Melanoma),
   data = Melanoma,
-  palette = "jco"
+  palette = "njem"
 )
 
 # 查看所有调色板名称及类型
@@ -86,7 +90,7 @@ display.brewer.all()
 ggcompetingrisks(
   fit = survfit(Surv(time, status) ~ 1, data = Melanoma),
   data = Melanoma,
-  palette = "Set3"
+  palette = "Accent"
 )
 
 ggcompetingrisks(
@@ -102,7 +106,7 @@ ggcompetingrisks(
 tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
   ggsurvfit::ggcuminc(col = "#B3D4FC") + 
   labs(x = "Days") + 
-  add_confidence_interval() + # 添加置信区间
+  #add_confidence_interval() + # 添加置信区间
   add_risktable() # 风险表
 
 # 绘制 Failure type "2"的累积发生概率（CIF）曲线
@@ -120,7 +124,7 @@ tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>%
 
 tidycmprsk::cuminc(Surv(time, status) ~ 1, data = Melanoma) %>% 
   ggcuminc(outcome = c("1", "2")) +
-  aes(color = outcome) +       # 强制美学映射
+  aes(color = outcome) +       # 强制美学映射 aesthetic ggplot2
   scale_color_manual(values = c("1" = "#B3D4FC", 
                                 "2" = "#F4C2C2"),
                      labels = c("death form Melanoma", 
@@ -137,11 +141,9 @@ tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>%
   add_confidence_interval() +
   add_risktable()
 
-
 # 6.3.5 灰色检验Gray Test -----------------------------------------------------
 
-# Gray检验：比较两个或多个组在特定结局（某一竞争风险事件）上的累积发生率是否存在显著差异。
-# p<0.05, 存在显著差异
+# Gray检验：比较不同组之间检验的是目标事件累积发生概率(cumulative incidence)的统计检验方法。
 
 tidycmprsk::cuminc(Surv(time, status) ~ ulcer, data = Melanoma) %>% 
   tidycmprsk::tbl_cuminc(
@@ -188,7 +190,6 @@ merged_tbl <- tbl_merge(
 
 merged_tbl
 
-
 ## 将表格输出到WORD文档 ------------------------------------------------------------
 
 library(flextable)
@@ -205,8 +206,7 @@ doc <- read_docx() %>%
 print(doc, target = "FineGray_models.docx")
 
 
-
-# 6.3.7 系数森林图 -------------------------------------------------------------
+# 6.3.7 HR系数森林图 -------------------------------------------------------------
 
 fit <- tidycmprsk::crr(Surv(time, status) ~ sex + age + 
                          year + thickness + ulcer, data = Melanoma)
@@ -217,14 +217,20 @@ tbl$term <- reorder(tbl$term,
                     tbl$estimate, 
                     decreasing = FALSE)
 
+levels(tbl$term)
+
 tbl %>% arrange(-estimate)
 
 names(tbl)
 
 ggplot(tbl, aes(y = term, x = estimate)) +
   geom_point() +
-  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
-  geom_vline(xintercept = 1, linetype = "dashed", color = "gray") +
+  geom_errorbarh(aes(xmin = conf.low, 
+                     xmax = conf.high), 
+                 height = 0.2) +
+  geom_vline(xintercept = 1, 
+             linetype = "dashed", 
+             color = "gray") +
   xlab("Subdistribution Hazard Ratio (HR)") +
   ylab("") +
   theme_minimal()
@@ -233,14 +239,17 @@ ggplot(tbl, aes(y = term, x = estimate)) +
 # 6.3.8 对比竞争风险模型和Cox模型 ----------------------------------------------------
 
 # 竞争风险回归（Fine-Gray模型）
-fit_fg <- tidycmprsk::crr(Surv(time, status) ~ sex + age, data = Melanoma)
+fit_fg <- tidycmprsk::crr(Surv(time, status) ~ sex + age, 
+                          data = Melanoma)
 
 tbl_fg <- tbl_regression(fit_fg, exp = TRUE, label = list(sex = "Sex", age = "Age")) %>%
   modify_header(label = "**变量**") %>%
   modify_caption("**Fine-Gray 竞争风险回归**")
 
 # Cox回归
-fit_cox <- coxph(Surv(time, ifelse(status == 1, 1, 0)) ~ sex + age, data = Melanoma)
+fit_cox <- coxph(Surv(time, ifelse(status == 1, 1, 0)) ~ sex + age, 
+                 data = Melanoma)
+
 tbl_cox <- tbl_regression(fit_cox, exp = TRUE, label = list(sex = "Sex", age = "Age")) %>%
   modify_header(label = "**变量**") %>%
   modify_caption("**Cox 比例风险模型**")

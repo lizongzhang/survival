@@ -9,7 +9,7 @@
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.6.42">
 
-  <meta name="author" content="Lzz">
+  <meta name="author" content="李宗璋">
   <meta name="dcterms.date" content="2025-07-19">
   <title>R生存分析 – L6 竞争风险模型</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -243,7 +243,7 @@ z-index: 1000;">
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-<a href="https://space.bilibili.com/590872906/">Lzz</a> 
+<a href="https://space.bilibili.com/590872906/">李宗璋</a> 
 </div>
 </div>
 </div>
@@ -272,10 +272,7 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-</section>
-<section>
-<section id="竞争风险模型设定" class="title-slide slide level1 center">
-<h1>6.1.1 竞争风险模型设定</h1>
+<h3 id="竞争风险模型设定">6.1.1 竞争风险模型设定</h3>
 <p>竞争风险模型假设每个研究对象在随访期间仅会经历一种事件（如死亡、复发、失访等），事件之间相互排斥。</p>
 <ul>
 <li><strong>累积发生率函数（Cumulative Incidence Function, CIF）</strong>：估计特定结局在给定时间发生的概率。</li>
@@ -300,18 +297,15 @@ z-index: 1000;">
 <section class="slide level2">
 
 <h4 id="竞争风险模型数学框架">竞争风险模型数学框架</h4>
-<p>累积发生概率（CIF） 对于目标事件 <span class="math inline">\(k\)</span> <span class="math inline">\(，CIF 定义为：\)</span><span class="math inline">\(CIF_k(t) = P(T \leq t, \text{事件类型} = k)\)</span>$ 其中 <span class="math inline">\(T\)</span> 是事件发生时间，CIF 考虑了所有竞争事件的发生概率。</p>
-<p>Fine-Gray 模型基于亚分布风险函数(Subdistribution Hazard)，假设协变量对目标事件的亚分布风险有比例效应： <span class="math display">\[h_k(t | X) = h_{k0}(t) \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)\]</span></p>
-<p><span class="math inline">\(h_k(t\|X)\)</span>：目标事件<span class="math inline">\(k\)</span>的亚分布风险。</p>
-<p><span class="math inline">\(h_{k0}(t)\)</span>：基线亚分布风险。</p>
-<p><span class="math inline">\(\beta_i\)</span>：协变量<span class="math inline">\(X_i\)</span> 的回归系数，解释变量对 CIF 的影响。</p>
+<p>累积发生概率（CIF） 对于目标事件 <span class="math inline">\(k\)</span> <span class="math inline">\(，CIF 定义为：\)</span><span class="math inline">\(CIF_k(t) = P(T \leq t, \text{事件类型} = k)\)</span>其中 <span class="math inline">\(T\)</span> 是事件发生时间，CIF 考虑了所有竞争事件的发生概率。</p>
+<p>Fine-Gray 模型基于亚分布风险函数(Subdistribution Hazard)，假设协变量对目标事件的亚分布风险有比例效应： <span class="math display">\[h_k(t|X) = h_{k0}(t) \exp(\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_p X_p)\]</span></p>
+<p><span class="math inline">\(h_k(t|X)\)</span>：目标事件<span class="math inline">\(k\)</span>的亚分布风险。</p>
+<p><span class="math inline">\(h_{k0}(t)\)</span>：目标事件<span class="math inline">\(k\)</span>的基线亚分布风险。</p>
+<p><span class="math inline">\(\beta_i\)</span>：协变量<span class="math inline">\(X_i\)</span>的回归系数，解释变量对 CIF 的影响。</p>
 </section>
 <section class="slide level2">
 
-</section></section>
-<section>
-<section id="竞争风险模型优势" class="title-slide slide level1 center">
-<h1>6.1.2 竞争风险模型优势</h1>
+<h3 id="竞争风险模型优势">6.1.2 竞争风险模型优势</h3>
 <ul>
 <li><p><strong>真实反映多结局过程</strong>：同时考虑各类风险事件，避免高估单一结局的发生率。</p></li>
 <li><p><strong>避免传统生存分析偏倚</strong>：Kaplan-Meier等方法在存在竞争风险时会高估目标事件概率，竞争风险模型能准确估计。</p></li>
@@ -321,10 +315,7 @@ z-index: 1000;">
 </section>
 <section class="slide level2">
 
-</section></section>
-<section>
-<section id="竞争风险模型适用场景" class="title-slide slide level1 center">
-<h1>6.1.3 竞争风险模型适用场景</h1>
+<h3 id="竞争风险模型适用场景">6.1.3 竞争风险模型适用场景</h3>
 <ul>
 <li><p><strong>医学随访研究</strong>：如肿瘤患者因肿瘤死亡与非肿瘤死亡是竞争风险。</p></li>
 <li><p><strong>器官移植</strong>：移植失败和患者死亡互为竞争风险。</p></li>
@@ -332,9 +323,10 @@ z-index: 1000;">
 <li><p><strong>失访/退出研究</strong>：失访与终点事件互为竞争风险时。</p></li>
 </ul>
 </section>
-<section id="竞争风险模型数据要求" class="slide level2">
-<h2>6.1.4 竞争风险模型数据要求</h2>
-<h3 id="对样本容量的要求">对样本容量的要求</h3>
+<section class="slide level2">
+
+<h3 id="竞争风险模型数据要求">6.1.4 竞争风险模型数据要求</h3>
+<h4 id="对样本容量的要求">对样本容量的要求</h4>
 <ul>
 <li><p>事件数而非总样本数更关键</p>
 <ul>
@@ -345,7 +337,7 @@ z-index: 1000;">
 <li><p>目标事件的发生概率明显高于竞争事件的发生概率。</p></li>
 <li><p>某些竞争事件发生率极低时，模型参数可能估计不稳定，建议合并类别或减少变量数量。</p></li>
 </ul>
-<h3 id="对变量个数的要求">对变量个数的要求</h3>
+<h4 id="对变量个数的要求">对变量个数的要求</h4>
 <ul>
 <li>通用经验：“事件数/变量数比”建议≥10</li>
 </ul>
@@ -415,6 +407,19 @@ z-index: 1000;">
 5  185      1   1  52 1965     12.08     1
 6  204      1   1  28 1971      4.84     1</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="co"># 查看缺失值</span></span>
+<span id="cb6-2"><a></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(Melanoma))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     time    status       sex       age      year thickness     ulcer 
+        0         0         0         0         0         0         0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="co"># 查看status的分布</span></span>
+<span id="cb8-2"><a></a><span class="fu">table</span>(Melanoma<span class="sc">$</span>status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  0   1   2 
+134  57  14 </code></pre>
+</div>
 </div>
 </section>
 <section class="slide level2">
@@ -422,9 +427,9 @@ z-index: 1000;">
 <h3 id="计算cif">6.3.3 计算CIF</h3>
 <p>计算观测到到目标事件/竞争事件的累积发生率</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="co"># 计算目标事件/竞争事件的累积发生概率（CIF）</span></span>
-<span id="cb6-2"><a></a>cif <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma)</span>
-<span id="cb6-3"><a></a>cif</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="co"># 计算目标事件/竞争事件的累积发生概率（CIF）</span></span>
+<span id="cb10-2"><a></a>cif <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma)</span>
+<span id="cb10-3"><a></a>cif</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>time    n.risk   estimate   std.error   95% CI          
 1,000   171      0.127      0.023       0.086, 0.177    
@@ -456,30 +461,30 @@ z-index: 1000;">
 <h4 id="计算分组cif">计算分组CIF</h4>
 <p>按照是否有溃疡(ulcer)分为两组，计算这两个组别的CIF</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="co"># 按ulcer分组，计算并展示5年（1826.25天）时点的CIF表，并进行组间比较</span></span>
-<span id="cb9-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-3"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
-<span id="cb9-4"><a></a>    <span class="at">times =</span> <span class="fl">1826.25</span>, </span>
-<span id="cb9-5"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-6"><a></a>  <span class="fu">add_p</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co"># 按ulcer分组，计算并展示5年（1826.25天）时点的CIF表，并进行组间比较</span></span>
+<span id="cb13-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-3"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
+<span id="cb13-4"><a></a>    <span class="at">times =</span> <span class="fl">1826.25</span>, </span>
+<span id="cb13-5"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-6"><a></a>  <span class="fu">add_p</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="fodiupnyrn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#fodiupnyrn table {
+<div id="ylkrwwtkwz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ylkrwwtkwz table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#fodiupnyrn thead, #fodiupnyrn tbody, #fodiupnyrn tfoot, #fodiupnyrn tr, #fodiupnyrn td, #fodiupnyrn th {
+#ylkrwwtkwz thead, #ylkrwwtkwz tbody, #ylkrwwtkwz tfoot, #ylkrwwtkwz tr, #ylkrwwtkwz td, #ylkrwwtkwz th {
   border-style: none;
 }
 
-#fodiupnyrn p {
+#ylkrwwtkwz p {
   margin: 0;
   padding: 0;
 }
 
-#fodiupnyrn .gt_table {
+#ylkrwwtkwz .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -505,12 +510,12 @@ z-index: 1000;">
   border-left-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_caption {
+#ylkrwwtkwz .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#fodiupnyrn .gt_title {
+#ylkrwwtkwz .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -522,7 +527,7 @@ z-index: 1000;">
   border-bottom-width: 0;
 }
 
-#fodiupnyrn .gt_subtitle {
+#ylkrwwtkwz .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -534,7 +539,7 @@ z-index: 1000;">
   border-top-width: 0;
 }
 
-#fodiupnyrn .gt_heading {
+#ylkrwwtkwz .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -546,13 +551,13 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_bottom_border {
+#ylkrwwtkwz .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_col_headings {
+#ylkrwwtkwz .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -567,7 +572,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_col_heading {
+#ylkrwwtkwz .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -587,7 +592,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#fodiupnyrn .gt_column_spanner_outer {
+#ylkrwwtkwz .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -599,15 +604,15 @@ z-index: 1000;">
   padding-right: 4px;
 }
 
-#fodiupnyrn .gt_column_spanner_outer:first-child {
+#ylkrwwtkwz .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#fodiupnyrn .gt_column_spanner_outer:last-child {
+#ylkrwwtkwz .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#fodiupnyrn .gt_column_spanner {
+#ylkrwwtkwz .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -619,11 +624,11 @@ z-index: 1000;">
   width: 100%;
 }
 
-#fodiupnyrn .gt_spanner_row {
+#ylkrwwtkwz .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#fodiupnyrn .gt_group_heading {
+#ylkrwwtkwz .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -649,7 +654,7 @@ z-index: 1000;">
   text-align: left;
 }
 
-#fodiupnyrn .gt_empty_group_heading {
+#ylkrwwtkwz .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -664,15 +669,15 @@ z-index: 1000;">
   vertical-align: middle;
 }
 
-#fodiupnyrn .gt_from_md > :first-child {
+#ylkrwwtkwz .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#fodiupnyrn .gt_from_md > :last-child {
+#ylkrwwtkwz .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#fodiupnyrn .gt_row {
+#ylkrwwtkwz .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -691,7 +696,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#fodiupnyrn .gt_stub {
+#ylkrwwtkwz .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -704,7 +709,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#fodiupnyrn .gt_stub_row_group {
+#ylkrwwtkwz .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -718,15 +723,15 @@ z-index: 1000;">
   vertical-align: top;
 }
 
-#fodiupnyrn .gt_row_group_first td {
+#ylkrwwtkwz .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#fodiupnyrn .gt_row_group_first th {
+#ylkrwwtkwz .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#fodiupnyrn .gt_summary_row {
+#ylkrwwtkwz .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -736,16 +741,16 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#fodiupnyrn .gt_first_summary_row {
+#ylkrwwtkwz .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_first_summary_row.thick {
+#ylkrwwtkwz .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#fodiupnyrn .gt_last_summary_row {
+#ylkrwwtkwz .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -755,7 +760,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_grand_summary_row {
+#ylkrwwtkwz .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -765,7 +770,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#fodiupnyrn .gt_first_grand_summary_row {
+#ylkrwwtkwz .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -775,7 +780,7 @@ z-index: 1000;">
   border-top-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_last_grand_summary_row_top {
+#ylkrwwtkwz .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -785,11 +790,11 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_striped {
+#ylkrwwtkwz .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#fodiupnyrn .gt_table_body {
+#ylkrwwtkwz .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -798,7 +803,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_footnotes {
+#ylkrwwtkwz .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -812,7 +817,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_footnote {
+#ylkrwwtkwz .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -821,7 +826,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#fodiupnyrn .gt_sourcenotes {
+#ylkrwwtkwz .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -835,7 +840,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#fodiupnyrn .gt_sourcenote {
+#ylkrwwtkwz .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -843,72 +848,72 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#fodiupnyrn .gt_left {
+#ylkrwwtkwz .gt_left {
   text-align: left;
 }
 
-#fodiupnyrn .gt_center {
+#ylkrwwtkwz .gt_center {
   text-align: center;
 }
 
-#fodiupnyrn .gt_right {
+#ylkrwwtkwz .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#fodiupnyrn .gt_font_normal {
+#ylkrwwtkwz .gt_font_normal {
   font-weight: normal;
 }
 
-#fodiupnyrn .gt_font_bold {
+#ylkrwwtkwz .gt_font_bold {
   font-weight: bold;
 }
 
-#fodiupnyrn .gt_font_italic {
+#ylkrwwtkwz .gt_font_italic {
   font-style: italic;
 }
 
-#fodiupnyrn .gt_super {
+#ylkrwwtkwz .gt_super {
   font-size: 65%;
 }
 
-#fodiupnyrn .gt_footnote_marks {
+#ylkrwwtkwz .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#fodiupnyrn .gt_asterisk {
+#ylkrwwtkwz .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#fodiupnyrn .gt_indent_1 {
+#ylkrwwtkwz .gt_indent_1 {
   text-indent: 5px;
 }
 
-#fodiupnyrn .gt_indent_2 {
+#ylkrwwtkwz .gt_indent_2 {
   text-indent: 10px;
 }
 
-#fodiupnyrn .gt_indent_3 {
+#ylkrwwtkwz .gt_indent_3 {
   text-indent: 15px;
 }
 
-#fodiupnyrn .gt_indent_4 {
+#ylkrwwtkwz .gt_indent_4 {
   text-indent: 20px;
 }
 
-#fodiupnyrn .gt_indent_5 {
+#ylkrwwtkwz .gt_indent_5 {
   text-indent: 25px;
 }
 
-#fodiupnyrn .katex-display {
+#ylkrwwtkwz .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#fodiupnyrn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#ylkrwwtkwz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -963,11 +968,11 @@ z-index: 1000;">
 <h4 id="survminerggcompetingrisks">survminer::ggcompetingrisks()</h4>
 <p>比较各种结局的累积发生率随时间的变化</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a>survminer<span class="sc">::</span><span class="fu">ggcompetingrisks</span>(</span>
-<span id="cb10-2"><a></a>  <span class="at">fit =</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma),</span>
-<span id="cb10-3"><a></a>  <span class="at">data =</span> Melanoma,</span>
-<span id="cb10-4"><a></a>  <span class="at">palette =</span> <span class="st">"jco"</span></span>
-<span id="cb10-5"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a>survminer<span class="sc">::</span><span class="fu">ggcompetingrisks</span>(</span>
+<span id="cb14-2"><a></a>  <span class="at">fit =</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma),</span>
+<span id="cb14-3"><a></a>  <span class="at">data =</span> Melanoma,</span>
+<span id="cb14-4"><a></a>  <span class="at">palette =</span> <span class="st">"jco"</span></span>
+<span id="cb14-5"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -992,10 +997,10 @@ z-index: 1000;">
 </ul></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">library</span>(RColorBrewer)</span>
-<span id="cb11-2"><a></a></span>
-<span id="cb11-3"><a></a><span class="co"># 查看所有调色板名称及类型</span></span>
-<span id="cb11-4"><a></a><span class="fu">display.brewer.all</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb15-2"><a></a></span>
+<span id="cb15-3"><a></a><span class="co"># 查看所有调色板名称及类型</span></span>
+<span id="cb15-4"><a></a><span class="fu">display.brewer.all</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -1004,27 +1009,27 @@ z-index: 1000;">
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="co"># 使用palette = "Set3"</span></span>
-<span id="cb12-2"><a></a><span class="fu">ggcompetingrisks</span>(</span>
-<span id="cb12-3"><a></a>  <span class="at">fit =</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma),</span>
-<span id="cb12-4"><a></a>  <span class="at">data =</span> Melanoma,</span>
-<span id="cb12-5"><a></a>  <span class="at">palette =</span> <span class="st">"Set3"</span></span>
-<span id="cb12-6"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="co"># 使用palette = "Set3"</span></span>
+<span id="cb16-2"><a></a><span class="fu">ggcompetingrisks</span>(</span>
+<span id="cb16-3"><a></a>  <span class="at">fit =</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma),</span>
+<span id="cb16-4"><a></a>  <span class="at">data =</span> Melanoma,</span>
+<span id="cb16-5"><a></a>  <span class="at">palette =</span> <span class="st">"Set3"</span></span>
+<span id="cb16-6"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
 <img data-src="L6slide_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
-<h4 id="ggsurvfitggcumic">ggsurvfit::ggcumic()</h4>
+<h4 id="ggsurvfitggcuminc">ggsurvfit::ggcuminc()</h4>
 <h5 id="目标事件1的cif曲线">目标事件1的CIF曲线</h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="co">#绘制 Failure type "1"（也就是 type 1，对应 status==1 的事件）的累积发生概率</span></span>
-<span id="cb13-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-3"><a></a>  ggsurvfit<span class="sc">::</span><span class="fu">ggcuminc</span>(<span class="at">col =</span> <span class="st">"#B3D4FC"</span>) <span class="sc">+</span> </span>
-<span id="cb13-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
-<span id="cb13-5"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span> <span class="co"># 添加置信区间</span></span>
-<span id="cb13-6"><a></a>  <span class="fu">add_risktable</span>() <span class="co"># 风险表</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a><span class="co">#绘制 Failure type "1"（也就是 type 1，对应 status==1 的事件）的累积发生概率</span></span>
+<span id="cb17-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a></a>  ggsurvfit<span class="sc">::</span><span class="fu">ggcuminc</span>(<span class="at">col =</span> <span class="st">"#B3D4FC"</span>) <span class="sc">+</span> </span>
+<span id="cb17-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
+<span id="cb17-5"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span> <span class="co"># 添加置信区间</span></span>
+<span id="cb17-6"><a></a>  <span class="fu">add_risktable</span>() <span class="co"># 风险表</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="L6slide_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch"></section>
@@ -1032,12 +1037,12 @@ z-index: 1000;">
 
 <h5 id="竞争事件2cif曲线">竞争事件2CIF曲线</h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="co"># 绘制 Failure type "2"的累积发生概率（CIF）曲线</span></span>
-<span id="cb14-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="st">"2"</span>, <span class="at">color =</span> <span class="st">"#D7B9D5"</span>) <span class="sc">+</span> </span>
-<span id="cb14-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
-<span id="cb14-5"><a></a>  <span class="co">#add_confidence_interval() +</span></span>
-<span id="cb14-6"><a></a>  <span class="fu">add_risktable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a><span class="co"># 绘制 Failure type "2"的累积发生概率（CIF）曲线</span></span>
+<span id="cb18-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="st">"2"</span>, <span class="at">color =</span> <span class="st">"#D7B9D5"</span>) <span class="sc">+</span> </span>
+<span id="cb18-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
+<span id="cb18-5"><a></a>  <span class="co">#add_confidence_interval() +</span></span>
+<span id="cb18-6"><a></a>  <span class="fu">add_risktable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="L6slide_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch"></section>
@@ -1045,11 +1050,11 @@ z-index: 1000;">
 
 <h5 id="多结局cif曲线">多结局CIF曲线</h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="co"># 多种结局（outcome=1,2）的CIF曲线</span></span>
-<span id="cb15-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span></span>
-<span id="cb15-4"><a></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span> </span>
-<span id="cb15-5"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="co"># 多种结局（outcome=1,2）的CIF曲线</span></span>
+<span id="cb19-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span></span>
+<span id="cb19-4"><a></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb19-5"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="L6slide_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
@@ -1059,17 +1064,17 @@ z-index: 1000;">
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-2"><a></a><span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span></span>
-<span id="cb16-3"><a></a>  <span class="fu">aes</span>(<span class="at">color =</span> outcome) <span class="sc">+</span>       <span class="co"># 强制美学映射</span></span>
-<span id="cb16-4"><a></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"1"</span> <span class="ot">=</span> <span class="st">"#B3D4FC"</span>, </span>
-<span id="cb16-5"><a></a>                                <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"#F4C2C2"</span>),</span>
-<span id="cb16-6"><a></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"death form Melanoma"</span>, </span>
-<span id="cb16-7"><a></a>                                <span class="st">"death from other cause"</span>)) <span class="sc">+</span></span>
-<span id="cb16-8"><a></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb16-9"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span></span>
-<span id="cb16-10"><a></a>  <span class="fu">add_risktable</span>() <span class="sc">+</span></span>
-<span id="cb16-11"><a></a>  <span class="fu">scale_ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a></a><span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span></span>
+<span id="cb20-3"><a></a>  <span class="fu">aes</span>(<span class="at">color =</span> outcome) <span class="sc">+</span>       <span class="co"># 强制美学映射</span></span>
+<span id="cb20-4"><a></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"1"</span> <span class="ot">=</span> <span class="st">"#B3D4FC"</span>, </span>
+<span id="cb20-5"><a></a>                                <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"#F4C2C2"</span>),</span>
+<span id="cb20-6"><a></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"death form Melanoma"</span>, </span>
+<span id="cb20-7"><a></a>                                <span class="st">"death from other cause"</span>)) <span class="sc">+</span></span>
+<span id="cb20-8"><a></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-9"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span></span>
+<span id="cb20-10"><a></a>  <span class="fu">add_risktable</span>() <span class="sc">+</span></span>
+<span id="cb20-11"><a></a>  <span class="fu">scale_ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
@@ -1079,46 +1084,66 @@ z-index: 1000;">
 <h5 id="分组多结局cif曲线">分组多结局CIF曲线</h5>
 <p>按ulcer分组，绘制多结局CIF曲线</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a><span class="co"># 按ulcer分组，绘制多结局CIF曲线，添加置信区间和风险表</span></span>
-<span id="cb17-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span> </span>
-<span id="cb17-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
-<span id="cb17-5"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
-<span id="cb17-6"><a></a>  <span class="fu">add_risktable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="co"># 按ulcer分组，绘制多结局CIF曲线，添加置信区间和风险表</span></span>
+<span id="cb21-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-3"><a></a>  <span class="fu">ggcuminc</span>(<span class="at">outcome =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>)) <span class="sc">+</span> </span>
+<span id="cb21-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Days"</span>) <span class="sc">+</span> </span>
+<span id="cb21-5"><a></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
+<span id="cb21-6"><a></a>  <span class="fu">add_risktable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="L6slide_files/figure-revealjs/unnamed-chunk-15-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
 <h3 id="灰色检验gray-test">6.3.5 灰色检验Gray Test</h3>
-<p>Gray检验：比较两个或多个组在特定结局（某一竞争风险事件）上的累积发生率是否存在显著差异。</p>
+<ul>
+<li><p>Gray检验：比较不同组之间目标事件累积发生概率(cumulative incidence)的统计检验方法。</p></li>
+<li><p>log-rank test：用于比较两组或多组在随访时间内的“生存曲线”是否有显著差异</p></li>
+</ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-2"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
-<span id="cb18-3"><a></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="fl">365.25</span>, <span class="fl">1826.25</span>, <span class="fl">3652.5</span>),  <span class="co"># 1年、5年、10年</span></span>
-<span id="cb18-4"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span></span>
-<span id="cb18-5"><a></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-6"><a></a>  <span class="fu">add_p</span>(</span>
-<span id="cb18-7"><a></a>    <span class="at">pvalue_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_pvalue</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
-<span id="cb18-8"><a></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
+<span id="cb22-3"><a></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="fl">365.25</span>, <span class="fl">1826.25</span>, <span class="fl">3652.5</span>),  <span class="co"># 1年、5年、10年</span></span>
+<span id="cb22-4"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span></span>
+<span id="cb22-5"><a></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-6"><a></a>  <span class="fu">add_p</span>(</span>
+<span id="cb22-7"><a></a>    <span class="at">pvalue_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_pvalue</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb22-8"><a></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Gray检验</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">cuminc</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> ulcer, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a></a>  tidycmprsk<span class="sc">::</span><span class="fu">tbl_cuminc</span>(</span>
+<span id="cb23-3"><a></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="fl">365.25</span>, <span class="fl">1826.25</span>, <span class="fl">3652.5</span>),  <span class="co"># 1年、5年、10年</span></span>
+<span id="cb23-4"><a></a>    <span class="at">label_header =</span> <span class="st">"**{time/365.25}-year cuminc**"</span></span>
+<span id="cb23-5"><a></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-6"><a></a>  <span class="fu">add_p</span>(</span>
+<span id="cb23-7"><a></a>    <span class="at">pvalue_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_pvalue</span>(x, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb23-8"><a></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
-<div id="wnhfpzezra" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#wnhfpzezra table {
+<div id="eofwatnxcc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eofwatnxcc table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wnhfpzezra thead, #wnhfpzezra tbody, #wnhfpzezra tfoot, #wnhfpzezra tr, #wnhfpzezra td, #wnhfpzezra th {
+#eofwatnxcc thead, #eofwatnxcc tbody, #eofwatnxcc tfoot, #eofwatnxcc tr, #eofwatnxcc td, #eofwatnxcc th {
   border-style: none;
 }
 
-#wnhfpzezra p {
+#eofwatnxcc p {
   margin: 0;
   padding: 0;
 }
 
-#wnhfpzezra .gt_table {
+#eofwatnxcc .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1144,12 +1169,12 @@ z-index: 1000;">
   border-left-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_caption {
+#eofwatnxcc .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wnhfpzezra .gt_title {
+#eofwatnxcc .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1161,7 +1186,7 @@ z-index: 1000;">
   border-bottom-width: 0;
 }
 
-#wnhfpzezra .gt_subtitle {
+#eofwatnxcc .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1173,7 +1198,7 @@ z-index: 1000;">
   border-top-width: 0;
 }
 
-#wnhfpzezra .gt_heading {
+#eofwatnxcc .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1185,13 +1210,13 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_bottom_border {
+#eofwatnxcc .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_col_headings {
+#eofwatnxcc .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1206,7 +1231,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_col_heading {
+#eofwatnxcc .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1226,7 +1251,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#wnhfpzezra .gt_column_spanner_outer {
+#eofwatnxcc .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1238,15 +1263,15 @@ z-index: 1000;">
   padding-right: 4px;
 }
 
-#wnhfpzezra .gt_column_spanner_outer:first-child {
+#eofwatnxcc .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wnhfpzezra .gt_column_spanner_outer:last-child {
+#eofwatnxcc .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wnhfpzezra .gt_column_spanner {
+#eofwatnxcc .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1258,11 +1283,11 @@ z-index: 1000;">
   width: 100%;
 }
 
-#wnhfpzezra .gt_spanner_row {
+#eofwatnxcc .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wnhfpzezra .gt_group_heading {
+#eofwatnxcc .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1288,7 +1313,7 @@ z-index: 1000;">
   text-align: left;
 }
 
-#wnhfpzezra .gt_empty_group_heading {
+#eofwatnxcc .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1303,15 +1328,15 @@ z-index: 1000;">
   vertical-align: middle;
 }
 
-#wnhfpzezra .gt_from_md > :first-child {
+#eofwatnxcc .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wnhfpzezra .gt_from_md > :last-child {
+#eofwatnxcc .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wnhfpzezra .gt_row {
+#eofwatnxcc .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1330,7 +1355,7 @@ z-index: 1000;">
   overflow-x: hidden;
 }
 
-#wnhfpzezra .gt_stub {
+#eofwatnxcc .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1343,7 +1368,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#wnhfpzezra .gt_stub_row_group {
+#eofwatnxcc .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1357,15 +1382,15 @@ z-index: 1000;">
   vertical-align: top;
 }
 
-#wnhfpzezra .gt_row_group_first td {
+#eofwatnxcc .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wnhfpzezra .gt_row_group_first th {
+#eofwatnxcc .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wnhfpzezra .gt_summary_row {
+#eofwatnxcc .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1375,16 +1400,16 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#wnhfpzezra .gt_first_summary_row {
+#eofwatnxcc .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_first_summary_row.thick {
+#eofwatnxcc .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wnhfpzezra .gt_last_summary_row {
+#eofwatnxcc .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1394,7 +1419,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_grand_summary_row {
+#eofwatnxcc .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1404,7 +1429,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#wnhfpzezra .gt_first_grand_summary_row {
+#eofwatnxcc .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1414,7 +1439,7 @@ z-index: 1000;">
   border-top-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_last_grand_summary_row_top {
+#eofwatnxcc .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1424,11 +1449,11 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_striped {
+#eofwatnxcc .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wnhfpzezra .gt_table_body {
+#eofwatnxcc .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1437,7 +1462,7 @@ z-index: 1000;">
   border-bottom-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_footnotes {
+#eofwatnxcc .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1451,7 +1476,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_footnote {
+#eofwatnxcc .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1460,7 +1485,7 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#wnhfpzezra .gt_sourcenotes {
+#eofwatnxcc .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1474,7 +1499,7 @@ z-index: 1000;">
   border-right-color: #D3D3D3;
 }
 
-#wnhfpzezra .gt_sourcenote {
+#eofwatnxcc .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1482,72 +1507,72 @@ z-index: 1000;">
   padding-right: 5px;
 }
 
-#wnhfpzezra .gt_left {
+#eofwatnxcc .gt_left {
   text-align: left;
 }
 
-#wnhfpzezra .gt_center {
+#eofwatnxcc .gt_center {
   text-align: center;
 }
 
-#wnhfpzezra .gt_right {
+#eofwatnxcc .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wnhfpzezra .gt_font_normal {
+#eofwatnxcc .gt_font_normal {
   font-weight: normal;
 }
 
-#wnhfpzezra .gt_font_bold {
+#eofwatnxcc .gt_font_bold {
   font-weight: bold;
 }
 
-#wnhfpzezra .gt_font_italic {
+#eofwatnxcc .gt_font_italic {
   font-style: italic;
 }
 
-#wnhfpzezra .gt_super {
+#eofwatnxcc .gt_super {
   font-size: 65%;
 }
 
-#wnhfpzezra .gt_footnote_marks {
+#eofwatnxcc .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wnhfpzezra .gt_asterisk {
+#eofwatnxcc .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wnhfpzezra .gt_indent_1 {
+#eofwatnxcc .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wnhfpzezra .gt_indent_2 {
+#eofwatnxcc .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wnhfpzezra .gt_indent_3 {
+#eofwatnxcc .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wnhfpzezra .gt_indent_4 {
+#eofwatnxcc .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wnhfpzezra .gt_indent_5 {
+#eofwatnxcc .gt_indent_5 {
   text-indent: 25px;
 }
 
-#wnhfpzezra .katex-display {
+#eofwatnxcc .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#wnhfpzezra div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#eofwatnxcc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1613,8 +1638,8 @@ z-index: 1000;">
 <h3 id="估计fine-gray-模型">6.3.6 估计Fine-Gray 模型</h3>
 <h4 id="fine-gray-模型估计结果">Fine-Gray 模型估计结果</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="co"># 竞争风险回归，分析 sex 和 age 对结局的影响</span></span>
-<span id="cb19-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="co"># 竞争风险回归，分析 sex 和 age 对结局的影响</span></span>
+<span id="cb24-2"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Variable   Coef    SE      HR     95% CI       p-value    
@@ -1625,14 +1650,14 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 <p>估计结果解释</p>
 <ul>
 <li><p>sex: HR = 1.80, p-value = 0.03</p></li>
-<li><p>与参考组相比（sex=0为女性，sex=1为男性），男性发生type1结局（因黑色素瘤死亡）的亚分风险比为1.80。</p></li>
-<li><p>男性发生该结局的风险是女性的1.8倍。p值小于0.05，说明性别的影响具有统计学意义。</p></li>
+<li><p>与参考组相比（sex=0为女性，sex=1为男性），男性发生目标事件结局（因黑色素瘤死亡）的亚分风险比为1.80。</p></li>
+<li><p>男性发生因黑色素瘤死亡的风险是女性的1.8倍。p值小于0.05，说明性别的影响具有统计学意义。</p></li>
 </ul>
 </section>
 <section class="slide level2">
 
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Variable   Coef    SE      HR     95% CI       p-value    
@@ -1642,8 +1667,8 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 </div>
 <ul>
 <li><p>age: HR = 1.01, p-value = 0.18</p></li>
-<li><p>每增加一岁，type1结局的亚分风险比增加1%（1.01倍），但p值为0.18，不具有统计学显著性（即年龄对type1结局风险的影响不显著）。</p></li>
-<li><p>这可能因年龄范围较窄或竞争事件掩盖了效应。</p></li>
+<li><p>每增加1岁，因黑色素瘤死亡的亚分风险比增加1%（1.01倍），但p值为0.18，不具有统计学显著性（即年龄对type1结局风险的影响不显著）。</p></li>
+<li><p>可能是竞争事件掩盖年龄效应。</p></li>
 </ul>
 </section>
 <section class="slide level2">
@@ -1660,26 +1685,26 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 
 <h4 id="表格化输出fine-gray-估计结果">表格化输出Fine-Gray 估计结果</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-2"><a></a>  <span class="fu">tbl_regression</span>(<span class="at">exp =</span> <span class="cn">TRUE</span>) <span class="co"># exp=TRUE 输出HR</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a>tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-2"><a></a>  <span class="fu">tbl_regression</span>(<span class="at">exp =</span> <span class="cn">TRUE</span>) <span class="co"># exp=TRUE 输出HR</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="shqukahiud" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#shqukahiud table {
+<div id="qyeqwdvigt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qyeqwdvigt table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#shqukahiud thead, #shqukahiud tbody, #shqukahiud tfoot, #shqukahiud tr, #shqukahiud td, #shqukahiud th {
+#qyeqwdvigt thead, #qyeqwdvigt tbody, #qyeqwdvigt tfoot, #qyeqwdvigt tr, #qyeqwdvigt td, #qyeqwdvigt th {
   border-style: none;
 }
 
-#shqukahiud p {
+#qyeqwdvigt p {
   margin: 0;
   padding: 0;
 }
 
-#shqukahiud .gt_table {
+#qyeqwdvigt .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1705,12 +1730,12 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-left-color: #D3D3D3;
 }
 
-#shqukahiud .gt_caption {
+#qyeqwdvigt .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#shqukahiud .gt_title {
+#qyeqwdvigt .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1722,7 +1747,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-width: 0;
 }
 
-#shqukahiud .gt_subtitle {
+#qyeqwdvigt .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1734,7 +1759,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-width: 0;
 }
 
-#shqukahiud .gt_heading {
+#qyeqwdvigt .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1746,13 +1771,13 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#shqukahiud .gt_bottom_border {
+#qyeqwdvigt .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#shqukahiud .gt_col_headings {
+#qyeqwdvigt .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1767,7 +1792,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#shqukahiud .gt_col_heading {
+#qyeqwdvigt .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1787,7 +1812,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#shqukahiud .gt_column_spanner_outer {
+#qyeqwdvigt .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1799,15 +1824,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 4px;
 }
 
-#shqukahiud .gt_column_spanner_outer:first-child {
+#qyeqwdvigt .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#shqukahiud .gt_column_spanner_outer:last-child {
+#qyeqwdvigt .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#shqukahiud .gt_column_spanner {
+#qyeqwdvigt .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1819,11 +1844,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   width: 100%;
 }
 
-#shqukahiud .gt_spanner_row {
+#qyeqwdvigt .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#shqukahiud .gt_group_heading {
+#qyeqwdvigt .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1849,7 +1874,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   text-align: left;
 }
 
-#shqukahiud .gt_empty_group_heading {
+#qyeqwdvigt .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1864,15 +1889,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: middle;
 }
 
-#shqukahiud .gt_from_md > :first-child {
+#qyeqwdvigt .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#shqukahiud .gt_from_md > :last-child {
+#qyeqwdvigt .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#shqukahiud .gt_row {
+#qyeqwdvigt .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1891,7 +1916,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#shqukahiud .gt_stub {
+#qyeqwdvigt .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1904,7 +1929,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#shqukahiud .gt_stub_row_group {
+#qyeqwdvigt .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1918,15 +1943,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: top;
 }
 
-#shqukahiud .gt_row_group_first td {
+#qyeqwdvigt .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#shqukahiud .gt_row_group_first th {
+#qyeqwdvigt .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#shqukahiud .gt_summary_row {
+#qyeqwdvigt .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1936,16 +1961,16 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#shqukahiud .gt_first_summary_row {
+#qyeqwdvigt .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#shqukahiud .gt_first_summary_row.thick {
+#qyeqwdvigt .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#shqukahiud .gt_last_summary_row {
+#qyeqwdvigt .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1955,7 +1980,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#shqukahiud .gt_grand_summary_row {
+#qyeqwdvigt .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1965,7 +1990,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#shqukahiud .gt_first_grand_summary_row {
+#qyeqwdvigt .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1975,7 +2000,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-color: #D3D3D3;
 }
 
-#shqukahiud .gt_last_grand_summary_row_top {
+#qyeqwdvigt .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1985,11 +2010,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#shqukahiud .gt_striped {
+#qyeqwdvigt .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#shqukahiud .gt_table_body {
+#qyeqwdvigt .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1998,7 +2023,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#shqukahiud .gt_footnotes {
+#qyeqwdvigt .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2012,7 +2037,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#shqukahiud .gt_footnote {
+#qyeqwdvigt .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2021,7 +2046,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#shqukahiud .gt_sourcenotes {
+#qyeqwdvigt .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2035,7 +2060,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#shqukahiud .gt_sourcenote {
+#qyeqwdvigt .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2043,72 +2068,72 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#shqukahiud .gt_left {
+#qyeqwdvigt .gt_left {
   text-align: left;
 }
 
-#shqukahiud .gt_center {
+#qyeqwdvigt .gt_center {
   text-align: center;
 }
 
-#shqukahiud .gt_right {
+#qyeqwdvigt .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#shqukahiud .gt_font_normal {
+#qyeqwdvigt .gt_font_normal {
   font-weight: normal;
 }
 
-#shqukahiud .gt_font_bold {
+#qyeqwdvigt .gt_font_bold {
   font-weight: bold;
 }
 
-#shqukahiud .gt_font_italic {
+#qyeqwdvigt .gt_font_italic {
   font-style: italic;
 }
 
-#shqukahiud .gt_super {
+#qyeqwdvigt .gt_super {
   font-size: 65%;
 }
 
-#shqukahiud .gt_footnote_marks {
+#qyeqwdvigt .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#shqukahiud .gt_asterisk {
+#qyeqwdvigt .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#shqukahiud .gt_indent_1 {
+#qyeqwdvigt .gt_indent_1 {
   text-indent: 5px;
 }
 
-#shqukahiud .gt_indent_2 {
+#qyeqwdvigt .gt_indent_2 {
   text-indent: 10px;
 }
 
-#shqukahiud .gt_indent_3 {
+#qyeqwdvigt .gt_indent_3 {
   text-indent: 15px;
 }
 
-#shqukahiud .gt_indent_4 {
+#qyeqwdvigt .gt_indent_4 {
   text-indent: 20px;
 }
 
-#shqukahiud .gt_indent_5 {
+#qyeqwdvigt .gt_indent_5 {
   text-indent: 25px;
 }
 
-#shqukahiud .katex-display {
+#qyeqwdvigt .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#shqukahiud div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#qyeqwdvigt div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2153,43 +2178,43 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a>fit1 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
-<span id="cb24-2"><a></a>fit2 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age  <span class="sc">+</span> year <span class="sc">+</span> thickness, <span class="at">data =</span> Melanoma)</span>
-<span id="cb24-3"><a></a>fit3 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age  <span class="sc">+</span> year <span class="sc">+</span> thickness <span class="sc">+</span> ulcer, <span class="at">data =</span> Melanoma)</span>
-<span id="cb24-4"><a></a></span>
-<span id="cb24-5"><a></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb24-6"><a></a></span>
-<span id="cb24-7"><a></a>tbl1 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit1, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb24-8"><a></a>tbl2 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit2, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb24-9"><a></a>tbl3 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit3, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb24-10"><a></a></span>
-<span id="cb24-11"><a></a></span>
-<span id="cb24-12"><a></a><span class="co"># 合并报告</span></span>
-<span id="cb24-13"><a></a>merged_tbl <span class="ot">&lt;-</span> <span class="fu">tbl_merge</span>(</span>
-<span id="cb24-14"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2, tbl3),</span>
-<span id="cb24-15"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>, <span class="st">"**Model 3**"</span>)</span>
-<span id="cb24-16"><a></a>)</span>
-<span id="cb24-17"><a></a></span>
-<span id="cb24-18"><a></a>merged_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a>fit1 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
+<span id="cb29-2"><a></a>fit2 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age  <span class="sc">+</span> year <span class="sc">+</span> thickness, <span class="at">data =</span> Melanoma)</span>
+<span id="cb29-3"><a></a>fit3 <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age  <span class="sc">+</span> year <span class="sc">+</span> thickness <span class="sc">+</span> ulcer, <span class="at">data =</span> Melanoma)</span>
+<span id="cb29-4"><a></a></span>
+<span id="cb29-5"><a></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb29-6"><a></a></span>
+<span id="cb29-7"><a></a>tbl1 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit1, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-8"><a></a>tbl2 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit2, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-9"><a></a>tbl3 <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit3, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-10"><a></a></span>
+<span id="cb29-11"><a></a></span>
+<span id="cb29-12"><a></a><span class="co"># 合并报告</span></span>
+<span id="cb29-13"><a></a>merged_tbl <span class="ot">&lt;-</span> <span class="fu">tbl_merge</span>(</span>
+<span id="cb29-14"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl1, tbl2, tbl3),</span>
+<span id="cb29-15"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Model 1**"</span>, <span class="st">"**Model 2**"</span>, <span class="st">"**Model 3**"</span>)</span>
+<span id="cb29-16"><a></a>)</span>
+<span id="cb29-17"><a></a></span>
+<span id="cb29-18"><a></a>merged_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="nzhklocfbq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#nzhklocfbq table {
+<div id="kvdcerdajm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#kvdcerdajm table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#nzhklocfbq thead, #nzhklocfbq tbody, #nzhklocfbq tfoot, #nzhklocfbq tr, #nzhklocfbq td, #nzhklocfbq th {
+#kvdcerdajm thead, #kvdcerdajm tbody, #kvdcerdajm tfoot, #kvdcerdajm tr, #kvdcerdajm td, #kvdcerdajm th {
   border-style: none;
 }
 
-#nzhklocfbq p {
+#kvdcerdajm p {
   margin: 0;
   padding: 0;
 }
 
-#nzhklocfbq .gt_table {
+#kvdcerdajm .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2215,12 +2240,12 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-left-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_caption {
+#kvdcerdajm .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#nzhklocfbq .gt_title {
+#kvdcerdajm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2232,7 +2257,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-width: 0;
 }
 
-#nzhklocfbq .gt_subtitle {
+#kvdcerdajm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2244,7 +2269,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-width: 0;
 }
 
-#nzhklocfbq .gt_heading {
+#kvdcerdajm .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2256,13 +2281,13 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_bottom_border {
+#kvdcerdajm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_col_headings {
+#kvdcerdajm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2277,7 +2302,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_col_heading {
+#kvdcerdajm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2297,7 +2322,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#nzhklocfbq .gt_column_spanner_outer {
+#kvdcerdajm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2309,15 +2334,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 4px;
 }
 
-#nzhklocfbq .gt_column_spanner_outer:first-child {
+#kvdcerdajm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#nzhklocfbq .gt_column_spanner_outer:last-child {
+#kvdcerdajm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#nzhklocfbq .gt_column_spanner {
+#kvdcerdajm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2329,11 +2354,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   width: 100%;
 }
 
-#nzhklocfbq .gt_spanner_row {
+#kvdcerdajm .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#nzhklocfbq .gt_group_heading {
+#kvdcerdajm .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2359,7 +2384,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   text-align: left;
 }
 
-#nzhklocfbq .gt_empty_group_heading {
+#kvdcerdajm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2374,15 +2399,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: middle;
 }
 
-#nzhklocfbq .gt_from_md > :first-child {
+#kvdcerdajm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#nzhklocfbq .gt_from_md > :last-child {
+#kvdcerdajm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#nzhklocfbq .gt_row {
+#kvdcerdajm .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2401,7 +2426,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#nzhklocfbq .gt_stub {
+#kvdcerdajm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2414,7 +2439,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#nzhklocfbq .gt_stub_row_group {
+#kvdcerdajm .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2428,15 +2453,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: top;
 }
 
-#nzhklocfbq .gt_row_group_first td {
+#kvdcerdajm .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#nzhklocfbq .gt_row_group_first th {
+#kvdcerdajm .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#nzhklocfbq .gt_summary_row {
+#kvdcerdajm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2446,16 +2471,16 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#nzhklocfbq .gt_first_summary_row {
+#kvdcerdajm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_first_summary_row.thick {
+#kvdcerdajm .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#nzhklocfbq .gt_last_summary_row {
+#kvdcerdajm .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2465,7 +2490,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_grand_summary_row {
+#kvdcerdajm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2475,7 +2500,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#nzhklocfbq .gt_first_grand_summary_row {
+#kvdcerdajm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2485,7 +2510,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_last_grand_summary_row_top {
+#kvdcerdajm .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2495,11 +2520,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_striped {
+#kvdcerdajm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#nzhklocfbq .gt_table_body {
+#kvdcerdajm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2508,7 +2533,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_footnotes {
+#kvdcerdajm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2522,7 +2547,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_footnote {
+#kvdcerdajm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2531,7 +2556,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#nzhklocfbq .gt_sourcenotes {
+#kvdcerdajm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2545,7 +2570,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#nzhklocfbq .gt_sourcenote {
+#kvdcerdajm .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2553,72 +2578,72 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#nzhklocfbq .gt_left {
+#kvdcerdajm .gt_left {
   text-align: left;
 }
 
-#nzhklocfbq .gt_center {
+#kvdcerdajm .gt_center {
   text-align: center;
 }
 
-#nzhklocfbq .gt_right {
+#kvdcerdajm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#nzhklocfbq .gt_font_normal {
+#kvdcerdajm .gt_font_normal {
   font-weight: normal;
 }
 
-#nzhklocfbq .gt_font_bold {
+#kvdcerdajm .gt_font_bold {
   font-weight: bold;
 }
 
-#nzhklocfbq .gt_font_italic {
+#kvdcerdajm .gt_font_italic {
   font-style: italic;
 }
 
-#nzhklocfbq .gt_super {
+#kvdcerdajm .gt_super {
   font-size: 65%;
 }
 
-#nzhklocfbq .gt_footnote_marks {
+#kvdcerdajm .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#nzhklocfbq .gt_asterisk {
+#kvdcerdajm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#nzhklocfbq .gt_indent_1 {
+#kvdcerdajm .gt_indent_1 {
   text-indent: 5px;
 }
 
-#nzhklocfbq .gt_indent_2 {
+#kvdcerdajm .gt_indent_2 {
   text-indent: 10px;
 }
 
-#nzhklocfbq .gt_indent_3 {
+#kvdcerdajm .gt_indent_3 {
   text-indent: 15px;
 }
 
-#nzhklocfbq .gt_indent_4 {
+#kvdcerdajm .gt_indent_4 {
   text-indent: 20px;
 }
 
-#nzhklocfbq .gt_indent_5 {
+#kvdcerdajm .gt_indent_5 {
   text-indent: 25px;
 }
 
-#nzhklocfbq .katex-display {
+#kvdcerdajm .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#nzhklocfbq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#kvdcerdajm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2750,18 +2775,18 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 
 <h4 id="表格导出到word文档">表格导出到WORD文档</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="fu">library</span>(flextable)</span>
-<span id="cb25-2"><a></a><span class="fu">library</span>(officer)</span>
-<span id="cb25-3"><a></a></span>
-<span id="cb25-4"><a></a><span class="co"># 将表格转换为 flextable 对象</span></span>
-<span id="cb25-5"><a></a>ft <span class="ot">&lt;-</span> <span class="fu">as_flex_table</span>(merged_tbl)</span>
-<span id="cb25-6"><a></a></span>
-<span id="cb25-7"><a></a><span class="co"># 创建Word文档并写入表格</span></span>
-<span id="cb25-8"><a></a>doc <span class="ot">&lt;-</span> <span class="fu">read_docx</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb25-9"><a></a>  <span class="fu">body_add_flextable</span>(ft)</span>
-<span id="cb25-10"><a></a></span>
-<span id="cb25-11"><a></a><span class="co"># 保存Word文件</span></span>
-<span id="cb25-12"><a></a><span class="fu">print</span>(doc, <span class="at">target =</span> <span class="st">"FineGray_models.docx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a><span class="fu">library</span>(flextable)</span>
+<span id="cb30-2"><a></a><span class="fu">library</span>(officer)</span>
+<span id="cb30-3"><a></a></span>
+<span id="cb30-4"><a></a><span class="co"># 将表格转换为 flextable 对象</span></span>
+<span id="cb30-5"><a></a>ft <span class="ot">&lt;-</span> <span class="fu">as_flex_table</span>(merged_tbl)</span>
+<span id="cb30-6"><a></a></span>
+<span id="cb30-7"><a></a><span class="co"># 创建Word文档并写入表格</span></span>
+<span id="cb30-8"><a></a>doc <span class="ot">&lt;-</span> <span class="fu">read_docx</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb30-9"><a></a>  <span class="fu">body_add_flextable</span>(ft)</span>
+<span id="cb30-10"><a></a></span>
+<span id="cb30-11"><a></a><span class="co"># 保存Word文件</span></span>
+<span id="cb30-12"><a></a><span class="fu">print</span>(doc, <span class="at">target =</span> <span class="st">"FineGray_models.docx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section class="slide level2">
@@ -2771,17 +2796,17 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="fu">library</span>(tidycmprsk)</span>
-<span id="cb26-2"><a></a><span class="fu">library</span>(broom)</span>
-<span id="cb26-3"><a></a></span>
-<span id="cb26-4"><a></a>fit <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age <span class="sc">+</span> </span>
-<span id="cb26-5"><a></a>                         year <span class="sc">+</span> thickness <span class="sc">+</span> ulcer, <span class="at">data =</span> Melanoma)</span>
-<span id="cb26-6"><a></a>tbl <span class="ot">&lt;-</span> broom<span class="sc">::</span><span class="fu">tidy</span>(fit, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb26-7"><a></a>tbl<span class="sc">$</span>term <span class="ot">&lt;-</span> <span class="fu">reorder</span>(tbl<span class="sc">$</span>term, </span>
-<span id="cb26-8"><a></a>                    tbl<span class="sc">$</span>estimate, </span>
-<span id="cb26-9"><a></a>                    <span class="at">decreasing =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb26-10"><a></a></span>
-<span id="cb26-11"><a></a>tbl <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="sc">-</span>estimate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a></a><span class="fu">library</span>(tidycmprsk)</span>
+<span id="cb31-2"><a></a><span class="fu">library</span>(broom)</span>
+<span id="cb31-3"><a></a></span>
+<span id="cb31-4"><a></a>fit <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age <span class="sc">+</span> </span>
+<span id="cb31-5"><a></a>                         year <span class="sc">+</span> thickness <span class="sc">+</span> ulcer, <span class="at">data =</span> Melanoma)</span>
+<span id="cb31-6"><a></a>tbl <span class="ot">&lt;-</span> broom<span class="sc">::</span><span class="fu">tidy</span>(fit, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-7"><a></a>tbl<span class="sc">$</span>term <span class="ot">&lt;-</span> <span class="fu">reorder</span>(tbl<span class="sc">$</span>term, </span>
+<span id="cb31-8"><a></a>                    tbl<span class="sc">$</span>estimate, </span>
+<span id="cb31-9"><a></a>                    <span class="at">decreasing =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb31-10"><a></a></span>
+<span id="cb31-11"><a></a>tbl <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="sc">-</span>estimate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 7
@@ -2801,59 +2826,59 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="fu">ggplot</span>(tbl, <span class="fu">aes</span>(<span class="at">y =</span> term, <span class="at">x =</span> estimate)) <span class="sc">+</span></span>
-<span id="cb28-2"><a></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb28-3"><a></a>  <span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high), <span class="at">height =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
-<span id="cb28-4"><a></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray"</span>) <span class="sc">+</span></span>
-<span id="cb28-5"><a></a>  <span class="fu">xlab</span>(<span class="st">"Subdistribution Hazard Ratio (HR)"</span>) <span class="sc">+</span></span>
-<span id="cb28-6"><a></a>  <span class="fu">ylab</span>(<span class="st">""</span>) <span class="sc">+</span></span>
-<span id="cb28-7"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a><span class="fu">ggplot</span>(tbl, <span class="fu">aes</span>(<span class="at">y =</span> term, <span class="at">x =</span> estimate)) <span class="sc">+</span></span>
+<span id="cb33-2"><a></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb33-3"><a></a>  <span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high), <span class="at">height =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb33-4"><a></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray"</span>) <span class="sc">+</span></span>
+<span id="cb33-5"><a></a>  <span class="fu">xlab</span>(<span class="st">"Subdistribution Hazard Ratio (HR)"</span>) <span class="sc">+</span></span>
+<span id="cb33-6"><a></a>  <span class="fu">ylab</span>(<span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb33-7"><a></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
-<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-23-1.png" width="960" class="r-stretch"></section>
+<img data-src="L6slide_files/figure-revealjs/unnamed-chunk-24-1.png" width="960" class="r-stretch"></section>
 <section class="slide level2">
 
 <h3 id="对比竞争风险模型和cox模型">6.3.8 对比竞争风险模型和Cox模型</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a><span class="co"># 竞争风险回归（Fine-Gray模型）</span></span>
-<span id="cb29-2"><a></a>fit_fg <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
-<span id="cb29-3"><a></a></span>
-<span id="cb29-4"><a></a>tbl_fg <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit_fg, <span class="at">exp =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="fu">list</span>(<span class="at">sex =</span> <span class="st">"Sex"</span>, <span class="at">age =</span> <span class="st">"Age"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-5"><a></a>  <span class="fu">modify_header</span>(<span class="at">label =</span> <span class="st">"**变量**"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb29-6"><a></a>  <span class="fu">modify_caption</span>(<span class="st">"**Fine-Gray 竞争风险回归**"</span>)</span>
-<span id="cb29-7"><a></a></span>
-<span id="cb29-8"><a></a><span class="co"># Cox回归</span></span>
-<span id="cb29-9"><a></a>fit_cox <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, <span class="fu">ifelse</span>(status <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
-<span id="cb29-10"><a></a>tbl_cox <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit_cox, <span class="at">exp =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="fu">list</span>(<span class="at">sex =</span> <span class="st">"Sex"</span>, <span class="at">age =</span> <span class="st">"Age"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-11"><a></a>  <span class="fu">modify_header</span>(<span class="at">label =</span> <span class="st">"**变量**"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb29-12"><a></a>  <span class="fu">modify_caption</span>(<span class="st">"**Cox 比例风险模型**"</span>)</span>
-<span id="cb29-13"><a></a></span>
-<span id="cb29-14"><a></a><span class="fu">tbl_merge</span>(</span>
-<span id="cb29-15"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl_fg, tbl_cox),</span>
-<span id="cb29-16"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Fine-Gray 竞争风险回归**"</span>, <span class="st">"**Cox 比例风险模型**"</span>)</span>
-<span id="cb29-17"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a></a><span class="co"># 竞争风险回归（Fine-Gray模型）</span></span>
+<span id="cb34-2"><a></a>fit_fg <span class="ot">&lt;-</span> tidycmprsk<span class="sc">::</span><span class="fu">crr</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
+<span id="cb34-3"><a></a></span>
+<span id="cb34-4"><a></a>tbl_fg <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit_fg, <span class="at">exp =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="fu">list</span>(<span class="at">sex =</span> <span class="st">"Sex"</span>, <span class="at">age =</span> <span class="st">"Age"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-5"><a></a>  <span class="fu">modify_header</span>(<span class="at">label =</span> <span class="st">"**变量**"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb34-6"><a></a>  <span class="fu">modify_caption</span>(<span class="st">"**Fine-Gray 竞争风险回归**"</span>)</span>
+<span id="cb34-7"><a></a></span>
+<span id="cb34-8"><a></a><span class="co"># Cox回归</span></span>
+<span id="cb34-9"><a></a>fit_cox <span class="ot">&lt;-</span> <span class="fu">coxph</span>(<span class="fu">Surv</span>(time, <span class="fu">ifelse</span>(status <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">~</span> sex <span class="sc">+</span> age, <span class="at">data =</span> Melanoma)</span>
+<span id="cb34-10"><a></a>tbl_cox <span class="ot">&lt;-</span> <span class="fu">tbl_regression</span>(fit_cox, <span class="at">exp =</span> <span class="cn">TRUE</span>, <span class="at">label =</span> <span class="fu">list</span>(<span class="at">sex =</span> <span class="st">"Sex"</span>, <span class="at">age =</span> <span class="st">"Age"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-11"><a></a>  <span class="fu">modify_header</span>(<span class="at">label =</span> <span class="st">"**变量**"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb34-12"><a></a>  <span class="fu">modify_caption</span>(<span class="st">"**Cox 比例风险模型**"</span>)</span>
+<span id="cb34-13"><a></a></span>
+<span id="cb34-14"><a></a><span class="fu">tbl_merge</span>(</span>
+<span id="cb34-15"><a></a>  <span class="at">tbls =</span> <span class="fu">list</span>(tbl_fg, tbl_cox),</span>
+<span id="cb34-16"><a></a>  <span class="at">tab_spanner =</span> <span class="fu">c</span>(<span class="st">"**Fine-Gray 竞争风险回归**"</span>, <span class="st">"**Cox 比例风险模型**"</span>)</span>
+<span id="cb34-17"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="idftufmlqa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#idftufmlqa table {
+<div id="rycwosmgmi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rycwosmgmi table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#idftufmlqa thead, #idftufmlqa tbody, #idftufmlqa tfoot, #idftufmlqa tr, #idftufmlqa td, #idftufmlqa th {
+#rycwosmgmi thead, #rycwosmgmi tbody, #rycwosmgmi tfoot, #rycwosmgmi tr, #rycwosmgmi td, #rycwosmgmi th {
   border-style: none;
 }
 
-#idftufmlqa p {
+#rycwosmgmi p {
   margin: 0;
   padding: 0;
 }
 
-#idftufmlqa .gt_table {
+#rycwosmgmi .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2879,12 +2904,12 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-left-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_caption {
+#rycwosmgmi .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#idftufmlqa .gt_title {
+#rycwosmgmi .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2896,7 +2921,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-width: 0;
 }
 
-#idftufmlqa .gt_subtitle {
+#rycwosmgmi .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2908,7 +2933,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-width: 0;
 }
 
-#idftufmlqa .gt_heading {
+#rycwosmgmi .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2920,13 +2945,13 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_bottom_border {
+#rycwosmgmi .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_col_headings {
+#rycwosmgmi .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2941,7 +2966,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_col_heading {
+#rycwosmgmi .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2961,7 +2986,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#idftufmlqa .gt_column_spanner_outer {
+#rycwosmgmi .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2973,15 +2998,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 4px;
 }
 
-#idftufmlqa .gt_column_spanner_outer:first-child {
+#rycwosmgmi .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#idftufmlqa .gt_column_spanner_outer:last-child {
+#rycwosmgmi .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#idftufmlqa .gt_column_spanner {
+#rycwosmgmi .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2993,11 +3018,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   width: 100%;
 }
 
-#idftufmlqa .gt_spanner_row {
+#rycwosmgmi .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#idftufmlqa .gt_group_heading {
+#rycwosmgmi .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3023,7 +3048,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   text-align: left;
 }
 
-#idftufmlqa .gt_empty_group_heading {
+#rycwosmgmi .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3038,15 +3063,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: middle;
 }
 
-#idftufmlqa .gt_from_md > :first-child {
+#rycwosmgmi .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#idftufmlqa .gt_from_md > :last-child {
+#rycwosmgmi .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#idftufmlqa .gt_row {
+#rycwosmgmi .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3065,7 +3090,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   overflow-x: hidden;
 }
 
-#idftufmlqa .gt_stub {
+#rycwosmgmi .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3078,7 +3103,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#idftufmlqa .gt_stub_row_group {
+#rycwosmgmi .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3092,15 +3117,15 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   vertical-align: top;
 }
 
-#idftufmlqa .gt_row_group_first td {
+#rycwosmgmi .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#idftufmlqa .gt_row_group_first th {
+#rycwosmgmi .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#idftufmlqa .gt_summary_row {
+#rycwosmgmi .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3110,16 +3135,16 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#idftufmlqa .gt_first_summary_row {
+#rycwosmgmi .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_first_summary_row.thick {
+#rycwosmgmi .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#idftufmlqa .gt_last_summary_row {
+#rycwosmgmi .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3129,7 +3154,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_grand_summary_row {
+#rycwosmgmi .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3139,7 +3164,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#idftufmlqa .gt_first_grand_summary_row {
+#rycwosmgmi .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3149,7 +3174,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-top-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_last_grand_summary_row_top {
+#rycwosmgmi .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3159,11 +3184,11 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_striped {
+#rycwosmgmi .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#idftufmlqa .gt_table_body {
+#rycwosmgmi .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3172,7 +3197,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_footnotes {
+#rycwosmgmi .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3186,7 +3211,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_footnote {
+#rycwosmgmi .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3195,7 +3220,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#idftufmlqa .gt_sourcenotes {
+#rycwosmgmi .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3209,7 +3234,7 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#idftufmlqa .gt_sourcenote {
+#rycwosmgmi .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3217,72 +3242,72 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
   padding-right: 5px;
 }
 
-#idftufmlqa .gt_left {
+#rycwosmgmi .gt_left {
   text-align: left;
 }
 
-#idftufmlqa .gt_center {
+#rycwosmgmi .gt_center {
   text-align: center;
 }
 
-#idftufmlqa .gt_right {
+#rycwosmgmi .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#idftufmlqa .gt_font_normal {
+#rycwosmgmi .gt_font_normal {
   font-weight: normal;
 }
 
-#idftufmlqa .gt_font_bold {
+#rycwosmgmi .gt_font_bold {
   font-weight: bold;
 }
 
-#idftufmlqa .gt_font_italic {
+#rycwosmgmi .gt_font_italic {
   font-style: italic;
 }
 
-#idftufmlqa .gt_super {
+#rycwosmgmi .gt_super {
   font-size: 65%;
 }
 
-#idftufmlqa .gt_footnote_marks {
+#rycwosmgmi .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#idftufmlqa .gt_asterisk {
+#rycwosmgmi .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#idftufmlqa .gt_indent_1 {
+#rycwosmgmi .gt_indent_1 {
   text-indent: 5px;
 }
 
-#idftufmlqa .gt_indent_2 {
+#rycwosmgmi .gt_indent_2 {
   text-indent: 10px;
 }
 
-#idftufmlqa .gt_indent_3 {
+#rycwosmgmi .gt_indent_3 {
   text-indent: 15px;
 }
 
-#idftufmlqa .gt_indent_4 {
+#rycwosmgmi .gt_indent_4 {
   text-indent: 20px;
 }
 
-#idftufmlqa .gt_indent_5 {
+#rycwosmgmi .gt_indent_5 {
   text-indent: 25px;
 }
 
-#idftufmlqa .katex-display {
+#rycwosmgmi .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#idftufmlqa div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#rycwosmgmi div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -3375,12 +3400,12 @@ age        0.013   0.009   1.01   0.99, 1.03   0.18       </code></pre>
 <li><p>竞争风险模型：解决目标事件受竞争事件干扰的生存分析。</p></li>
 <li><p>CIF曲线, Gray 检验, Fine-Gray模型</p></li>
 <li><p><code>tidycmprsk::cuminc()</code>, <code>tidycmprsk::crr()</code></p></li>
-<li><p><code>survminer::ggcompetingrisks()</code>, <code>ggsurvfit::ggcumic()</code></p></li>
+<li><p><code>survminer::ggcompetingrisks()</code>, <code>ggsurvfit::ggcuminc()</code></p></li>
 <li><p>Fine-Gray (SHR) 适合预后, Cox (HR)适合机制研究</p></li>
 </ul>
 
 
-</section></section>
+</section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

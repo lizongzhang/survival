@@ -9,8 +9,8 @@
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.6.42">
 
-  <meta name="author" content="Lzz">
-  <meta name="dcterms.date" content="2025-07-18">
+  <meta name="author" content="李宗璋">
+  <meta name="dcterms.date" content="2025-07-22">
   <title>R生存分析 – L1 生存分析简介</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -178,12 +178,12 @@ z-index: 1000;">
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-<a href="https://space.bilibili.com/590872906/">Lzz</a> 
+<a href="https://space.bilibili.com/590872906/">李宗璋</a> 
 </div>
 </div>
 </div>
 
-  <p class="date">2025-07-18</p>
+  <p class="date">2025-07-22</p>
 </section>
 <section id="生存分析简介" class="slide level2">
 <h2>1 生存分析简介</h2>
@@ -195,11 +195,11 @@ z-index: 1000;">
 </section>
 <section id="什么是生存分析" class="slide level2">
 <h2>1.1 什么是生存分析？</h2>
-<p>生存分析关心的是“事件什么时候发生”和“事件发生的概率”。</p>
+<p>生存分析研究事件发生的时间及其发生概率。</p>
 <p>生存分析 Survival Analysis：删失数据</p>
 <p>右删失数据 right censoring</p>
 <blockquote>
-<p>在研究中，有些数据因为观察时间结束或其他原因，我们只知道某个事件至少在某个时间点还没发生，但不知道具体什么时候会发生。</p>
+<p>右删失数据指由于观察时间结束或其他原因，仅知事件在某时间点尚未发生，而无法获知具体发生时间的数据。</p>
 </blockquote>
 <ul>
 <li><p>研究病人的生存时间</p>
@@ -214,17 +214,17 @@ z-index: 1000;">
 <h3 id="举例">举例</h3>
 <p>研究某种疾病的患者的年龄(X)对生存时间(Y)的影响</p>
 <ul>
-<li><p>患者A：60岁，生存5年后死亡，生存时间的确切数据是5年。</p></li>
-<li><p>患者B：50岁，研究结束时（第6年）还活着，生存时间的数据是“至少6年”。</p></li>
-<li><p>患者C：65岁，中途退出了研究，退出研究时（第3年）还活着，生存时间的数据是“至少3年”。</p></li>
+<li><p>患者A：患者A：60岁，生存5年后死亡，生存时间为5年。</p></li>
+<li><p>患者B：50岁，研究结束时(第6年)还活着，生存时间的数据是“至少6年”。</p></li>
+<li><p>患者C：65岁，中途退出了研究，退出研究时(第3年)还活着，生存时间的数据是“至少3年”。</p></li>
 </ul>
 </section>
 <section class="slide level2">
 
 <h3 id="为什么不能用线性回归">为什么不能用线性回归？</h3>
 <ul>
-<li><p>线性回归：对于右删失的个案B，没有确切的生存时间，若记录为6，那将低估真实的生存时间</p></li>
-<li><p>线性回归要求每个样本的因变量（比如“生存时间”）都是真实观测到的，</p></li>
+<li><p>线性回归要求因变量(如生存时间)为确切观测值，但右删失数据仅提供‘至少某值’，将其作为真实值会导致生存时间低估和结果偏差。</p></li>
+<li><p>线性回归要求每个样本的因变量(比如“生存时间”)都是真实观测到的，</p></li>
 <li><p>但右删失的样本，你只知道“生存时间至少为某个值”，不是确切值。</p></li>
 <li><p>如果你把删失的样本直接当作“真实值”输入，会低估实际生存时间，得到有偏的回归结果。</p></li>
 </ul>
@@ -233,7 +233,7 @@ z-index: 1000;">
 
 <h3 id="为什么不能用logistic回归">为什么不能用logistic回归？</h3>
 <ul>
-<li><p>logistic回归不考虑“时间”这个维度，只关心事件是否发生。</p></li>
+<li><p>logistic回归仅关注事件是否发生，忽略时间维度，导致无法捕捉事件的动态变化，丢失时间相关信息。</p></li>
 <li><p>忽略时间会导致信息丢失，模型无法捕捉事件的动态性。</p></li>
 </ul>
 <blockquote>
@@ -244,10 +244,10 @@ z-index: 1000;">
 
 <h3 id="生存分析-survival-analysis的别称">生存分析 Survival Analysis的别称</h3>
 <ul>
-<li><p>可靠性分析（Reliability analysis）</p></li>
-<li><p>持续时间分析（Duration analysis）</p></li>
-<li><p>事件历史分析（Event history analysis）</p></li>
-<li><p>时间-事件分析（Time-to-event analysis）</p></li>
+<li><p>可靠性分析(Reliability analysis)</p></li>
+<li><p>持续时间分析(Duration analysis)</p></li>
+<li><p>事件历史分析(Event history analysis)</p></li>
+<li><p>时间-事件分析(Time-to-event analysis)</p></li>
 </ul>
 </section>
 <section class="slide level2">
@@ -262,8 +262,8 @@ z-index: 1000;">
 <thead>
 <tr class="header">
 <th>应用场景</th>
-<th>事件（Event）</th>
-<th>时间（Time）</th>
+<th>事件(Event)</th>
+<th>时间(Time)</th>
 </tr>
 </thead>
 <tbody>
@@ -280,7 +280,7 @@ z-index: 1000;">
 <tr class="odd">
 <td>邮件投递</td>
 <td>邮件成功送达</td>
-<td>从寄出（或邮局接收）到信件被成功投递所经历的时间</td>
+<td>从寄出(或邮局接收)到信件被成功投递所经历的时间</td>
 </tr>
 <tr class="even">
 <td>急救响应</td>
@@ -292,12 +292,12 @@ z-index: 1000;">
 </section>
 <section id="生存分析的优势" class="slide level2">
 <h2>1.2 生存分析的优势</h2>
-<p>生存分析能在考虑事件发生时间的同时，处理删失数据，从而更精确地反映事件动态过程。</p>
-<p>生存分析可以回答</p>
+<p>生存分析能同时考虑事件发生时间和处理删失数据，精确反映事件的动态过程。</p>
+<p>生存分析</p>
 <ul>
-<li><p>哪个治疗组“更长时间未出现事件”？</p></li>
-<li><p>中位生存时间是多少？</p></li>
-<li><p>某因素是否加快/延迟事件的发生时间？</p></li>
+<li><p>比较不同治疗组事件发生的时间长短。</p></li>
+<li><p>估计中位生存时间。</p></li>
+<li><p>分析某因素对事件发生时间的加速或延迟效应。</p></li>
 </ul>
 </section>
 <section id="生存分析的核心术语" class="slide level2">
@@ -306,7 +306,7 @@ z-index: 1000;">
 <li><p>生存时间 Survival Time</p></li>
 <li><p>删失数据 Censoring Data</p></li>
 <li><p>生存函数 Survival Function, S(t)</p></li>
-<li><p>累积分布函数（Cumulative Distribution Function, F(t)）</p></li>
+<li><p>累积分布函数(Cumulative Distribution Function, F(t))</p></li>
 <li><p>风险函数 Hazard Function, h(t)</p></li>
 </ul>
 </section>
@@ -317,14 +317,14 @@ z-index: 1000;">
 <li><p>定义：从一个明确起点到特定事件发生的时间长度。事件可以是死亡、故障、复发等任何感兴趣的结果。</p></li>
 <li><p>举例</p>
 <ul>
-<li><p>癌症患者从确诊开始到去世的天数</p></li>
+<li><p>癌症患者从确诊开始到死亡的天数</p></li>
 <li><p>一台机器从启动到第一次故障的小时数</p></li>
 </ul></li>
 </ul>
 </section>
 <section class="slide level2">
 
-<h3 id="删失数据-censoring-data">删失数据 Censoring Data</h3>
+<h3 id="删失数据-censoring-data">删失数据 (Censoring Data)</h3>
 <ul>
 <li><p>定义：由于观察限制，我们无法知道事件确切发生时间的样本。即只知道事件“至少”发生了多久，比如研究结束时事件还没发生。</p></li>
 <li><p>举例</p>
@@ -338,12 +338,12 @@ z-index: 1000;">
 
 <h3 id="生存函数-survival-function-st">生存函数 Survival Function, S(t)</h3>
 <ul>
-<li>记作 <span class="math inline">\(S(t)\)</span>，表示“到时间 <span class="math inline">\(t\)</span> 时，事件尚未发生的概率” 。</li>
+<li>生存函数 <span class="math inline">\(S(t)\)</span> 表示在时间 <span class="math inline">\(t\)</span> 后事件仍未发生的概率，即 <span class="math inline">\(P(T &gt; t)\)</span>。 。</li>
 <li>数学定义： <span class="math display">\[
 S(t) = P(T &gt; t)
 \]</span>
 <ul>
-<li><p><span class="math inline">\(T\)</span>：随机变量，表示生存时间（或到事件发生的时间）</p></li>
+<li><p><span class="math inline">\(T\)</span>：随机变量，表示生存时间(或到事件发生的时间)</p></li>
 <li><p><span class="math inline">\(t\)</span>：某一具体时间点</p>
 <ul>
 <li><p>定义：表示在某个时间<span class="math inline">\(t\)</span>之后，事件仍未发生的概率。它回答“有多大概率能‘存活’到某个时间点”。</p></li>
@@ -356,12 +356,12 @@ S(t) = P(T &gt; t)
 </section>
 <section class="slide level2">
 
-<h3 id="生存时间的累积分布函数cumulative-distribution-function-ft">生存时间的累积分布函数（Cumulative Distribution Function, F(t)）</h3>
+<h3 id="生存时间的累积分布函数cumulative-distribution-function-ft">生存时间的累积分布函数(Cumulative Distribution Function, F(t))</h3>
 <ul>
 <li><p>定义：累积分布函数F(t)表示“生存时间小于等于t”的概率，即在时间t之前事件已经发生的概率。F(t) 与生存函数 S(t) 满足：F(t) = 1 - S(t)。</p></li>
 <li><p>举例</p>
 <ul>
-<li><p>“5年内，40%的患者已经去世。”也就是说，F(5) = 0.4。</p></li>
+<li><p>“5年内，40%的患者已经死亡。”也就是说，F(5) = 0.4。</p></li>
 <li><p>某产品出厂后一年内有10%已经发生故障，F(1)=0.1。</p></li>
 </ul></li>
 </ul>
@@ -373,7 +373,7 @@ S(t) = P(T &gt; t)
 
 <h3 id="风险函数-hazard-function-ht">风险函数 Hazard Function, h(t)</h3>
 <ul>
-<li><p>记作 <span class="math inline">\(h(t)\)</span>，表示“已经生存到时间 <span class="math inline">\(t\)</span>，在接下来极短时间内发生事件的瞬时速率”。</p></li>
+<li><p>风险函数 <span class="math inline">\(h(t)\)</span> 表示在时间 <span class="math inline">\(t\)</span> 仍未发生事件的条件下，事件在下一瞬间发生的条件概率速率。</p></li>
 <li><p>数学定义： <span class="math display">\[
 h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T &lt; t+\Delta t \mid T \geq t)}{\Delta t}
 \]</span></p>
@@ -401,7 +401,7 @@ h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T &lt; t+\Delta t \mid T \geq t)}{\D
 <tbody>
 <tr class="odd">
 <td><span class="math inline">\(T\)</span></td>
-<td>生存时间（随机变量）</td>
+<td>生存时间(随机变量)</td>
 </tr>
 <tr class="even">
 <td><span class="math inline">\(t\)</span></td>
@@ -439,11 +439,16 @@ h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T &lt; t+\Delta t \mid T \geq t)}{\D
    \]</span></p>
 <p>Step 2: 风险函数 <span class="math inline">\(h(t)\)</span> 的定义式： <span class="math display">\[
 h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T &lt; t+\Delta t \mid T \geq t)}{\Delta t} = \frac{ \frac {P(t \leq T &lt; t+\Delta t)}{P(T \geq t)}}{\Delta t}=\frac{ \frac {f(t)\Delta t}{S(t)}}{\Delta t} = \frac{f(t)}{S(t)}
-\]</span> Step 3:结合上面两式：</p>
-<p><span class="math display">\[
-   h(t) = \frac{f(t)}{S(t)} = \frac{ -\frac{dS(t)}{dt} }{ S(t) } = -\frac{d}{dt} \log S(t)
-   \]</span></p></li>
+\]</span></p></li>
 </ul>
+</section>
+<section class="slide level2">
+
+<p>Step 3:结合上面两式：</p>
+<pre><code> $$
+ h(t) = \frac{f(t)}{S(t)} = \frac{ -\frac{dS(t)}{dt} }{ S(t) } = -\frac{d}{dt} \log S(t)
+ $$
+ </code></pre>
 </section>
 <section class="slide level2">
 
@@ -467,7 +472,7 @@ h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T &lt; t+\Delta t \mid T \geq t)}{\D
 S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 \]</span></p>
 <ul>
-<li><span class="math inline">\(\int_0^t h(u) du\)</span> 被称为“累计风险函数”（cumulative hazard function），记作 <span class="math inline">\(H(t)\)</span>。</li>
+<li><span class="math inline">\(\int_0^t h(u) du\)</span> 被称为“累计风险函数”(cumulative hazard function)，记作 <span class="math inline">\(H(t)\)</span>。</li>
 <li>即 <span class="math inline">\(S(t) = \exp(-H(t))\)</span></li>
 </ul></li>
 </ul>
@@ -490,8 +495,8 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 <h2>生存函数图像特征</h2>
 <ul>
 <li><span class="math inline">\(S(t)\)</span> 随时间递减，<span class="math inline">\(h(t)\)</span> 描述何时“递减得快”。</li>
-<li>若 <span class="math inline">\(h(t)\)</span> 恒定（如指数分布），<span class="math inline">\(S(t)\)</span> 是指数函数。</li>
-<li>若 <span class="math inline">\(h(t)\)</span> 随时间变化（如Weibull分布），<span class="math inline">\(S(t)\)</span> 递减速率随时间变化。</li>
+<li>若 <span class="math inline">\(h(t)\)</span> 恒定(如指数分布)，<span class="math inline">\(S(t)\)</span> 是指数函数。</li>
+<li>若 <span class="math inline">\(h(t)\)</span> 随时间变化(如Weibull分布)，<span class="math inline">\(S(t)\)</span> 递减速率随时间变化。</li>
 </ul>
 </section>
 <section id="生存分析方法" class="slide level2">
@@ -514,10 +519,10 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 </section>
 <section class="slide level2">
 
-<h3 id="非参数模型nonparametric-models">非参数模型（Nonparametric Models）</h3>
-<p>非参数方法<strong>不对生存时间分布做特定假设</strong>，完全基于观察数据构造估计。</p>
+<h3 id="非参数模型nonparametric-models">非参数模型(Nonparametric Models)</h3>
+<p>非参数模型不假设生存时间分布，完全基于观测数据估计生存函数或风险函数。</p>
 <ul>
-<li><p>Kaplan-Meier法（KM）</p>
+<li><p>Kaplan-Meier法(KM)</p>
 <ul>
 <li>适用于右删失数据，逐步估计生存函数</li>
 <li>每个事件时点重新计算生存概率</li>
@@ -525,27 +530,27 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 </ul></li>
 <li><p>Nelson-Aalen法</p>
 <ul>
-<li><p>用于估计累积风险函数（cumulative hazard）</p></li>
+<li><p>用于估计累积风险函数(cumulative hazard)</p></li>
 <li><p>与Kaplan-Meier方法互为补充</p></li>
 </ul></li>
-<li><p>Life Table法（寿命表法）</p>
+<li><p>Life Table法(寿命表法)</p>
 <ul>
 <li>将时间划分为等距区间</li>
 <li>在每一时间段内估计死亡概率、生存概率</li>
-<li>常用于大样本或行政登记数据（如人口、保险）</li>
+<li>常用于大样本或行政登记数据(如人口、保险)</li>
 </ul></li>
 </ul>
 </section>
 <section class="slide level2">
 
-<h3 id="半参数模型semi-parametric-models">半参数模型（Semi-parametric Models）</h3>
+<h3 id="半参数模型semi-parametric-models">半参数模型(Semi-parametric Models)</h3>
 <ul>
-<li><p>Cox比例风险模型（Cox Proportional Hazards Model）</p>
+<li><p>Cox比例风险模型(Cox Proportional Hazards Model)</p>
 <ul>
 <li>最常用的回归模型</li>
-<li>假设不同个体间的风险比（hazard ratio）恒定</li>
-<li>不对基线风险函数作分布假设（非参数处理）</li>
-<li>适合解释协变量与风险之间的相对关系</li>
+<li>假设不同个体间的风险比(hazard ratio)恒定</li>
+<li>不对基线风险函数作分布假设</li>
+<li>适用于分析协变量如何影响事件发生风险的比例关系</li>
 </ul></li>
 <li><p>优点</p>
 <ul>
@@ -560,10 +565,10 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 </section>
 <section class="slide level2">
 
-<h3 id="参数模型parametric-models">参数模型（Parametric Models）</h3>
+<h3 id="参数模型parametric-models">参数模型(Parametric Models)</h3>
 <p>参数模型对生存时间作出<strong>明确的分布假设</strong>，如指数分布、Weibull分布、对数正态分布等。</p>
 <ul>
-<li><p>加速失效时间模型（Accelerated Failure Time, AFT）</p>
+<li><p>加速失效时间模型(Accelerated Failure Time, AFT)</p>
 <ul>
 <li>假设协变量通过<strong>加速或减缓失效进程</strong>来影响生存时间</li>
 <li>模型形式为：对数生存时间 = 线性组合 + 误差项</li>
@@ -576,18 +581,18 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 </ul></li>
 <li><p>常见分布</p>
 <ul>
-<li>Weibull（韦布尔）</li>
-<li>Log-logistic（对数逻辑斯蒂）</li>
-<li>Log-normal（对数正态）</li>
+<li>Weibull(韦布尔)</li>
+<li>Log-logistic(对数逻辑斯蒂)</li>
+<li>Log-normal(对数正态)</li>
 </ul></li>
 </ul>
 <p>–</p>
-<h3 id="机器学习模型machine-learning-models">机器学习模型（Machine Learning Models）</h3>
+<h3 id="机器学习模型machine-learning-models">机器学习模型(Machine Learning Models)</h3>
 <ul>
-<li><p>生存随机森林（Random Survival Forests）</p></li>
-<li><p>支持向量生存模型（Survival SVM）</p></li>
-<li><p>神经网络方法（如 DeepSurv）</p></li>
-<li><p>Boosting算法（如 CoxBoost, GBM-Surv）</p></li>
+<li><p>生存随机森林(Random Survival Forests)</p></li>
+<li><p>Boosting算法(GBM-Survival)</p></li>
+<li><p>支持向量生存模型(Survival SVM)</p></li>
+<li><p>神经网络方法(如基于深度神经网络的生存分析模型 DeepSurv)</p></li>
 </ul>
 </section>
 <section class="slide level2">
@@ -636,23 +641,24 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 </tbody>
 </table>
 </section>
-<section id="为什么用r-实现生存分析" class="slide level2">
-<h2>1.5 为什么用R 实现生存分析？</h2>
+<section id="为什么用r进行生存分析" class="slide level2">
+<h2>1.5 为什么用R进行生存分析？</h2>
 <ul>
-<li><p>模型灵活、学术前沿接轨</p></li>
-<li><p>包丰富、兼容性强</p></li>
-<li><p>可视化：科学性与美学并重，图形质量适合投稿</p></li>
+<li><p>支持多样化模型，与学术前沿同步</p></li>
+<li><p>功能强大的包</p></li>
+<li><p>满足学术出版标准，图形可直接用于SCI期刊投稿</p></li>
 <li><p>代码的可重复性</p></li>
+<li><p>支持与Python、SAS、Stata等软件的数据格式兼容，可读写CSV、Excel、SPSS、SQL等多种格式文件</p></li>
 </ul>
 </section>
 <section id="模型灵活接轨学术前沿" class="slide level2">
 <h2>✅ 模型灵活、接轨学术前沿</h2>
 <ul>
-<li>非参数模型（如 Kaplan-Meier、Nelson-Aalen）；</li>
-<li>半参数模型（Cox 回归、Stratified Cox、Time-dependent Cox）；</li>
-<li>参数模型（Weibull、Exponential、Log-normal 等）；</li>
-<li>加速失效时间模型（AFT）；</li>
-<li>机器学习与深度学习方法（如随机生存森林、DeepSurv）；</li>
+<li>非参数模型(如 Kaplan-Meier、Nelson-Aalen)；</li>
+<li>半参数模型(Cox 回归、Stratified Cox、Time-dependent Cox)；</li>
+<li>参数模型(Weibull、Exponential、Log-normal 等)；</li>
+<li>加速失效时间模型(AFT)；</li>
+<li>机器学习与深度学习方法(如随机生存森林、DeepSurv)；</li>
 <li>支持删失数据、竞争风险、多状态模型、复发事件等复杂结构。</li>
 </ul>
 </section>
@@ -671,19 +677,19 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 </section>
 <section id="可视化科学性与美学并重" class="slide level2">
 <h2>✅ 可视化：科学性与美学并重</h2>
-<p>R 的图形系统（尤其是 <code>ggplot2</code> 与 <code>survminer</code>）能兼顾：</p>
+<p>R 的图形系统(尤其是 <code>ggplot2</code> 与 <code>survminer</code>)能兼顾：</p>
 <ul>
-<li><strong>科学严谨性</strong>：提供风险表（risk table）、置信区间、删失符号、分层比较、调整协变量；</li>
+<li><strong>科学严谨性</strong>：提供风险表(risk table)、置信区间、删失符号、分层比较、调整协变量；</li>
 <li><strong>审美专业性</strong>：高分辨率输出、分面展示、支持 LaTeX 数学符号、主题统一；</li>
 <li><strong>投稿级品质</strong>：图形可直接用于 SCI 期刊投稿，无需再由图形编辑软件二次加工。</li>
 </ul>
 <p>常见输出格式包括 PDF、PNG、SVG、EPS，广泛支持矢量图形与学术出版标准。</p>
 </section>
 <section id="代码的可重复性reproducibility" class="slide level2">
-<h2>✅ 代码的可重复性（Reproducibility）</h2>
+<h2>✅ 代码的可重复性(Reproducibility)</h2>
 <ul>
 <li>支持 R Markdown、Quarto 等文档系统，将文本、公式、代码与图表融合；</li>
-<li>支持版本控制（Git）、自动更新、参数化分析；</li>
+<li>支持版本控制(Git)、自动更新、参数化分析；</li>
 <li>每一步分析都可追溯，保证数据处理和建模过程的透明性；</li>
 <li>与 <code>renv</code>、<code>packrat</code> 等工具协同，确保包版本一致性，适用于课题组协作、期刊审稿再现和同行验证。</li>
 </ul>
@@ -703,12 +709,12 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
 </thead>
 <tbody>
 <tr class="odd">
-<td>生存时间（T）</td>
+<td>生存时间(T)</td>
 <td>个体从起点到目标事件发生所经历的时间</td>
 </tr>
 <tr class="even">
-<td>删失（Censoring）</td>
-<td>个体在研究期间未发生事件</td>
+<td>删失(Censoring)</td>
+<td>由于观察限制，事件发生时间未知的样本</td>
 </tr>
 <tr class="odd">
 <td>生存函数 S(t)</td>
@@ -730,7 +736,7 @@ S(t) = \exp\left(-\int_0^t h(u)\,du\right)
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-<p><a href="https://lizongzhang.github.io/survival" class="uri">https://lizongzhang.github.io/survival</a><br>© 2025 2025 医咖会 Li Zongzhang</p>
+<p><a href="https://lizongzhang.github.io/survival" class="uri">https://lizongzhang.github.io/survival</a><br>© 2025 医咖会 Li Zongzhang</p>
 </div>
 </div></div>
 
