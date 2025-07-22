@@ -27,15 +27,6 @@ about:
 
 :::
 
-
-:::{#ppc style="color:#044875"}
-
-## 数据文件下载
-
-
-<a href="https://github.com/lizongzhang/deepseekcamp/raw/main/stroke.xlsx" download="stroke.xlsx">点击下载数据文件: stroke.xlsx</a>
-
-:::
 ---
 
 <div style="text-align: center; margin-top: 1em;">
